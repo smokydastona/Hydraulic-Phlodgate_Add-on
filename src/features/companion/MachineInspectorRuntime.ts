@@ -4,6 +4,7 @@
 import { Block, BlockInventoryComponent, Player } from "@minecraft/server";
 import {
   createInspectionSnapshot,
+  MachineGaugeInfo,
   MachineInspectionData,
   MachineSlotInfo,
 } from "./MachineInspector";
@@ -18,6 +19,7 @@ export function inspectBlock(block: Block): MachineInspectionData {
 
   const slots: MachineSlotInfo[] = [];
   const customName: string | undefined = undefined;
+  const gauges: MachineGaugeInfo[] = [];
 
   try {
     const inventory = block.getComponent("minecraft:inventory") as BlockInventoryComponent | undefined;
@@ -46,10 +48,31 @@ export function inspectBlock(block: Block): MachineInspectionData {
     // Some modded blocks or non-container blocks may throw or lack containers
   }
 
+  try {
+    const dynamicPropIds = block.getDynamicPropertyIds?.() ?? [];
+    for (const propId of dynamicPropIds) {
+      const val = block.getDynamicProperty(propId);
+      if (typeof val === "number") {
+        const isEnergy = propId.toLowerCase().includes("energy") || propId.toLowerCase().includes("power");
+        const isFluid = propId.toLowerCase().includes("fluid") || propId.toLowerCase().includes("tank");
+        const isHeat = propId.toLowerCase().includes("heat") || propId.toLowerCase().includes("temp");
+        gauges.push({
+          label: propId,
+          type: isEnergy ? "energy" : isFluid ? "fluid" : isHeat ? "heat" : "progress",
+          currentValue: val,
+          maxValue: isEnergy ? 10000 : isFluid ? 4000 : 100,
+          unit: isEnergy ? "FE" : isFluid ? "mB" : isHeat ? "°C" : "ticks",
+        });
+      }
+    }
+  } catch {
+  }
+
   return createInspectionSnapshot({
     blockTypeId,
     location: { x: loc.x, y: loc.y, z: loc.z, dimensionId },
     slots,
+    gauges,
     customName,
   });
 }

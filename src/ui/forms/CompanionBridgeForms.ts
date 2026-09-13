@@ -65,24 +65,48 @@ export async function openMachineInspectionForm(player: Player): Promise<void> {
   if (!inspection) {
     await new MessageFormData()
       .title("Machine Inspection")
-      .body("No valid block found in your immediate line of sight (within 7 blocks). Look directly at a machine or container and try again.")
-      .button1("OK")
+      .body("No valid block found in your immediate line of sight (within 7 blocks).\n\n§7Touch / Point directly at a machine block and try again.§r")
+      .button1("Retry")
       .button2("Close")
-      .show(player);
+      .show(player)
+      .then(async (res) => {
+        if (res.selection === 0) {
+          await openMachineInspectionForm(player);
+        }
+      });
     return;
   }
 
-  await new MessageFormData()
+  const form = new ActionFormData()
     .title(`Inspect: ${inspection.blockTypeId}`)
     .body(inspection.summaryText)
-    .button1("Inspect Another")
-    .button2("Close")
-    .show(player)
-    .then(async (res) => {
-      if (res.selection === 0) {
+    .button("↻ Refresh Live Metrics")
+    .button("🔍 Inspect Target in Crosshair")
+    .button("⚙ Companion Settings")
+    .button("✕ Close");
+
+  try {
+    const res = await form.show(player);
+    if (res.canceled || res.selection === undefined) return;
+
+    switch (res.selection) {
+      case 0:
+        // Refresh live state
         await openMachineInspectionForm(player);
-      }
-    });
+        break;
+      case 1:
+        // Re-inspect target
+        await openMachineInspectionForm(player);
+        break;
+      case 2:
+        await openCompanionModeConfigForm(player);
+        break;
+      case 3:
+        break;
+    }
+  } catch (err) {
+    log(`Machine inspection form failed: ${String(err)}`);
+  }
 }
 
 export async function openCompanionModeConfigForm(player: Player): Promise<void> {
