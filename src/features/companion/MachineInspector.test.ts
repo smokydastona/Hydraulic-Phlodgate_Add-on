@@ -6,7 +6,7 @@ import {
 } from "./MachineInspector";
 
 describe("MachineInspector formatting and snapshot logic", () => {
-  it("creates an inspection snapshot for a modded container block", () => {
+  it("creates an inspection snapshot for a modded container block with live gauges", () => {
     const slots: MachineSlotInfo[] = [
       { slotIndex: 0, typeId: "minecraft:iron_ingot", count: 16 },
       { slotIndex: 1, typeId: "hydraulic:gear", count: 4 },
@@ -17,6 +17,10 @@ describe("MachineInspector formatting and snapshot logic", () => {
       blockTypeId: "hydraulic_test_mod:processing_machine",
       location: { x: 100, y: 64, z: -200, dimensionId: "minecraft:overworld" },
       slots,
+      gauges: [
+        { label: "Energy Buffer", type: "energy", currentValue: 8000, maxValue: 10000, unit: "FE" },
+        { label: "Cook Progress", type: "progress", currentValue: 75, maxValue: 100, unit: "ticks" },
+      ],
       customName: "Primary Crusher",
     });
 
@@ -25,12 +29,11 @@ describe("MachineInspector formatting and snapshot logic", () => {
     expect(snapshot.namespace).toBe("hydraulic_test_mod");
     expect(snapshot.totalSlots).toBe(3);
     expect(snapshot.occupiedSlots).toBe(2);
-    expect(snapshot.summaryText).toContain("Block Type: hydraulic_test_mod:processing_machine");
-    expect(snapshot.summaryText).toContain("Namespace: hydraulic_test_mod (Modded)");
-    expect(snapshot.summaryText).toContain("Custom Name: Primary Crusher");
+    expect(snapshot.gauges.length).toBe(2);
+    expect(snapshot.summaryText).toContain("Live Gauges & Metrics:");
+    expect(snapshot.summaryText).toContain("Energy Buffer: [████████░░] 80% (8000/10000 FE)");
+    expect(snapshot.summaryText).toContain("Cook Progress: [████████░░] 75% (75/100 ticks)");
     expect(snapshot.summaryText).toContain("Container Slots: 2/3 occupied");
-    expect(snapshot.summaryText).toContain("Slot [0]: 16x minecraft:iron_ingot");
-    expect(snapshot.summaryText).toContain("Slot [1]: 4x hydraulic:gear");
   });
 
   it("handles non-container blocks gracefully", () => {

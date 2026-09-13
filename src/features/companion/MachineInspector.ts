@@ -12,6 +12,16 @@ export interface MachineSlotInfo {
   nameTag?: string;
 }
 
+export type GaugeType = "progress" | "energy" | "fluid" | "heat" | "custom";
+
+export interface MachineGaugeInfo {
+  label: string;
+  type: GaugeType;
+  currentValue: number;
+  maxValue: number;
+  unit?: string;
+}
+
 export interface MachineInspectionData {
   blockTypeId: string;
   location: { x: number; y: number; z: number; dimensionId: string };
@@ -21,6 +31,7 @@ export interface MachineInspectionData {
   totalSlots: number;
   occupiedSlots: number;
   slots: MachineSlotInfo[];
+  gauges: MachineGaugeInfo[];
   summaryText: string;
 }
 
@@ -28,12 +39,14 @@ export function createInspectionSnapshot(input: {
   blockTypeId: string;
   location: { x: number; y: number; z: number; dimensionId: string };
   slots: MachineSlotInfo[];
+  gauges?: MachineGaugeInfo[];
   customName?: string;
 }): MachineInspectionData {
   const ns = extractNamespace(input.blockTypeId);
   const isModded = isModdedNamespace(ns);
   const totalSlots = input.slots.length;
   const occupiedSlots = input.slots.filter((s) => s.count > 0).length;
+  const gauges = input.gauges ?? [];
 
   const summary = formatInspectionSummary({
     blockTypeId: input.blockTypeId,
@@ -44,6 +57,7 @@ export function createInspectionSnapshot(input: {
     totalSlots,
     occupiedSlots,
     slots: input.slots,
+    gauges,
   });
 
   return {
@@ -55,13 +69,24 @@ export function createInspectionSnapshot(input: {
     totalSlots,
     occupiedSlots,
     slots: input.slots,
+    gauges,
     summaryText: summary,
   };
 }
 
+export function renderGaugeBar(current: number, max: number, length = 10): string {
+  if (max <= 0) return "[░░░░░░░░░░] 0%";
+  const ratio = Math.max(0, Math.min(1, current / max));
+  const filled = Math.round(ratio * length);
+  const empty = length - filled;
+  const bar = "█".repeat(filled) + "░".repeat(empty);
+  const pct = Math.round(ratio * 100);
+  return `[${bar}] ${pct}%`;
+}
+
 export function formatInspectionSummary(data: Omit<MachineInspectionData, "summaryText">): string {
   const lines: string[] = [];
-  lines.push(`=== Block Inspection ===`);
+  lines.push(`=== Block & Machine Inspection ===`);
   lines.push(`Block Type: ${data.blockTypeId}`);
   lines.push(`Namespace: ${data.namespace}${data.isModded ? " (Modded)" : " (Vanilla)"}`);
   if (data.customName) {
@@ -71,6 +96,17 @@ export function formatInspectionSummary(data: Omit<MachineInspectionData, "summa
     `Coordinates: X=${Math.floor(data.location.x)} Y=${Math.floor(data.location.y)} Z=${Math.floor(data.location.z)} (${data.location.dimensionId})`
   );
 
+  if (data.gauges && data.gauges.length > 0) {
+    lines.push("");
+    lines.push("Live Gauges & Metrics:");
+    for (const gauge of data.gauges) {
+      const unitPart = gauge.unit ? ` ${gauge.unit}` : "";
+      const bar = renderGaugeBar(gauge.currentValue, gauge.maxValue);
+      lines.push(`  • ${gauge.label}: ${bar} (${gauge.currentValue}/${gauge.maxValue}${unitPart})`);
+    }
+  }
+
+  lines.push("");
   if (data.totalSlots > 0) {
     lines.push(`Container Slots: ${data.occupiedSlots}/${data.totalSlots} occupied`);
     const occupied = data.slots.filter((s) => s.count > 0);
