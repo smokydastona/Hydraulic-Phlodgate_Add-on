@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+*.mcaddon
+*.mcpack
+.vitest-cache/
+BP/scripts/
+*.log

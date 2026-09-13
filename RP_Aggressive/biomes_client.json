@@ -1,0 +1,6 @@
+{
+  "format_version": "1.16.100",
+  "biomes": {
+    "*": { "fog_identifier": "phlodgate:aggressive_fog" }
+  }
+}

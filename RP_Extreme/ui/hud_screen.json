@@ -1,0 +1,20 @@
+{
+  "namespace": "hud",
+
+  "hud_actionbar_text": {
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "offset": [12, 12],
+    "alpha": 1,
+    "$phlodgate_atext": "$actionbar_text",
+    "visible": "(not ($phlodgate_atext = ''))"
+  },
+
+  "hud_actionbar_text/actionbar_message": {
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "offset": [8, 6],
+    "text_alignment": "left",
+    "alpha": 1
+  }
+}

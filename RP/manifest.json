@@ -1,0 +1,21 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Phlodgate Add-On (Balanced Visuals)",
+    "description": "Default resource pack: HUD/UI text bindings and vanilla-preserving visual baseline for the Phlodgate Add-On.",
+    "uuid": "209ae00b-68e5-47f6-bd66-3d642f6ec0db",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 80]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "2c833224-d313-40af-add4-d1fcaa3e7f2b",
+      "version": [1, 0, 0]
+    }
+  ],
+  "metadata": {
+    "authors": ["Phlodgate Add-On Team"],
+    "license": "All Rights Reserved"
+  }
+}
