@@ -5,7 +5,7 @@
  * for modded machines, displaying real-time gauge metrics (energy, progress, fluid levels)
  * directly above target block coordinates.
  */
-import { MachineGaugeInfo, MachineInspectionData, renderGaugeBar } from "./MachineInspector";
+import { MachineInspectionData, renderGaugeBar } from "./MachineInspector";
 
 export interface HolographicDisplayTag {
   tagId: string;

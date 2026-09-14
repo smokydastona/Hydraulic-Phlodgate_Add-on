@@ -4,6 +4,7 @@
 import { ActionFormData, MessageFormData, ModalFormData } from "@minecraft/server-ui";
 import { Player } from "@minecraft/server";
 import { getCurrentCompanionStatus } from "../../features/companion/CompanionDetector";
+import { formatPaginatedInspectionSummary } from "../../features/companion/MachineInspector";
 import { inspectPlayerTargetBlock } from "../../features/companion/MachineInspectorRuntime";
 import { getPlayerSettings, getWorldSettings, updatePlayerSettings, updateWorldSettings } from "../../settings/SettingsStore";
 import { isOperator } from "../../settings/Permissions";
@@ -134,7 +135,7 @@ export async function openMachineInspectionForm(player: Player, page = 1, filter
 
     if (res.selection === index++) {
       // Search
-      await openSearchFilterModal(player, inspection, currentPage);
+      await openSearchFilterModal(player);
       return;
     }
 
@@ -154,7 +155,7 @@ export async function openMachineInspectionForm(player: Player, page = 1, filter
   }
 }
 
-async function openSearchFilterModal(player: Player, inspection: any, page: number): Promise<void> {
+async function openSearchFilterModal(player: Player): Promise<void> {
   const modal = new ModalFormData()
     .title("Search / Filter Container Items")
     .textField("Item Name / Namespace Substring", "e.g. iron, gear, ingot", { defaultValue: "" });

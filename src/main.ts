@@ -1,5 +1,5 @@
 import { EntityInventoryComponent, ItemStack, Player, world } from "@minecraft/server";
-import { openCompanionBridgeMenu, openMachineInspectionForm } from "./ui/forms/CompanionBridgeForms";
+import { openMachineInspectionForm } from "./ui/forms/CompanionBridgeForms";
 import { openHydraulicControlRoom } from "./ui/HydraulicControlRoom";
 import { openFieldMapMenu } from "./ui/forms/MinimapForms";
 import { startHudManager } from "./ui/HudManager";
@@ -51,9 +51,10 @@ world.afterEvents.itemUse.subscribe((event) => {
   }
 });
 
-world.afterEvents.itemUseOn.subscribe((event) => {
-  if (event.itemStack.typeId === CONTROL_ROOM_ITEM) {
-    void openMachineInspectionForm(event.source);
+world.afterEvents.playerInteractWithBlock.subscribe((event) => {
+  if (!event.isFirstEvent) return;
+  if (event.beforeItemStack?.typeId === CONTROL_ROOM_ITEM) {
+    void openMachineInspectionForm(event.player);
   }
 });
 

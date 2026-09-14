@@ -49,9 +49,14 @@ export function inspectBlock(block: Block): MachineInspectionData {
   }
 
   try {
-    const dynamicPropIds = block.getDynamicPropertyIds?.() ?? [];
+    // Block dynamic properties are not in the typed API surface but may exist at runtime on modded blocks.
+    const dynamicHost = block as unknown as {
+      getDynamicPropertyIds?: () => string[];
+      getDynamicProperty?: (id: string) => unknown;
+    };
+    const dynamicPropIds = dynamicHost.getDynamicPropertyIds?.() ?? [];
     for (const propId of dynamicPropIds) {
-      const val = block.getDynamicProperty(propId);
+      const val = dynamicHost.getDynamicProperty?.(propId);
       if (typeof val === "number") {
         const isEnergy = propId.toLowerCase().includes("energy") || propId.toLowerCase().includes("power");
         const isFluid = propId.toLowerCase().includes("fluid") || propId.toLowerCase().includes("tank");
