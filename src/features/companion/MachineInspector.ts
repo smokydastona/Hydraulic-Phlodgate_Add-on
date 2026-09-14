@@ -84,7 +84,49 @@ export function renderGaugeBar(current: number, max: number, length = 10): strin
   return `[${bar}] ${pct}%`;
 }
 
-export function formatInspectionSummary(data: Omit<MachineInspectionData, "summaryText">): string {
+export interface PaginatedSlotsResult {
+  pageSlots: MachineSlotInfo[];
+  totalFilteredSlots: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
+
+export function filterSlots(slots: MachineSlotInfo[], filterQuery?: string): MachineSlotInfo[] {
+  if (!filterQuery || filterQuery.trim().length === 0) {
+    return slots;
+  }
+  const q = filterQuery.trim().toLowerCase();
+  return slots.filter((slot) => {
+    if (slot.typeId.toLowerCase().includes(q)) return true;
+    if (slot.nameTag && slot.nameTag.toLowerCase().includes(q)) return true;
+    return false;
+  });
+}
+
+export function paginateSlots(slots: MachineSlotInfo[], page = 1, pageSize = 18, filterQuery?: string): PaginatedSlotsResult {
+  const filtered = filterSlots(slots, filterQuery);
+  const size = Math.max(1, pageSize);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / size));
+  const currentPage = Math.max(1, Math.min(totalPages, page));
+  const startIndex = (currentPage - 1) * size;
+  const pageSlots = filtered.slice(startIndex, startIndex + size);
+
+  return {
+    pageSlots,
+    totalFilteredSlots: filtered.length,
+    totalPages,
+    currentPage,
+    pageSize: size,
+  };
+}
+
+export function formatPaginatedInspectionSummary(
+  data: Omit<MachineInspectionData, "summaryText">,
+  page = 1,
+  pageSize = 18,
+  filterQuery?: string
+): string {
   const lines: string[] = [];
   lines.push(`=== Block & Machine Inspection ===`);
   lines.push(`Block Type: ${data.blockTypeId}`);
@@ -108,18 +150,27 @@ export function formatInspectionSummary(data: Omit<MachineInspectionData, "summa
 
   lines.push("");
   if (data.totalSlots > 0) {
-    lines.push(`Container Slots: ${data.occupiedSlots}/${data.totalSlots} occupied`);
-    const occupied = data.slots.filter((s) => s.count > 0);
-    if (occupied.length === 0) {
+    const occupiedOnly = data.slots.filter((s) => s.count > 0);
+    if (occupiedOnly.length === 0) {
+      lines.push(`Container Slots: 0/${data.totalSlots} occupied`);
       lines.push("Status: Container is empty");
     } else {
-      lines.push("Contents:");
-      for (const slot of occupied.slice(0, 16)) {
-        const namePart = slot.nameTag ? ` ("${slot.nameTag}")` : "";
-        lines.push(`  - Slot [${slot.slotIndex}]: ${slot.count}x ${slot.typeId}${namePart}`);
+      const pagination = paginateSlots(occupiedOnly, page, pageSize, filterQuery);
+
+      lines.push(`Container Slots: ${data.occupiedSlots}/${data.totalSlots} occupied`);
+      if (filterQuery && filterQuery.trim().length > 0) {
+        lines.push(`Filter: "${filterQuery.trim()}" (${pagination.totalFilteredSlots} match(es))`);
       }
-      if (occupied.length > 16) {
-        lines.push(`  ... and ${occupied.length - 16} more occupied slot(s)`);
+      lines.push(`Page: ${pagination.currentPage}/${pagination.totalPages} (${pagination.pageSize} slots/page)`);
+
+      if (pagination.pageSlots.length === 0) {
+        lines.push("Status: No matching items on this page");
+      } else {
+        lines.push("Contents:");
+        for (const slot of pagination.pageSlots) {
+          const namePart = slot.nameTag ? ` ("${slot.nameTag}")` : "";
+          lines.push(`  - Slot [${slot.slotIndex}]: ${slot.count}x ${slot.typeId}${namePart}`);
+        }
       }
     }
   } else {
@@ -127,4 +178,8 @@ export function formatInspectionSummary(data: Omit<MachineInspectionData, "summa
   }
 
   return lines.join("\n");
+}
+
+export function formatInspectionSummary(data: Omit<MachineInspectionData, "summaryText">): string {
+  return formatPaginatedInspectionSummary(data, 1, 16);
 }

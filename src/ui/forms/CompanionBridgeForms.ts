@@ -59,7 +59,7 @@ export async function openCompanionBridgeMenu(player: Player): Promise<void> {
   }
 }
 
-export async function openMachineInspectionForm(player: Player): Promise<void> {
+export async function openMachineInspectionForm(player: Player, page = 1, filterQuery?: string): Promise<void> {
   const inspection = inspectPlayerTargetBlock(player, 7);
 
   if (!inspection) {
@@ -71,17 +71,36 @@ export async function openMachineInspectionForm(player: Player): Promise<void> {
       .show(player)
       .then(async (res) => {
         if (res.selection === 0) {
-          await openMachineInspectionForm(player);
+          await openMachineInspectionForm(player, 1, filterQuery);
         }
       });
     return;
   }
 
+  const occupiedSlots = inspection.slots.filter((s) => s.count > 0);
+  const pageSize = 12;
+  const filtered = filterQuery && filterQuery.trim().length > 0
+    ? occupiedSlots.filter((s) => s.typeId.toLowerCase().includes(filterQuery.toLowerCase()) || (s.nameTag && s.nameTag.toLowerCase().includes(filterQuery.toLowerCase())))
+    : occupiedSlots;
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.max(1, Math.min(totalPages, page));
+
+  const paginatedSummary = formatPaginatedInspectionSummary(inspection, currentPage, pageSize, filterQuery);
+
   const form = new ActionFormData()
     .title(`Inspect: ${inspection.blockTypeId}`)
-    .body(inspection.summaryText)
-    .button("↻ Refresh Live Metrics")
-    .button("🔍 Inspect Target in Crosshair")
+    .body(paginatedSummary)
+    .button("↻ Refresh Live Metrics");
+
+  if (currentPage < totalPages) {
+    form.button(`▶ Next Page (${currentPage + 1}/${totalPages})`);
+  }
+  if (currentPage > 1) {
+    form.button(`◀ Previous Page (${currentPage - 1}/${totalPages})`);
+  }
+
+  form.button("🔍 Search / Filter Items")
     .button("⚙ Companion Settings")
     .button("✕ Close");
 
@@ -89,23 +108,60 @@ export async function openMachineInspectionForm(player: Player): Promise<void> {
     const res = await form.show(player);
     if (res.canceled || res.selection === undefined) return;
 
-    switch (res.selection) {
-      case 0:
-        // Refresh live state
-        await openMachineInspectionForm(player);
-        break;
-      case 1:
-        // Re-inspect target
-        await openMachineInspectionForm(player);
-        break;
-      case 2:
-        await openCompanionModeConfigForm(player);
-        break;
-      case 3:
-        break;
+    let index = 0;
+    if (res.selection === index++) {
+      // 0: Refresh
+      await openMachineInspectionForm(player, currentPage, filterQuery);
+      return;
+    }
+
+    if (currentPage < totalPages) {
+      if (res.selection === index++) {
+        // Next page
+        await openMachineInspectionForm(player, currentPage + 1, filterQuery);
+        return;
+      }
+    }
+
+    if (currentPage > 1) {
+      if (res.selection === index++) {
+        // Prev page
+        await openMachineInspectionForm(player, currentPage - 1, filterQuery);
+        return;
+      }
+    }
+
+    if (res.selection === index++) {
+      // Search
+      await openSearchFilterModal(player, inspection, currentPage);
+      return;
+    }
+
+    if (res.selection === index++) {
+      // Companion Settings
+      await openCompanionModeConfigForm(player);
+      return;
     }
   } catch (err) {
     log(`Machine inspection form failed: ${String(err)}`);
+  }
+}
+
+async function openSearchFilterModal(player: Player, inspection: any, page: number): Promise<void> {
+  const modal = new ModalFormData()
+    .title("Search / Filter Container Items")
+    .textField("Item Name / Namespace Substring", "e.g. iron, gear, ingot", { defaultValue: "" });
+
+  try {
+    const res = await modal.show(player);
+    if (res.canceled || !res.formValues) {
+      await openMachineInspectionForm(player, 1, undefined);
+      return;
+    }
+    const query = res.formValues[0] as string;
+    await openMachineInspectionForm(player, 1, query);
+  } catch (err) {
+    log(`Search filter modal failed: ${String(err)}`);
   }
 }
 
