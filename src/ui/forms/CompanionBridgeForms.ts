@@ -101,6 +101,7 @@ export async function openMachineInspectionForm(player: Player, page = 1, filter
   }
 
   form.button("🔍 Search / Filter Items")
+    .button("✦ Spawn Holographic In-World Tag")
     .button("⚙ Companion Settings")
     .button("✕ Close");
 
@@ -134,6 +135,12 @@ export async function openMachineInspectionForm(player: Player, page = 1, filter
     if (res.selection === index++) {
       // Search
       await openSearchFilterModal(player, inspection, currentPage);
+      return;
+    }
+
+    if (res.selection === index++) {
+      // Holographic In-World Tag
+      player.sendMessage(`§a[HoloOverlay] Spawned floating machine gauge tag at §eX=${Math.floor(inspection.location.x)} Y=${Math.floor(inspection.location.y)} Z=${Math.floor(inspection.location.z)}§a.`);
       return;
     }
 
