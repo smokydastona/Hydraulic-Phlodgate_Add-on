@@ -43,3 +43,35 @@ The implementation is complete for the public Script API surface: it adds the st
 ## Security and performance notes
 
 The sampler performs bounded reads only when the Field Map is opened, never accepts user-provided paths or commands, and isolates runtime block-read failures. The cache key is dimension-scoped and position-snapped; block changes clear the cache to prevent stale terrain display. The implementation does not introduce network access, native code, secrets, or new dependencies.
+
+## HUD reference compatibility report
+
+### BedrockTools archive
+
+The archive is a LeviLamina/native C++ client project. Its useful HUD surfaces are coordinates, compass,
+armor, arrows, potions, ping, speed, reach, world time, and keystrokes. Its implementation depends on
+native client classes, UI offsets, renderer hooks, and keyboard/input state, so its source cannot be
+linked into a Behavior Pack. The portable feature selected here is coordinate display: `CoordinatesMath.ts`
+provides deterministic formatting, while `CoordinatesHud.ts` reads only documented player location and
+dimension APIs. No BedrockTools source or assets were copied.
+
+### Bedrock Wiki JSON UI guidance
+
+The Wiki's `root_panel` `modifications` and namespaced-control pattern is now used by every resource
+pack variant. `phlodgate_hud_badge` is inserted with `insert_front`, is gated by `$actionbar_text`, and
+the existing actionbar control is offset below it. This is a layout enhancement only; Script API still
+has no arbitrary per-player JSON UI variable channel, so live HUD values remain one composed actionbar string.
+
+### bedrock-core/ui
+
+`@bedrock-core/ui` is MIT licensed and provides a JSX runtime, serialization protocol, hooks, forms,
+navigation, and a required decoder/render pack. It is beta software with breaking changes before 1.0.
+It was evaluated but not added as a dependency because this add-on already has stable native forms, its
+HUD surface is JSON UI/actionbar rather than a custom decoder runtime, and importing the package would
+require shipping and version-locking an additional render pack. No bedrock-core code or assets were copied.
+
+### Additional verification
+
+- `npm test`: 15 files, 109 tests passed.
+- `npm run typecheck`: passed.
+- All pack and manifest JSON files parsed successfully.

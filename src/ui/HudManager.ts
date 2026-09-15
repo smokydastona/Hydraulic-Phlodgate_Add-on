@@ -5,10 +5,11 @@ import { buildDurabilityLines } from "../features/durability/DurabilityHud";
 import { buildFoodLines } from "../features/food/FoodHud";
 import { buildCompassLines } from "../features/waypoints/CompassHud";
 import { buildMinimapLines } from "../features/minimap/MinimapHud";
+import { buildCoordinatesLines } from "../features/waypoints/CoordinatesHud";
 
 /** Combines all per-player HUD sections into a single actionbar write per tick per player so features never overwrite one another. */
 function composeHud(player: Player): string | undefined {
-  const sections = [buildMinimapLines(player), buildCompassLines(player), buildFoodLines(player), buildDurabilityLines(player)]
+  const sections = [buildMinimapLines(player), buildCompassLines(player), buildCoordinatesLines(player), buildFoodLines(player), buildDurabilityLines(player)]
     .filter((s): s is string[] => s !== undefined)
     .map((lines) => lines.join("\n"));
 

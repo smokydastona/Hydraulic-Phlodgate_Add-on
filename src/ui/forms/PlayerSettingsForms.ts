@@ -13,6 +13,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
     .toggle("Inventory search", { defaultValue: settings.inventorySearchEnabled })
     .toggle("Waypoints visible", { defaultValue: settings.waypointsVisible })
     .toggle("Compass HUD", { defaultValue: settings.compassEnabled })
+    .toggle("Coordinates HUD", { defaultValue: settings.coordinatesHudEnabled })
     .toggle("Minimap HUD (radar strip)", { defaultValue: settings.minimapEnabled })
     .slider("Minimap radius (blocks)", 32, 256, { defaultValue: settings.minimapRadius, valueStep: 8 })
     .toggle("AppleSkin-style saturation overlay", { defaultValue: settings.appleskinOverlayEnabled })
@@ -32,6 +33,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       inventorySearchEnabled,
       waypointsVisible,
       compassEnabled,
+      coordinatesHudEnabled,
       minimapEnabled,
       minimapRadius,
       appleskinOverlayEnabled,
@@ -41,6 +43,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       durabilityAlertThresholdPercent,
       hudRefreshTicks,
     ] = response.formValues as [
+      boolean,
       boolean,
       boolean,
       boolean,
@@ -62,6 +65,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       inventorySearchEnabled,
       waypointsVisible,
       compassEnabled,
+      coordinatesHudEnabled,
       minimapEnabled,
       minimapRadius,
       appleskinOverlayEnabled,

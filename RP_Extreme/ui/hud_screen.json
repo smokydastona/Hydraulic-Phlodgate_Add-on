@@ -1,10 +1,33 @@
 {
   "namespace": "hud",
 
+  "phlodgate_hud_badge": {
+    "type": "label",
+    "text": "§8PHLODGATE",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "offset": [12, 4],
+    "alpha": 1,
+    "$phlodgate_badge_text": "$actionbar_text",
+    "visible": "(not ($phlodgate_badge_text = ''))"
+  },
+
+  "root_panel": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [
+          { "phlodgate_hud_badge@hud.phlodgate_hud_badge": {} }
+        ]
+      }
+    ]
+  },
+
   "hud_actionbar_text": {
     "anchor_from": "top_left",
     "anchor_to": "top_left",
-    "offset": [12, 12],
+    "offset": [12, 18],
     "alpha": 1,
     "$phlodgate_atext": "$actionbar_text",
     "visible": "(not ($phlodgate_atext = ''))"

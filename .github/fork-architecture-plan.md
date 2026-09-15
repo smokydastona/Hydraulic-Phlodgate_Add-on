@@ -15,6 +15,8 @@ Bedrock world
     |        +--> waypoint/settings stores --> radar and HUD
     |
     +--> JSON UI resource pack --> persistent actionbar HUD
+    |        |
+    |        +--> root_panel badge --> actionbar-gated HUD identity/layout
     |
     +--> TypeScript build --> BP/scripts/main.js
 ```
@@ -28,12 +30,26 @@ Bedrock world
 5. The Field Map shows terrain plus the existing radar and waypoint actions.
 6. Pure behavior is covered by focused Vitest tests.
 
+## Implemented BedrockTools and JSON UI slice
+
+1. `CoordinatesMath.ts` formats stable XYZ and dimension output without runtime imports.
+2. `CoordinatesHud.ts` exposes coordinates through the same composed actionbar pipeline as minimap,
+    compass, food, and durability sections.
+3. Player Settings persists a `coordinatesHudEnabled` toggle with schema version 4 default merging.
+4. All resource-pack variants add a namespaced `phlodgate_hud_badge` through `root_panel` insertion,
+    using the documented actionbar visibility binding and a non-overlapping layout offset.
+5. BedrockTools native C++ hooks, keyboard state, UI offsets, and renderer code remain reference-only.
+6. `@bedrock-core/ui` remains reference-only because its decoder render pack and beta runtime are not
+    required for this add-on's current JSON UI/actionbar architecture.
+
 ## Compatibility rules
 
 - Native AmethystAPI C++ code, renderer hooks, tessellators, camera matrices, native keyboard hooks, and `LevelListener` callbacks are not dependencies of this add-on.
 - Public Script API behavior must degrade safely when a dimension or block is unavailable.
 - The add-on may use type-id classification, forms, actionbar text, JSON UI, dynamic properties, and documented server events.
 - A native pixel map, exact Atlas map colors, or physical-client rendering cannot be claimed without runtime evidence.
+- A JSX decoder runtime, arbitrary JSON UI data channel, or native keyboard hook cannot be claimed from
+    the current Script API/resource-pack boundary.
 
 ## Release gates
 
@@ -43,6 +59,7 @@ Bedrock world
 - Pack manifests and generated script are inspected before release.
 - A real Bedrock client verifies Field Map opening, terrain display, waypoint display, cache refresh after block edits, and all existing HUD controls.
 - Security review confirms no new network, command, native, or secret surfaces.
+- JSON UI parses successfully for every pack variant and manifest.
 
 ## Next prioritized work
 
@@ -50,3 +67,5 @@ Bedrock world
 2. Measure Field Map open latency on low-end devices and reduce sampling dimensions if needed.
 3. Add an explicit terrain-display setting only if user testing shows the extra grid is too dense.
 4. Keep native Atlas renderer integration as a separate AmethystAPI fork, not as behavior-pack source.
+5. Keep BedrockTools and bedrock-core/ui as documented reference sources unless the add-on deliberately
+    adopts their separate native/runtime distribution model.

@@ -6,6 +6,7 @@ export interface PlayerSettings {
   inventorySearchEnabled: boolean;
   waypointsVisible: boolean;
   compassEnabled: boolean;
+  coordinatesHudEnabled: boolean;
   minimapEnabled: boolean;
   minimapRadius: number;
   foodPreviewEnabled: boolean;
@@ -23,6 +24,7 @@ export const DEFAULT_PLAYER_SETTINGS: PlayerSettings = {
   inventorySearchEnabled: true,
   waypointsVisible: true,
   compassEnabled: true,
+  coordinatesHudEnabled: true,
   minimapEnabled: true,
   minimapRadius: 128,
   foodPreviewEnabled: true,
@@ -81,7 +83,7 @@ export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
 };
 
 /** Bump this whenever the shape of PlayerSettings/WorldSettings changes, and add a migration in migratePlayerSettings/migrateWorldSettings. */
-export const SETTINGS_SCHEMA_VERSION = 3;
+export const SETTINGS_SCHEMA_VERSION = 4;
 
 export interface VersionedPayload<T> {
   schemaVersion: number;
