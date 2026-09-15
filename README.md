@@ -78,9 +78,15 @@ Instead, this add-on ships a **radar-style Minimap HUD**:
   nearby waypoints as glyphs, positioned by bearing relative to your current facing, plus a distance-sorted
   list of the nearest waypoints.
 - A **Phlodgate Field Map** item (given on spawn) that opens a full-screen form with the same radar, the
-  10 nearest waypoints with bearing arrows and distances, a one-tap "add waypoint here", a minimap HUD
-  on/off toggle, and a shortcut into the full Waypoint Manager.
+  10 nearest waypoints with bearing arrows and distances, an Atlas-inspired sampled terrain grid, a
+  one-tap "add waypoint here", a minimap HUD on/off toggle, and a shortcut into the full Waypoint Manager.
 - Configurable via Player Settings: minimap HUD on/off and radar radius (32–256 blocks).
+
+The terrain grid is a bounded Script API implementation: it samples the highest non-air block in a 9x9
+grid, classifies common surfaces into readable glyphs, caches regions briefly, and invalidates them after
+block edits. It does not reproduce Atlas's native C++ pixel renderer, map-color lookup, mesh rendering,
+camera clipping, or keyboard zoom hooks; see `docs/Atlas-Compatibility-Report.md` for the complete
+compatibility analysis.
 
 ## HUD corner overlay (JSON UI)
 

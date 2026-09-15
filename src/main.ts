@@ -8,6 +8,7 @@ import { registerOptimizationEventTracking, startOptimizationEngine } from "./fe
 import { startItemMerging } from "./features/optimization/ItemMerge";
 import { startFogController, clearFogTrackingForPlayer } from "./features/fog/FogController";
 import { startCompanionDetector } from "./features/companion/CompanionRuntime";
+import { invalidateTerrainCache } from "./features/minimap/TerrainSampler";
 import { log } from "./util/Logger";
 
 const CONTROL_ROOM_ITEM = "phlodgate:control_room_remote";
@@ -50,6 +51,9 @@ world.afterEvents.itemUse.subscribe((event) => {
     void openFieldMapMenu(event.source);
   }
 });
+
+world.afterEvents.playerBreakBlock.subscribe(() => invalidateTerrainCache());
+world.afterEvents.playerPlaceBlock.subscribe(() => invalidateTerrainCache());
 
 world.afterEvents.playerInteractWithBlock.subscribe((event) => {
   if (!event.isFirstEvent) return;

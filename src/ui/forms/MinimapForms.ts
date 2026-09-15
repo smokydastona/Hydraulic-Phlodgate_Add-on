@@ -1,10 +1,12 @@
 import { ActionFormData } from "@minecraft/server-ui";
-import { Player } from "@minecraft/server";
+import { Player, system } from "@minecraft/server";
 import { getPlayerSettings, updatePlayerSettings } from "../../settings/SettingsStore";
 import { angularDelta, bearingDegrees, distanceXZ } from "../../util/Vector";
 import { listWaypoints } from "../../features/waypoints/WaypointManager";
 import { arrowForDelta, formatDistance, isSameDimension } from "../../features/waypoints/WaypointMath";
 import { buildRadarStrip, cardinalEntriesForYaw, nearestEntries, withinRadius } from "../../features/minimap/MinimapMath";
+import { formatTerrainGrid } from "../../features/minimap/TerrainMap";
+import { sampleTerrainGrid } from "../../features/minimap/TerrainSampler";
 import { openAddWaypointForm, openWaypointMenu } from "./WaypointForms";
 import { log } from "../../util/Logger";
 
@@ -42,7 +44,15 @@ export async function openFieldMapMenu(player: Player): Promise<void> {
             .map((e) => `${arrowForDelta(e.delta)} ${e.name} §7— §f${formatDistance(e.distance)}`)
             .join("\n");
 
-    const body = [`§7[${strip}§7]`, "", listBody].join("\n");
+    let terrainBody = "§8Terrain unavailable in this area.";
+    try {
+      const terrainGrid = sampleTerrainGrid(player.dimension, Math.floor(from.x), Math.floor(from.z), system.currentTick);
+      terrainBody = ["§7Terrain", ...formatTerrainGrid(terrainGrid).map((line) => `§e${line}`), "§8X = player, # = solid, . = vegetation, ~ = water, ^ = lava"].join("\n");
+    } catch (err) {
+      log(`Field Map terrain sampling failed: ${String(err)}`);
+    }
+
+    const body = [`§7[${strip}§7]`, "", terrainBody, "", listBody].join("\n");
 
     const form = new ActionFormData()
       .title("Phlodgate Field Map")
