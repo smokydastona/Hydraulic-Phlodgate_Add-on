@@ -13,6 +13,8 @@ Bedrock world
     |        |
     |        +--> bounded terrain sampler --> TTL cache --> Field Map form
     |        +--> waypoint/settings stores --> radar and HUD
+    |        +--> bounded optimization scans --> protection classifier --> audit/action
+    |        +--> spatial item buckets --> capped merge plan --> entity replacement
     |
     +--> JSON UI resource pack --> persistent actionbar HUD
     |        |
@@ -29,6 +31,16 @@ Bedrock world
 4. Block break/place events clear the cache.
 5. The Field Map shows terrain plus the existing radar and waypoint actions.
 6. Pure behavior is covered by focused Vitest tests.
+
+## Implemented optimization reference slice
+
+1. `ItemMergePlan.ts` replaces quadratic item-pair scanning with neighboring spatial buckets.
+2. Complete stacks are never consumed when they would exceed the configured merge cap.
+3. `ItemMerge.ts` applies planned groups through the existing runtime safety/logging boundary.
+4. `OptimizationEngine.ts` computes nearest-player distances using squared comparisons and one final
+    square root, preserving protection and removal semantics.
+5. `Optimization-Compatibility-Report.md` records the source disposition, license boundaries, and
+    runtime non-claims for MCBE-Tweaks, JaylyDev/ScriptAPI, and LeviOptimize.
 
 ## Implemented BedrockTools and JSON UI slice
 
@@ -50,6 +62,8 @@ Bedrock world
 - A native pixel map, exact Atlas map colors, or physical-client rendering cannot be claimed without runtime evidence.
 - A JSX decoder runtime, arbitrary JSON UI data channel, or native keyboard hook cannot be claimed from
     the current Script API/resource-pack boundary.
+- Native LeviLamina hooks, BDS ECS instrumentation, GPU settings, shader replacement, and options-file
+    mutation cannot be claimed from a standard behavior pack.
 
 ## Release gates
 
@@ -60,6 +74,7 @@ Bedrock world
 - A real Bedrock client verifies Field Map opening, terrain display, waypoint display, cache refresh after block edits, and all existing HUD controls.
 - Security review confirms no new network, command, native, or secret surfaces.
 - JSON UI parses successfully for every pack variant and manifest.
+- Spatial merge tests, protection tests, and runtime typecheck pass.
 
 ## Next prioritized work
 
@@ -69,3 +84,5 @@ Bedrock world
 4. Keep native Atlas renderer integration as a separate AmethystAPI fork, not as behavior-pack source.
 5. Keep BedrockTools and bedrock-core/ui as documented reference sources unless the add-on deliberately
     adopts their separate native/runtime distribution model.
+6. Use `docs/Optimization-Compatibility-Report.md` as the source-of-truth disposition for the three
+    optimization references; do not copy GPL/native implementation code into the add-on.

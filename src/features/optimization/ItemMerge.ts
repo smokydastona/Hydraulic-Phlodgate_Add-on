@@ -3,7 +3,7 @@ import { getWorldSettings } from "../../settings/SettingsStore";
 import { resolveOptimizationThresholds } from "../../settings/Profiles";
 import { safeInterval } from "../../util/Scheduler";
 import { log } from "../../util/Logger";
-import { distance3D } from "../../util/Vector";
+import { planItemMerges } from "./ItemMergePlan";
 
 const MERGE_INTERVAL_TICKS = 60; // 3 seconds
 
@@ -15,44 +15,28 @@ function mergeInDimension(dimensionId: string, radius: number, cap: number): voi
     return;
   }
 
-  const consumed = new Set<string>();
+  const snapshots = items.flatMap((item) => {
+    const stack = item.getComponent("minecraft:item")?.itemStack;
+    return stack ? [{ id: item.id, typeId: stack.typeId, count: stack.amount, x: item.location.x, y: item.location.y, z: item.location.z }] : [];
+  });
+  const byId = new Map(items.map((item) => [item.id, item]));
 
-  for (const anchor of items) {
-    if (consumed.has(anchor.id)) continue;
-    const anchorItemComp = anchor.getComponent("minecraft:item");
-    const anchorStack = anchorItemComp?.itemStack;
-    if (!anchorStack) continue;
+  for (const group of planItemMerges(snapshots, radius, Math.min(cap, 64))) {
+    const anchor = byId.get(group.anchorId);
+    const merged = group.consumedIds.map((id) => byId.get(id)).filter((item): item is Entity => item !== undefined);
+    if (!anchor || merged.length === 0) continue;
 
-    let total = anchorStack.amount;
-    const merged: Entity[] = [];
-
-    for (const other of items) {
-      if (other.id === anchor.id || consumed.has(other.id)) continue;
-      const otherStack = other.getComponent("minecraft:item")?.itemStack;
-      if (!otherStack || otherStack.typeId !== anchorStack.typeId) continue;
-      if (distance3D(anchor.location, other.location) > radius) continue;
-      if (total >= cap) break;
-
-      total += otherStack.amount;
-      merged.push(other);
-    }
-
-    if (merged.length === 0) continue;
-
-    const finalAmount = Math.min(total, cap, 64);
     try {
-      const newStack = new ItemStack(anchorStack.typeId, finalAmount);
+      const newStack = new ItemStack(group.typeId, group.totalCount);
       const spawnLocation = anchor.location;
       const dimension = anchor.dimension;
       anchor.remove();
-      consumed.add(anchor.id);
       for (const other of merged) {
         other.remove();
-        consumed.add(other.id);
       }
       dimension.spawnItem(newStack, spawnLocation);
     } catch (err) {
-      log(`Item merge failed for ${anchorStack.typeId}: ${String(err)}`);
+      log(`Item merge failed for ${group.typeId}: ${String(err)}`);
     }
   }
 }

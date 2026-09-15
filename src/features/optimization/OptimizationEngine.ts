@@ -67,15 +67,15 @@ function isBoss(typeId: string): boolean {
 }
 
 function nearestPlayerDistance(entity: Entity, players: Entity[]): number {
-  let min = Infinity;
+  let minSquared = Infinity;
   const loc = entity.location;
   for (const player of players) {
     if (player.dimension.id !== entity.dimension.id) continue;
     const p = player.location;
-    const d = Math.sqrt((p.x - loc.x) ** 2 + (p.y - loc.y) ** 2 + (p.z - loc.z) ** 2);
-    if (d < min) min = d;
+    const squared = (p.x - loc.x) ** 2 + (p.y - loc.y) ** 2 + (p.z - loc.z) ** 2;
+    if (squared < minSquared) minSquared = squared;
   }
-  return min;
+  return Number.isFinite(minSquared) ? Math.sqrt(minSquared) : Infinity;
 }
 
 function toSignal(entity: Entity, players: Entity[], protectedTypeIds: readonly string[]): EntitySignal {

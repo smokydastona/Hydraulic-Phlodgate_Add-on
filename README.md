@@ -114,3 +114,12 @@ This add-on intentionally does **not** attempt: true render-only culling (uses d
 custom hotkey registration, auto-update/auto-install, a real terrain-rendered/pixel minimap, or runtime
 particle/animation/lighting simplification — none of these are exposed by the current Bedrock Script API.
 See the in-game "About / Unsupported Features" panel in the Hydraulic Control Room for the full list.
+
+## Optimization implementation boundary
+
+The optimizer uses public Script API entity queries, conservative protection rules, spatially bucketed
+item merge planning, and audit mode. The merge planner avoids quadratic item comparisons and never
+consumes a complete stack that would overflow the configured cap. MCBE-Tweaks, JaylyDev/ScriptAPI, and
+LeviOptimize were reviewed as compatibility references; native LeviLamina hooks, BDS engine patches,
+GPU/driver settings, shader replacement, and client options-file mutation are outside a standard add-on.
+See `docs/Optimization-Compatibility-Report.md` for the complete source and license disposition.
