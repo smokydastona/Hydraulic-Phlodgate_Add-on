@@ -12,13 +12,36 @@
     "visible": "(not ($phlodgate_badge_text = ''))"
   },
 
+  "phlodgate_hud_panel": {
+    "type": "panel",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "offset": [12, 18],
+    "size": [220, 64],
+    "controls": [
+      {
+        "phlodgate_hud_panel_label": {
+          "type": "label",
+          "text": "$phlodgate_hud_text",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [0, 0],
+          "text_alignment": "left",
+          "alpha": 1,
+          "visible": "(not ($phlodgate_hud_text = ''))"
+        }
+      }
+    ]
+  },
+
   "root_panel": {
     "modifications": [
       {
         "array_name": "controls",
         "operation": "insert_front",
         "value": [
-          { "phlodgate_hud_badge@hud.phlodgate_hud_badge": {} }
+          { "phlodgate_hud_badge@hud.phlodgate_hud_badge": {} },
+          { "phlodgate_hud_panel@hud.phlodgate_hud_panel": {} }
         ]
       }
     ]

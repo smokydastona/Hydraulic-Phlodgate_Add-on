@@ -8,6 +8,8 @@ import { buildMinimapLines } from "../features/minimap/MinimapHud";
 import { buildCoordinatesLines } from "../features/waypoints/CoordinatesHud";
 
 /** Combines all per-player HUD sections into a single actionbar write per tick per player so features never overwrite one another. */
+const HUD_TEXT_PROPERTY = "phlodgate:hud_text";
+
 function composeHud(player: Player): string | undefined {
   const sections = [buildMinimapLines(player), buildCompassLines(player), buildCoordinatesLines(player), buildFoodLines(player), buildDurabilityLines(player)]
     .filter((s): s is string[] => s !== undefined)
@@ -27,7 +29,13 @@ export function startHudManager(getPlayers: () => Player[]): number {
         const settings = getPlayerSettings(player);
         if (tickCounter % Math.max(1, settings.hudRefreshTicks) !== 0) continue;
         const text = composeHud(player);
-        if (text) player.onScreenDisplay.setActionBar(text);
+        if (text) {
+          player.setDynamicProperty(HUD_TEXT_PROPERTY, text);
+          player.onScreenDisplay.setActionBar(text);
+        } else {
+          player.setDynamicProperty(HUD_TEXT_PROPERTY, "");
+          player.onScreenDisplay.setActionBar("");
+        }
       }
     },
     2
