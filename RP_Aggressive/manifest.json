@@ -5,7 +5,7 @@
     "description": "Optional static visual preset: reduced particle spam and simplified weather output for better performance. Select manually from the resource pack list, do not enable together with the Extreme preset.",
     "uuid": "491b6f04-8ae6-4506-8c19-bb7ae0c32c0d",
     "version": [1, 0, 0],
-    "min_engine_version": [1, 21, 80]
+    "min_engine_version": [1, 26, 0]
   },
   "modules": [
     {

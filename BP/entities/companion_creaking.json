@@ -9,44 +9,88 @@
       "properties": {
         "minecraft:creaking_state": {
           "type": "enum",
-          "values": ["neutral", "hostile_observed", "hostile_unobserved", "twitching", "crumbling"],
+          "values": [
+            "neutral",
+            "hostile_observed",
+            "hostile_unobserved",
+            "twitching",
+            "crumbling"
+          ],
           "default": "neutral",
           "client_sync": true
         },
         "minecraft:creaking_swaying_ticks": {
           "type": "int",
-          "range": [0, 6],
+          "range": [
+            0,
+            6
+          ],
           "default": 0,
           "client_sync": true
         }
       }
     },
     "components": {
-      "minecraft:type_family": { "family": ["phlodgate_companion", "creaking", "mob"] },
-      "minecraft:collision_box": { "width": 0.9, "height": 2.7 },
-      "minecraft:health": { "value": 20, "max": 20 },
-      "minecraft:knockback_resistance": { "value": 1 },
+      "minecraft:type_family": {
+        "family": [
+          "phlodgate_companion",
+          "creaking",
+          "mob"
+        ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.9,
+        "height": 2.7
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1
+      },
       "minecraft:fire_immune": true,
       "minecraft:freezing_immune": {},
       "minecraft:damage_sensor": {
-        "triggers": { "cause": "all", "deals_damage": "no" }
+        "triggers": {
+          "cause": "all",
+          "deals_damage": "no"
+        }
       },
-      "minecraft:breathable": { "total_supply": 15, "suffocate_time": 0 },
+      "minecraft:breathable": {
+        "total_supply": 15,
+        "suffocate_time": 0
+      },
       "minecraft:physics": {},
-      "minecraft:movement": { "value": 0.3 },
+      "minecraft:movement": {
+        "value": 0.3
+      },
       "minecraft:movement.basic": {},
-      "minecraft:navigation.walk": { "can_path_over_water": true, "avoid_damage_blocks": true },
+      "minecraft:navigation.walk": {
+        "can_path_over_water": true,
+        "avoid_damage_blocks": true
+      },
       "minecraft:jump.static": {},
       "minecraft:can_climb": {},
       "minecraft:nameable": {},
-      "minecraft:is_tamed": {},
-      "minecraft:tameable": { "probability": 1.0, "tame_items": [] },
+      "minecraft:tameable": {
+        "probability": 1,
+        "tame_items": [],
+        "tame_event": {
+          "event": "phlodgate:on_tame",
+          "target": "self"
+        }
+      },
       "minecraft:sittable": {},
-      "minecraft:leashable": { "unleash_on_removal": false },
-      "minecraft:behavior.stay_while_sitting": { "priority": 0 },
+      "minecraft:leashable": {
+        "unleash_on_removal": false
+      },
+      "minecraft:behavior.stay_while_sitting": {
+        "priority": 0
+      },
       "minecraft:behavior.follow_owner": {
         "priority": 1,
-        "speed_multiplier": 1.0,
+        "speed_multiplier": 1,
         "start_distance": 10,
         "stop_distance": 2,
         "post_teleport_distance": -1,
@@ -54,9 +98,31 @@
       },
       "minecraft:behavior.teleport_to_owner": {
         "priority": 2,
-        "filters": { "test": "owner_distance", "operator": ">", "value": 24 }
+        "filters": {
+          "test": "owner_distance",
+          "operator": ">",
+          "value": 24
+        }
       },
-      "minecraft:behavior.look_at_player": { "priority": 8, "look_distance": 6.0, "probability": 0.02 }
+      "minecraft:behavior.look_at_player": {
+        "priority": 8,
+        "look_distance": 6,
+        "probability": 0.02
+      }
+    },
+    "component_groups": {
+      "phlodgate:tamed": {
+        "minecraft:is_tamed": {}
+      }
+    },
+    "events": {
+      "phlodgate:on_tame": {
+        "add": {
+          "component_groups": [
+            "phlodgate:tamed"
+          ]
+        }
+      }
     }
   }
 }

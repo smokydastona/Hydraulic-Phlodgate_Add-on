@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_ravager",
       "materials": { "default": "ravager" },
       "textures": {
-        "default": "textures/entity/illager/ravager"
+        "default": "textures/entity/phlodgate/companion_ravager"
       },
       "geometry": { "default": "geometry.ravager" },
       "animations": {

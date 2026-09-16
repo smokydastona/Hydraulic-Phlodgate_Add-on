@@ -1,0 +1,52 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_baby_bee",
+      "materials": {
+        "default": "bee"
+      },
+      "textures": {
+        "default": "textures/entity/phlodgate/companion_baby_bee",
+        "angry": "textures/entity/phlodgate/companion_baby_bee",
+        "nectar": "textures/entity/phlodgate/companion_baby_bee",
+        "angry_nectar": "textures/entity/phlodgate/companion_baby_bee",
+        "baby_default": "textures/entity/phlodgate/companion_baby_bee",
+        "baby_angry": "textures/entity/phlodgate/companion_baby_bee",
+        "baby_nectar": "textures/entity/phlodgate/companion_baby_bee",
+        "baby_angry_nectar": "textures/entity/phlodgate/companion_baby_bee"
+      },
+      "geometry": {
+        "default": "geometry.bee",
+        "baby": "geometry.bee.baby"
+      },
+      "animations": {
+        "flying": "animation.bee.flying",
+        "drip": "controller.animation.bee.drip",
+        "controller_bee_sting": "controller.animation.bee.sting",
+        "bee_sting": "animation.bee.sting",
+        "bee_no_stinger": "animation.bee.no_stinger",
+        "bee_fly_bobbing": "animation.bee.fly.bobbing",
+        "bee_root_controller": "controller.animation.bee.root"
+      },
+      "particle_effects": {
+        "nectar_dripping": "minecraft:nectar_drip_particle"
+      },
+      "scripts": {
+        "animate": [
+          "bee_root_controller",
+          {
+            "bee_no_stinger": "query.mark_variant == 1"
+          }
+        ],
+        "scale": "query.is_baby ? 2.0 : 1.0"
+      },
+      "render_controllers": [
+        "controller.render.bee.v2"
+      ],
+      "spawn_egg": {
+        "texture": "spawn_egg_bee"
+      }
+    }
+  }
+}

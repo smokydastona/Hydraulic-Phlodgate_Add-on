@@ -22,6 +22,27 @@ describe("migratePlayerSettings", () => {
     const migrated = migratePlayerSettings({ schemaVersion: 2, data: { companionMode: "enabled" } });
     expect(migrated.companionMode).toBe("enabled");
   });
+
+  it("migrates old HUD settings to the uncluttered minimap and vanilla status bars", () => {
+    const migrated = migratePlayerSettings({
+      schemaVersion: 4,
+      data: {
+        coordinatesHudEnabled: true,
+        durabilityHudEnabled: true,
+        foodPreviewEnabled: true,
+        appleskinOverlayEnabled: true,
+      },
+    });
+
+    expect(migrated).toMatchObject({
+      minimapShape: "square",
+      minimapPosition: "top_left",
+      coordinatesHudEnabled: false,
+      durabilityHudEnabled: false,
+      foodPreviewEnabled: false,
+      appleskinOverlayEnabled: false,
+    });
+  });
 });
 
 describe("migrateWorldSettings", () => {

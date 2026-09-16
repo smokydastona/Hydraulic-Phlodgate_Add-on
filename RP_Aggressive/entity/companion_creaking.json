@@ -6,8 +6,8 @@
       "materials": { "default": "creaking", "eyes": "creaking_eyes" },
       "geometry": { "default": "geometry.creaking" },
       "textures": {
-        "default": "textures/entity/creaking/creaking",
-        "eyes": "textures/entity/creaking/creaking_eyes"
+        "default": "textures/entity/phlodgate/companion_creaking",
+        "eyes": "textures/entity/phlodgate/companion_creaking"
       },
       "render_controllers": ["controller.render.creaking", "controller.render.creaking_eyes"],
       "scripts": {

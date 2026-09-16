@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_sniffer",
       "materials": { "default": "sniffer" },
       "textures": {
-        "default": "textures/entity/sniffer/sniffer"
+        "default": "textures/entity/phlodgate/companion_sniffer"
       },
       "geometry": { "default": "geometry.sniffer" },
       "animations": {

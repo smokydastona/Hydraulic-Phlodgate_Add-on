@@ -1,6 +1,7 @@
 import { ModalFormData } from "@minecraft/server-ui";
 import { Player } from "@minecraft/server";
 import { getPlayerSettings, updatePlayerSettings } from "../../settings/SettingsStore";
+import { MINIMAP_POSITIONS, MINIMAP_SHAPES } from "../../settings/SettingsSchema";
 import { log } from "../../util/Logger";
 
 export async function openPlayerSettingsForm(player: Player): Promise<void> {
@@ -14,10 +15,12 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
     .toggle("Waypoints visible", { defaultValue: settings.waypointsVisible })
     .toggle("Compass HUD", { defaultValue: settings.compassEnabled })
     .toggle("Coordinates HUD", { defaultValue: settings.coordinatesHudEnabled })
-    .toggle("Minimap HUD (radar strip)", { defaultValue: settings.minimapEnabled })
+    .toggle("Minimap HUD", { defaultValue: settings.minimapEnabled })
     .slider("Minimap radius (blocks)", 32, 256, { defaultValue: settings.minimapRadius, valueStep: 8 })
-    .toggle("AppleSkin-style saturation overlay", { defaultValue: settings.appleskinOverlayEnabled })
-    .toggle("Held-food preview", { defaultValue: settings.foodPreviewEnabled })
+    .dropdown("Minimap shape", ["Square", "Circle"], { defaultValueIndex: Math.max(0, MINIMAP_SHAPES.indexOf(settings.minimapShape)) })
+    .dropdown("Minimap position", ["Top left", "Top right", "Bottom left", "Bottom right"], {
+      defaultValueIndex: Math.max(0, MINIMAP_POSITIONS.indexOf(settings.minimapPosition)),
+    })
     .toggle("Durability HUD", { defaultValue: settings.durabilityHudEnabled })
     .toggle("Durability low alerts", { defaultValue: settings.durabilityAlertsEnabled })
     .slider("Durability alert threshold (%)", 1, 50, { defaultValue: settings.durabilityAlertThresholdPercent, valueStep: 1 })
@@ -36,8 +39,8 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       coordinatesHudEnabled,
       minimapEnabled,
       minimapRadius,
-      appleskinOverlayEnabled,
-      foodPreviewEnabled,
+      minimapShapeIndex,
+      minimapPositionIndex,
       durabilityHudEnabled,
       durabilityAlertsEnabled,
       durabilityAlertThresholdPercent,
@@ -51,8 +54,8 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       boolean,
       boolean,
       number,
-      boolean,
-      boolean,
+      number,
+      number,
       boolean,
       boolean,
       number,
@@ -68,8 +71,10 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       coordinatesHudEnabled,
       minimapEnabled,
       minimapRadius,
-      appleskinOverlayEnabled,
-      foodPreviewEnabled,
+      minimapShape: MINIMAP_SHAPES[minimapShapeIndex] ?? "square",
+      minimapPosition: MINIMAP_POSITIONS[minimapPositionIndex] ?? "top_left",
+      appleskinOverlayEnabled: false,
+      foodPreviewEnabled: false,
       durabilityHudEnabled,
       durabilityAlertsEnabled,
       durabilityAlertThresholdPercent,

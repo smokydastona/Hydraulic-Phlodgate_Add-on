@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_cat",
       "materials": { "default": "cat" },
       "textures": {
-        "default": "textures/entity/cat/tabby_tame"
+        "default": "textures/entity/phlodgate/companion_cat"
       },
       "geometry": { "default": "geometry.cat" },
       "animations": {

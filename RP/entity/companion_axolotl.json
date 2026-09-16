@@ -1,0 +1,23 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_axolotl",
+      "materials": { "default": "axolotl", "limbs": "axolotl_limbs" },
+      "textures": { "default": "textures/entity/phlodgate/companion_axolotl" },
+      "geometry": { "default": "geometry.axolotl" },
+      "animations": {
+        "idle_float": "animation.axolotl.idle_underwater",
+        "idle_floor": "animation.axolotl.idle_floor",
+        "swim": "animation.axolotl.swim",
+        "walk_floor": "animation.axolotl.walk_floor",
+        "look_at_target": "animation.common.look_at_target"
+      },
+      "animation_controllers": [
+        { "general": "controller.animation.axolotl.general" },
+        { "move": "controller.animation.axolotl.move.v2" }
+      ],
+      "render_controllers": ["controller.render.axolotl.v2"]
+    }
+  }
+}

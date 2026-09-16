@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_wolf",
       "materials": { "default": "wolf" },
       "textures": {
-        "default": "textures/entity/wolf/wolf_tame"
+        "default": "textures/entity/phlodgate/companion_wolf"
       },
       "geometry": { "default": "geometry.wolf" },
       "animations": {

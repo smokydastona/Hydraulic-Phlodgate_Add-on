@@ -5,8 +5,8 @@
       "identifier": "phlodgate:companion_copper_golem",
       "materials": { "default": "copper_golem", "eyes": "copper_golem_eyes" },
       "textures": {
-        "default": "textures/entity/copper_golem/copper_golem",
-        "eyes_default": "textures/entity/copper_golem/copper_golem_eyes"
+        "default": "textures/entity/phlodgate/companion_copper_golem",
+        "eyes_default": "textures/entity/phlodgate/companion_copper_golem"
       },
       "geometry": {
         "default": "geometry.copper_golem",

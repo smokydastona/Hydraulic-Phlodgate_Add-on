@@ -1,0 +1,66 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_baby_axolotl",
+      "materials": {
+        "default": "axolotl",
+        "limbs": "axolotl_limbs"
+      },
+      "textures": {
+        "blue": "textures/entity/phlodgate/companion_baby_axolotl",
+        "cyan": "textures/entity/phlodgate/companion_baby_axolotl",
+        "gold": "textures/entity/phlodgate/companion_baby_axolotl",
+        "lucy": "textures/entity/phlodgate/companion_baby_axolotl",
+        "wild": "textures/entity/phlodgate/companion_baby_axolotl",
+        "baby_blue": "textures/entity/phlodgate/companion_baby_axolotl",
+        "baby_cyan": "textures/entity/phlodgate/companion_baby_axolotl",
+        "baby_gold": "textures/entity/phlodgate/companion_baby_axolotl",
+        "baby_lucy": "textures/entity/phlodgate/companion_baby_axolotl",
+        "baby_wild": "textures/entity/phlodgate/companion_baby_axolotl"
+      },
+      "geometry": {
+        "default": "geometry.axolotl",
+        "baby": "geometry.axolotl.baby"
+      },
+      "animations": {
+        "idle_float": "animation.axolotl.idle_underwater",
+        "idle_floor": "animation.axolotl.idle_floor",
+        "idle_floor_water": "animation.axolotl.idle_floor_underwater",
+        "swim": "animation.axolotl.swim",
+        "walk_floor": "animation.axolotl.walk_floor",
+        "walk_floor_water": "animation.axolotl.walk_floor_underwater",
+        "play_dead": "animation.axolotl.play_dead",
+        "swim_angle": "animation.axolotl.swim_angle",
+        "look_at_target": "animation.common.look_at_target",
+        "baby_idle_floor": "animation.axolotl.baby_idle_floor",
+        "baby_idle_floor_water": "animation.axolotl.baby_idle_floor_underwater",
+        "baby_idle_float": "animation.axolotl.baby_idle_underwater",
+        "baby_swim": "animation.axolotl.baby_swim",
+        "baby_walk_floor": "animation.axolotl.baby_walk_floor",
+        "baby_walk_floor_water": "animation.axolotl.baby_walk_floor_underwater"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.moving = query.ground_speed > 0 || query.vertical_speed > 0;",
+          "variable.pitch = query.body_x_rotation;"
+        ],
+        "scale": "query.is_baby ? 2.0 : 1.0"
+      },
+      "animation_controllers": [
+        {
+          "general": "controller.animation.axolotl.general"
+        },
+        {
+          "move": "controller.animation.axolotl.move.v2"
+        }
+      ],
+      "render_controllers": [
+        "controller.render.axolotl.v2"
+      ],
+      "spawn_egg": {
+        "texture": "spawn_egg_axolotl"
+      }
+    }
+  }
+}

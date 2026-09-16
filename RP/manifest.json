@@ -5,7 +5,7 @@
     "description": "Default resource pack: HUD/UI text bindings and vanilla-preserving visual baseline for the Phlodgate Add-On.",
     "uuid": "209ae00b-68e5-47f6-bd66-3d642f6ec0db",
     "version": [1, 0, 0],
-    "min_engine_version": [1, 21, 80]
+    "min_engine_version": [1, 26, 0]
   },
   "modules": [
     {

@@ -12,7 +12,36 @@ export type CompanionSpeciesId =
   | "cave_spider"
   | "sniffer"
   | "ravager"
-  | "copper_golem";
+  | "copper_golem"
+  | "zoglin"
+  | "axolotl"
+  | "baby_piglin"
+  | "baby_armadillo"
+  | "baby_axolotl"
+  | "baby_bee"
+  | "baby_camel"
+  | "baby_cat"
+  | "baby_cow"
+  | "baby_donkey"
+  | "baby_fox"
+  | "baby_goat"
+  | "baby_hoglin"
+  | "baby_horse"
+  | "baby_llama"
+  | "baby_mooshroom"
+  | "baby_mule"
+  | "baby_ocelot"
+  | "baby_polar_bear"
+  | "baby_pig"
+  | "baby_rabbit"
+  | "baby_sheep"
+  | "baby_chicken"
+  | "baby_sniffer"
+  | "baby_strider"
+  | "baby_turtle"
+  | "baby_panda"
+  | "baby_wolf"
+  | "tadpole";
 
 export interface CompanionSpeciesDefinition {
   id: CompanionSpeciesId;
@@ -20,9 +49,22 @@ export interface CompanionSpeciesDefinition {
   label: string;
   description: string;
   defaultName: string;
+  category: "companion" | "baby_animal";
   /** Rideable species have no sit/stand toggle: a plain owner click mounts them instead (no saddle required),
    *  matching the entity's own `minecraft:rideable` component rather than `minecraft:sittable`. */
   rideable: boolean;
+}
+
+function babyAnimal(id: CompanionSpeciesId, label: string): CompanionSpeciesDefinition {
+  return {
+    id,
+    entityTypeId: `phlodgate:companion_${id}`,
+    label,
+    description: `A tame, always-neutral ${label.toLowerCase()} companion that follows, sits on command, and never grows up.`,
+    defaultName: `Companion ${label}`,
+    category: "baby_animal",
+    rideable: false,
+  };
 }
 
 /** A reasonably sized, all-neutral companion selection. Each entity type is a custom Phlodgate entity that
@@ -36,6 +78,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Wolf",
     description: "A loyal wolf companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Wolf",
+    category: "companion",
     rideable: false,
   },
   {
@@ -44,6 +87,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Cat",
     description: "A calm cat companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Cat",
+    category: "companion",
     rideable: false,
   },
   {
@@ -52,6 +96,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Fox",
     description: "A quiet fox companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Fox",
+    category: "companion",
     rideable: false,
   },
   {
@@ -60,6 +105,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Snow Fox",
     description: "An arctic fox companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Snow Fox",
+    category: "companion",
     rideable: false,
   },
   {
@@ -68,6 +114,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Creaking",
     description: "A silent, always-neutral creaking companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Creaking",
+    category: "companion",
     rideable: false,
   },
   {
@@ -76,6 +123,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Rabbit",
     description: "A small rabbit companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Rabbit",
+    category: "companion",
     rideable: false,
   },
   {
@@ -84,6 +132,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Spider (rideable)",
     description: "A tame, always-neutral spider companion you can ride any time \u2014 no saddle required.",
     defaultName: "Companion Spider",
+    category: "companion",
     rideable: true,
   },
   {
@@ -92,6 +141,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Cave Spider",
     description: "A small, always-neutral cave spider companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Cave Spider",
+    category: "companion",
     rideable: false,
   },
   {
@@ -100,6 +150,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Sniffer (rideable)",
     description: "A tame, always-neutral sniffer companion you can ride any time \u2014 no saddle required.",
     defaultName: "Companion Sniffer",
+    category: "companion",
     rideable: true,
   },
   {
@@ -108,6 +159,7 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Ravager (rideable)",
     description: "A tame, always-neutral ravager companion you can ride any time \u2014 no saddle required.",
     defaultName: "Companion Ravager",
+    category: "companion",
     rideable: true,
   },
   {
@@ -116,8 +168,64 @@ export const COMPANION_SPECIES: readonly CompanionSpeciesDefinition[] = [
     label: "Copper Golem",
     description: "A tame, always-neutral copper golem companion that follows, sits on command, and never leaves your side.",
     defaultName: "Companion Copper Golem",
+    category: "companion",
     rideable: false,
   },
+  {
+    id: "zoglin",
+    entityTypeId: "phlodgate:companion_zoglin",
+    label: "Zoglin",
+    description: "A tame, always-neutral zoglin companion that follows, sits on command, and never leaves your side.",
+    defaultName: "Companion Zoglin",
+    category: "companion",
+    rideable: false,
+  },
+  {
+    id: "axolotl",
+    entityTypeId: "phlodgate:companion_axolotl",
+    label: "Axolotl",
+    description: "A tame, always-neutral axolotl companion that follows, sits on command, and never leaves your side.",
+    defaultName: "Companion Axolotl",
+    category: "companion",
+    rideable: false,
+  },
+  {
+    id: "baby_piglin",
+    entityTypeId: "phlodgate:companion_baby_piglin",
+    label: "Baby Piglin",
+    description: "A tame, always-neutral baby piglin companion, immune to zombification, that follows, sits on command, and never leaves your side.",
+    defaultName: "Companion Baby Piglin",
+    category: "companion",
+    rideable: false,
+  },
+  ...[
+    babyAnimal("baby_armadillo", "Baby Armadillo"),
+    babyAnimal("baby_axolotl", "Baby Axolotl"),
+    babyAnimal("baby_bee", "Baby Bee"),
+    babyAnimal("baby_camel", "Baby Camel"),
+    babyAnimal("baby_cat", "Baby Cat"),
+    babyAnimal("baby_chicken", "Baby Chicken"),
+    babyAnimal("baby_cow", "Baby Cow"),
+    babyAnimal("baby_donkey", "Baby Donkey"),
+    babyAnimal("baby_fox", "Baby Fox"),
+    babyAnimal("baby_goat", "Baby Goat"),
+    babyAnimal("baby_hoglin", "Baby Hoglin"),
+    babyAnimal("baby_horse", "Baby Horse"),
+    babyAnimal("baby_llama", "Baby Llama"),
+    babyAnimal("baby_mooshroom", "Baby Mooshroom"),
+    babyAnimal("baby_mule", "Baby Mule"),
+    babyAnimal("baby_ocelot", "Baby Ocelot"),
+    babyAnimal("baby_panda", "Baby Panda"),
+    babyAnimal("baby_pig", "Baby Pig"),
+    babyAnimal("baby_polar_bear", "Baby Polar Bear"),
+    babyAnimal("baby_rabbit", "Baby Rabbit"),
+    babyAnimal("baby_sheep", "Baby Sheep"),
+    babyAnimal("baby_sniffer", "Baby Sniffer"),
+    babyAnimal("baby_strider", "Baby Strider"),
+    babyAnimal("baby_turtle", "Baby Turtle"),
+    babyAnimal("baby_wolf", "Baby Wolf"),
+    babyAnimal("tadpole", "Tadpole"),
+  ],
 ];
 
 export const DEFAULT_COMPANION_SPECIES_ID: CompanionSpeciesId = "wolf";

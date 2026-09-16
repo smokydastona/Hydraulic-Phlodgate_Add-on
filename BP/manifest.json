@@ -5,7 +5,7 @@
     "description": "Dual-mode Bedrock client enhancement and Hydraulic-Phlodgate companion mod: JEI-style inventory, waypoints, AppleSkin-style food HUD, durability HUD, modded machine inspector, optimization engine, and Hydraulic Control Room.",
     "uuid": "232207c8-f6ca-41b7-8976-8e45bc7acced",
     "version": [1, 0, 0],
-    "min_engine_version": [1, 21, 80]
+    "min_engine_version": [1, 26, 0]
   },
   "modules": [
     {
@@ -23,8 +23,7 @@
   ],
   "dependencies": [
     { "module_name": "@minecraft/server", "version": "2.9.0" },
-    { "module_name": "@minecraft/server-ui", "version": "2.1.0" },
-    { "uuid": "209ae00b-68e5-47f6-bd66-3d642f6ec0db", "version": [1, 0, 0] }
+    { "module_name": "@minecraft/server-ui", "version": "2.1.0" }
   ],
   "metadata": {
     "authors": ["Phlodgate Add-On Team"],

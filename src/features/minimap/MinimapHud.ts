@@ -4,7 +4,7 @@ import { angularDelta, bearingDegrees, distanceXZ } from "../../util/Vector";
 import { listWaypoints } from "../waypoints/WaypointManager";
 import { arrowForDelta, formatDistance, isSameDimension } from "../waypoints/WaypointMath";
 import { formatTerrainGridPixels, getCompanionTargetColor, parseCompanionVectorPayload } from "./TerrainMap";
-import { buildRadarStrip, cardinalEntriesForYaw, nearestEntries, withinRadius } from "./MinimapMath";
+import { nearestEntries, withinRadius } from "./MinimapMath";
 import { sampleTerrainGrid } from "./TerrainSampler";
 import { system } from "@minecraft/server";
 
@@ -12,28 +12,17 @@ const RADAR_MAX_LISTED = 3;
 const COMPANION_VECTOR_PROPERTY = "phlodgate:companion_vectors";
 const MAX_COMPANION_TARGETS = 8;
 
-function colorizeStrip(strip: string): string {
-  let out = "";
-  for (const ch of strip) {
-    if (ch === "N" || ch === "S" || ch === "E" || ch === "W") out += `\u00a76${ch}`;
-    else if (ch === "\u25b2") out += `\u00a7f${ch}`;
-    else if (ch === "\u00b7") out += `\u00a78${ch}`;
-    else out += `\u00a7e${ch}`;
-  }
-  return out + "\u00a7r";
-}
-
-function buildTerrainLines(player: Player): string[] {
+function buildTerrainLines(player: Player, shape: "square" | "circle"): string[] {
   try {
     const location = player.location;
     const grid = sampleTerrainGrid(player.dimension, Math.floor(location.x), Math.floor(location.z), system.currentTick, 4, 5);
-    return formatTerrainGridPixels(grid).map((line) => `\u00a78${line}`);
+    return formatTerrainGridPixels(grid, shape);
   } catch {
     return ["\u00a78Terrain map unavailable"];
   }
 }
 
-/** Returns minimap HUD lines (radar strip + nearest waypoints), or undefined if disabled. */
+/** Returns map-only HUD lines plus nearby destination labels, or undefined if disabled. */
 export function buildMinimapLines(player: Player): string[] | undefined {
   const settings = getPlayerSettings(player);
   if (!settings.minimapEnabled) return undefined;
@@ -80,15 +69,7 @@ export function buildMinimapLines(player: Player): string[] | undefined {
     ...companionTargets,
   ].filter((e) => withinRadius(e.distance, settings.minimapRadius));
 
-  const cardinals = cardinalEntriesForYaw(yaw360, angularDelta);
-  const strip = colorizeStrip(
-    buildRadarStrip(
-      entries.map((e) => ({ glyph: e.glyph ?? "?", delta: e.delta, distance: e.distance })),
-      cardinals
-    )
-  );
-
-  const lines = [`\u00a77[${strip}\u00a77]`, ...buildTerrainLines(player)];
+  const lines = [`\u00a7fMAP \u00a77${settings.minimapRadius}m`, ...buildTerrainLines(player, settings.minimapShape)];
 
   if (entries.length === 0) {
     lines.push(`\u00a78No waypoints within ${settings.minimapRadius} blocks`);

@@ -1,0 +1,20 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_baby_piglin",
+      "materials": { "default": "piglin" },
+      "textures": { "default": "textures/entity/phlodgate/companion_baby_piglin" },
+      "geometry": { "default": "geometry.piglin.baby" },
+      "animations": {
+        "move": "animation.piglin.move",
+        "bob": "animation.humanoid.bob",
+        "look_at_target_controller": "controller.animation.humanoid.look_at_target",
+        "look_at_target_default": "animation.humanoid.look_at_target.default"
+      },
+      "scripts": { "animate": ["move", "bob", "look_at_target_controller"] },
+      "render_controllers": ["controller.render.piglin.v2"],
+      "enable_attachables": true
+    }
+  }
+}

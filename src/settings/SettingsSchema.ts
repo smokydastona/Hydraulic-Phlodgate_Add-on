@@ -1,4 +1,9 @@
 export type CompanionModeSetting = "auto" | "enabled" | "disabled";
+export type MinimapShapeSetting = "square" | "circle";
+export type MinimapPositionSetting = "top_left" | "top_right" | "bottom_left" | "bottom_right";
+
+export const MINIMAP_SHAPES: readonly MinimapShapeSetting[] = ["square", "circle"];
+export const MINIMAP_POSITIONS: readonly MinimapPositionSetting[] = ["top_left", "top_right", "bottom_left", "bottom_right"];
 
 export interface PlayerSettings {
   jeiInventoryEnabled: boolean;
@@ -9,6 +14,8 @@ export interface PlayerSettings {
   coordinatesHudEnabled: boolean;
   minimapEnabled: boolean;
   minimapRadius: number;
+  minimapShape: MinimapShapeSetting;
+  minimapPosition: MinimapPositionSetting;
   foodPreviewEnabled: boolean;
   appleskinOverlayEnabled: boolean;
   durabilityHudEnabled: boolean;
@@ -24,12 +31,14 @@ export const DEFAULT_PLAYER_SETTINGS: PlayerSettings = {
   inventorySearchEnabled: true,
   waypointsVisible: true,
   compassEnabled: true,
-  coordinatesHudEnabled: true,
+  coordinatesHudEnabled: false,
   minimapEnabled: true,
   minimapRadius: 128,
-  foodPreviewEnabled: true,
-  appleskinOverlayEnabled: true,
-  durabilityHudEnabled: true,
+  minimapShape: "square",
+  minimapPosition: "top_left",
+  foodPreviewEnabled: false,
+  appleskinOverlayEnabled: false,
+  durabilityHudEnabled: false,
   durabilityAlertsEnabled: true,
   durabilityAlertThresholdPercent: 20,
   hudRefreshTicks: 10,
@@ -83,7 +92,7 @@ export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
 };
 
 /** Bump this whenever the shape of PlayerSettings/WorldSettings changes, and add a migration in migratePlayerSettings/migrateWorldSettings. */
-export const SETTINGS_SCHEMA_VERSION = 4;
+export const SETTINGS_SCHEMA_VERSION = 5;
 
 export interface VersionedPayload<T> {
   schemaVersion: number;
@@ -91,8 +100,14 @@ export interface VersionedPayload<T> {
 }
 
 export function migratePlayerSettings(payload: VersionedPayload<Partial<PlayerSettings>>): PlayerSettings {
-  // No migrations yet; merge onto defaults so newly added fields get sane values for existing players.
-  return { ...DEFAULT_PLAYER_SETTINGS, ...payload.data };
+  const migrated = { ...DEFAULT_PLAYER_SETTINGS, ...payload.data };
+  if (payload.schemaVersion < 5) {
+    migrated.foodPreviewEnabled = false;
+    migrated.appleskinOverlayEnabled = false;
+    migrated.coordinatesHudEnabled = false;
+    migrated.durabilityHudEnabled = false;
+  }
+  return migrated;
 }
 
 export function migrateWorldSettings(payload: VersionedPayload<Partial<WorldSettings>>): WorldSettings {

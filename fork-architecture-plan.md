@@ -64,11 +64,14 @@ shipped companion entities (`phlodgate:companion_wolf/cat/fox`) reference the **
 wolf/cat/fox geometry, textures, and animation/render controllers by identifier only — the same technique
 `mojang/bedrock-samples` itself uses — which needs no new art assets and carries no licensing ambiguity.
 
-**Implementation delivered**: custom, fully neutral, invulnerable, owner-bound companion entities for eleven
-species — Wolf, Cat, Fox, Snow Fox, Creaking, Rabbit, Cave Spider, and Copper Golem (walking, native
-`minecraft:tameable`/`minecraft:sittable` sit/stand toggle), plus Spider, Sniffer, and Ravager (rideable via
-`minecraft:rideable` + `minecraft:behavior.controlled_by_player`, no saddle/item requirement); a first-spawn
-species-choice form; shift-click routing to `openHydraulicControlRoom()`; layered invulnerability
+**Implementation delivered**: 40 custom, fully neutral, invulnerable, owner-bound companion entities. The
+special category contains Wolf, Cat, Fox, Snow Fox, Creaking, Rabbit, Cave Spider, Copper Golem, Zoglin,
+Axolotl, and a zombification-immune Baby Piglin; Spider, Sniffer, and Ravager are saddle-free rideable mounts.
+The baby-animal category covers every supported ageable animal family: Armadillo, Axolotl, Bee, Camel, Cat,
+Chicken, Cow, Donkey, Fox, Goat, Hoglin, Horse, Llama, Mooshroom, Mule, Ocelot, Panda, Pig, Polar Bear, Rabbit,
+Sheep, Sniffer, Strider, Turtle, Wolf, and Tadpole. A required categorized first-spawn chooser locks movement
+and retries after cancellation/UI-busy errors; it persists completion only after successful spawn and owner
+assignment. Shift-click routes to `openHydraulicControlRoom()`; layered invulnerability
 (`minecraft:damage_sensor` + `minecraft:fire_immune` + a script-side `entityHurt` cancellation); and an
 `entityDie` respawn safety net. The Creaking and Copper Golem entities additionally declare the same
 client-synced entity properties (`minecraft:creaking_state`, `minecraft:oxidation_level`, etc.) their reused
@@ -82,9 +85,10 @@ implementation.
 1. `MinimapMath.ts` owns deterministic radar bearings, cardinal rotation, nearest-marker ordering, and radius filtering.
 2. `TerrainMap.ts` owns type-id classification, colored text glyphs, safe companion-vector parsing, and pure grid formatting.
 3. `TerrainSampler.ts` owns bounded `Dimension.getBlock` sampling and a dimension/position/scale/width cache.
-4. `MinimapHud.ts` composes real 5x5 terrain, radar markers, and nearest destinations into the shared HUD actionbar.
+4. `MinimapHud.ts` composes a real color-coded 5x5 terrain map and nearest destinations in square or circular form.
 5. `MinimapForms.ts` provides the on-demand 9x9 Field Map and waypoint actions.
-6. `HudManager.ts` remains the single actionbar writer, preventing minimap, food, durability, coordinate, and compass features from overwriting each other.
+6. `HudManager.ts` owns two independent channels: marker-routed actionbar content for the four-position minimap
+  and title/subtitle content for the centered compass above vanilla status bars. Custom food telemetry is not rendered.
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
 9. `MenuCatalog.ts` owns Control Room route metadata, operator visibility, validation, and action-form bounds.
@@ -111,14 +115,19 @@ a validation path. Extracted or mixed-license art is not accepted into the shipp
 - `npm run typecheck` passes against the declared Minecraft API versions.
 - `npm run build` produces `BP/scripts/main.js` without bundling runtime modules.
 - `npm run validate:release` parses every pack JSON file, verifies manifest/module UUID uniqueness and
-  versions, checks the balanced resource-pack dependency, validates UI definition references, and requires
-  the compiled script entry point.
+  engine/API versions, validates UI definition references, requires the compiled script entry point, and
+  verifies every catalog pet's behavior, client definition, localization, neutral/invulnerable contract, and
+  unique texture in all resource-pack variants.
 - `npm run package` produces the Behavior Pack, Resource Pack, and add-on archives.
 - Every JSON pack file parses successfully and manifests retain unique UUIDs.
 - Forms reject malformed responses and retry transient busy states within bounded limits.
 - Recipe catalogs remain usable with companion registrations through category navigation and pagination.
+- The Behavior Pack has no hard dependency on one visual-variant UUID; this prevents false missing-dependency
+  warnings when Balanced, Aggressive, or Extreme is selected. Script dependencies remain pinned to stable
+  `@minecraft/server` 2.9.0 and `@minecraft/server-ui` 2.1.0, with a 1.26.0 minimum engine.
 - A physical Bedrock client test confirms HUD placement, terrain refresh after block edits, waypoint markers,
-  Field Map opening, and all three resource-pack variants.
+  square/circle and four-corner minimap settings, centered compass placement, forced pet selection/spawn,
+  sit/mount/shift-click behavior, custom pet textures, and all three resource-pack variants.
 
 The automated release gates are implemented by `scripts/release-validation.mjs` and run both directly and
 before packaging. Physical client/device validation remains a separate release activity because this workspace

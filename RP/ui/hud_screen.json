@@ -1,66 +1,73 @@
 {
   "namespace": "hud",
 
-  "phlodgate_hud_badge": {
-    "type": "label",
-    "text": "§8PHLODGATE",
-    "anchor_from": "top_left",
-    "anchor_to": "top_left",
-    "offset": [12, 4],
-    "alpha": 1,
-    "$phlodgate_badge_text": "$actionbar_text",
-    "visible": "(not ($phlodgate_badge_text = ''))"
-  },
-
-  "phlodgate_hud_panel": {
-    "type": "panel",
-    "anchor_from": "top_left",
-    "anchor_to": "top_left",
-    "offset": [12, 18],
-    "size": [220, 64],
+  "phlodgate_minimap_box": {
+    "type": "image",
+    "texture": "textures/ui/hud_tip_text_background",
+    "size": ["100%c + 12px", "100%c + 8px"],
+    "anchor_from": "$phlodgate_anchor",
+    "anchor_to": "$phlodgate_anchor",
+    "offset": "$phlodgate_offset",
+    "alpha": 0.72,
+    "layer": 20,
+    "visible": "(not (($actionbar_text - $phlodgate_marker) = $actionbar_text))",
     "controls": [
       {
-        "phlodgate_hud_panel_label": {
+        "map_text": {
           "type": "label",
-          "text": "$phlodgate_hud_text",
-          "anchor_from": "top_left",
-          "anchor_to": "top_left",
-          "offset": [0, 0],
-          "text_alignment": "left",
-          "alpha": 1,
-          "visible": "(not ($phlodgate_hud_text = ''))"
+          "text": "($actionbar_text - $phlodgate_marker)",
+          "anchor_from": "$phlodgate_anchor",
+          "anchor_to": "$phlodgate_anchor",
+          "offset": "$phlodgate_text_offset",
+          "text_alignment": "$phlodgate_alignment",
+          "localize": false,
+          "shadow": true,
+          "layer": 21
         }
       }
     ]
   },
 
-  "root_panel": {
-    "modifications": [
+  "phlodgate_actionbar_fallback@hud.phlodgate_minimap_box": {
+    "$phlodgate_anchor": "bottom_middle",
+    "$phlodgate_offset": [0, -68],
+    "$phlodgate_text_offset": [0, 0],
+    "$phlodgate_alignment": "center",
+    "visible": "((($actionbar_text - '§0§0§r') = $actionbar_text) and (($actionbar_text - '§0§1§r') = $actionbar_text) and (($actionbar_text - '§0§2§r') = $actionbar_text) and (($actionbar_text - '§0§3§r') = $actionbar_text) and (not ($actionbar_text = '')))",
+    "controls": [
       {
-        "array_name": "controls",
-        "operation": "insert_front",
-        "value": [
-          { "phlodgate_hud_badge@hud.phlodgate_hud_badge": {} },
-          { "phlodgate_hud_panel@hud.phlodgate_hud_panel": {} }
-        ]
+        "map_text": {
+          "type": "label",
+          "text": "$actionbar_text",
+          "text_alignment": "center",
+          "localize": false,
+          "shadow": true,
+          "layer": 21
+        }
       }
     ]
   },
 
   "hud_actionbar_text": {
-    "anchor_from": "top_left",
-    "anchor_to": "top_left",
-    "offset": [12, 18],
+    "type": "panel",
+    "size": ["100%", "100%"],
     "alpha": 1,
-    "$phlodgate_atext": "$actionbar_text",
-    "visible": "(not ($phlodgate_atext = ''))"
+    "controls": [
+      { "top_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§0§r", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_text_offset": [6, 4], "$phlodgate_alignment": "left" } },
+      { "top_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§1§r", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_text_offset": [-6, 4], "$phlodgate_alignment": "right" } },
+      { "bottom_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§2§r", "$phlodgate_anchor": "bottom_left", "$phlodgate_offset": [10, -76], "$phlodgate_text_offset": [6, -4], "$phlodgate_alignment": "left" } },
+      { "bottom_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§3§r", "$phlodgate_anchor": "bottom_right", "$phlodgate_offset": [-10, -76], "$phlodgate_text_offset": [-6, -4], "$phlodgate_alignment": "right" } },
+      { "fallback@hud.phlodgate_actionbar_fallback": {} }
+    ]
   },
 
-  "hud_actionbar_text/actionbar_message": {
-    "anchor_from": "top_left",
-    "anchor_to": "top_left",
-    "offset": [8, 6],
-    "text_alignment": "left",
-    "alpha": 1
-  }
+  "hud_title_text": {
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_middle",
+    "offset": [0, -66]
+  },
+
+  "hud_title_text/title_frame": { "ignored": true },
+  "hud_title_text/subtitle_frame/subtitle_background": { "alpha": 0.55 },
+  "hud_title_text/subtitle_frame/subtitle": { "font_size": "normal", "offset": [0, 18], "alpha": 1 }
 }

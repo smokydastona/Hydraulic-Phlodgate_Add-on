@@ -1,65 +1,169 @@
 /** Runtime wiring for the bound companion pet: first-spawn species choice, ownership/interaction routing to the
  *  Hydraulic Control Room, and layered invulnerability. Pure decision logic lives in CompanionPetPlan.ts so it
  *  stays unit-testable; this module only wires that logic to @minecraft/server side effects. */
-import { Entity, EntityHurtBeforeEvent, EntityTameableComponent, Player, PlayerInteractWithEntityBeforeEvent, system, world } from "@minecraft/server";
+import {
+  Entity,
+  EntityHurtBeforeEvent,
+  EntityTameableComponent,
+  InputPermissionCategory,
+  Player,
+  PlayerInteractWithEntityBeforeEvent,
+  system,
+  world,
+} from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import { openHydraulicControlRoom } from "../../ui/HydraulicControlRoom";
-import { showFormWithRetry } from "../../ui/FormRuntime";
 import { readSelection } from "../../ui/FormValidation";
 import { log } from "../../util/Logger";
-import { COMPANION_SPECIES, CompanionSpeciesDefinition, computeCompanionSpawnLocation, decideCompanionInteraction, resolveChosenSpecies } from "./CompanionPetPlan";
+import {
+  COMPANION_SPECIES,
+  CompanionSpeciesDefinition,
+  computeCompanionSpawnLocation,
+  decideCompanionInteraction,
+  DEFAULT_COMPANION_SPECIES_ID,
+  findCompanionSpecies,
+} from "./CompanionPetPlan";
 
 const COMPANION_TAG = "phlodgate:companion";
 const OWNER_ID_PROPERTY = "phlodgate:ownerId";
 const SPECIES_ID_PROPERTY = "phlodgate:speciesId";
-const COMPANION_GIVEN_PLAYER_PROPERTY = "phlodgate:companionGiven";
+const COMPANION_SPECIES_PLAYER_PROPERTY = "phlodgate:companionSpecies";
+const COMPANION_ENTITY_PLAYER_PROPERTY = "phlodgate:companionEntityId";
 const RESPAWN_DELAY_TICKS = 40; // 2 seconds
+const FORCED_CHOICE_RETRY_TICKS = 30; // 1.5 seconds between re-prompts if the player closes/cancels the form
+const onboardingPlayers = new Set<string>();
 
 function isCompanionEntity(entity: Entity | undefined): entity is Entity {
   return !!entity && entity.isValid && entity.hasTag(COMPANION_TAG);
 }
 
 function spawnCompanion(player: Player, species: CompanionSpeciesDefinition): Entity | undefined {
+  let entity: Entity | undefined;
   try {
     const rotation = player.getRotation();
     const location = computeCompanionSpawnLocation(player.location, rotation.y);
-    const entity = player.dimension.spawnEntity(species.entityTypeId, location);
+    entity = player.dimension.spawnEntity(species.entityTypeId, location);
     entity.nameTag = species.defaultName;
     entity.addTag(COMPANION_TAG);
     entity.setDynamicProperty(OWNER_ID_PROPERTY, player.id);
     entity.setDynamicProperty(SPECIES_ID_PROPERTY, species.id);
 
     const tameable = entity.getComponent("minecraft:tameable") as EntityTameableComponent | undefined;
-    tameable?.tame(player);
+    if (!tameable?.tame(player)) throw new Error("entity could not be assigned to its owner");
+    player.setDynamicProperty(COMPANION_ENTITY_PLAYER_PROPERTY, entity.id);
 
     log(`Spawned companion ${species.entityTypeId} for ${player.name}.`);
     return entity;
   } catch (err) {
+    try {
+      if (entity?.isValid) entity.remove();
+    } catch {
+      // The failed entity may already have been invalidated.
+    }
     log(`Failed to spawn companion ${species.entityTypeId} for ${player.name}: ${String(err)}`);
     return undefined;
   }
 }
 
-async function offerCompanionChoice(player: Player): Promise<void> {
+function buildCompanionCategoryForm(): ActionFormData {
+  return new ActionFormData()
+    .title("Choose Your Companion")
+    .body("You must pick a bound companion before you can play.")
+    .button("Companions\n§7Adults, special creatures, and mounts")
+    .button("Baby Animals\n§7Passive animal babies");
+}
+
+function buildCompanionChoiceForm(speciesOptions: readonly CompanionSpeciesDefinition[]): ActionFormData {
   const form = new ActionFormData()
     .title("Choose Your Companion")
-    .body("Pick a bound companion. It is invulnerable, always neutral, and follows you. Shift+click it any time to open the Hydraulic Control Room.");
-  for (const species of COMPANION_SPECIES) form.button(`${species.label}\n§7${species.description}`);
+    .body(
+      "You must pick a bound companion before you can play. It is invulnerable, always neutral, and follows you. Shift+click it any time to open the Hydraulic Control Room."
+    );
+  for (const species of speciesOptions) form.button(`${species.label}\n§7${species.description}`);
+  return form;
+}
 
-  const response = await showFormWithRetry(player, () => form, { context: "Companion Choice" });
-  const selection = response ? readSelection(response) : undefined;
-  const species = resolveChosenSpecies(selection);
-  spawnCompanion(player, species);
+function setOnboardingMovement(player: Player, enabled: boolean): void {
+  try {
+    player.inputPermissions.setPermissionCategory(InputPermissionCategory.Movement, enabled);
+  } catch (err) {
+    log(`Failed to ${enabled ? "restore" : "lock"} movement during companion onboarding for ${player.name}: ${String(err)}`);
+  }
+}
+
+/** Bedrock forms can only open after the player joins, so movement is locked and the choice is re-presented
+ *  until a valid selection successfully spawns. The completion property is never written before spawn. */
+function scheduleForcedCompanionChoice(player: Player): void {
+  if (!player.isValid) return;
+  if (onboardingPlayers.has(player.id)) return;
+  onboardingPlayers.add(player.id);
+  setOnboardingMovement(player, false);
+
+  const prompt = (): void => {
+    if (!player.isValid) {
+      onboardingPlayers.delete(player.id);
+      return;
+    }
+    void (async () => {
+      let categoryResponse;
+      try {
+        categoryResponse = await buildCompanionCategoryForm().show(player);
+      } catch (err) {
+        log(`Companion choice form failed for ${player.name}: ${String(err)}`);
+        categoryResponse = undefined;
+      }
+      if (!player.isValid) return;
+
+      const categorySelection = categoryResponse ? readSelection(categoryResponse) : undefined;
+      if (categorySelection === undefined || categorySelection > 1) {
+        system.runTimeout(prompt, FORCED_CHOICE_RETRY_TICKS);
+        return;
+      }
+
+      const category = categorySelection === 0 ? "companion" : "baby_animal";
+      const speciesOptions = COMPANION_SPECIES.filter((species) => species.category === category);
+      let choiceResponse;
+      try {
+        choiceResponse = await buildCompanionChoiceForm(speciesOptions).show(player);
+      } catch (err) {
+        log(`Companion species form failed for ${player.name}: ${String(err)}`);
+        choiceResponse = undefined;
+      }
+      if (!player.isValid) return;
+
+      const selection = choiceResponse ? readSelection(choiceResponse) : undefined;
+      if (selection === undefined) {
+        system.runTimeout(prompt, FORCED_CHOICE_RETRY_TICKS);
+        return;
+      }
+
+      const species = speciesOptions[selection] ?? findCompanionSpecies(DEFAULT_COMPANION_SPECIES_ID)!;
+      if (!spawnCompanion(player, species)) {
+        system.runTimeout(prompt, FORCED_CHOICE_RETRY_TICKS);
+        return;
+      }
+
+      player.setDynamicProperty(COMPANION_SPECIES_PLAYER_PROPERTY, species.id);
+      onboardingPlayers.delete(player.id);
+      setOnboardingMovement(player, true);
+    })();
+  };
+
+  system.runTimeout(prompt, 20);
 }
 
 function handlePlayerSpawn(player: Player): void {
   try {
-    if (player.getDynamicProperty(COMPANION_GIVEN_PLAYER_PROPERTY) === true) return;
-    // Set the flag immediately (before the async form resolves) so a rapid re-join can't trigger a second grant.
-    player.setDynamicProperty(COMPANION_GIVEN_PLAYER_PROPERTY, true);
-    system.run(() => {
-      void offerCompanionChoice(player).catch((err) => log(`Companion choice form failed for ${player.name}: ${String(err)}`));
-    });
+    const selectedSpeciesId = player.getDynamicProperty(COMPANION_SPECIES_PLAYER_PROPERTY);
+    const selectedSpecies = typeof selectedSpeciesId === "string" ? findCompanionSpecies(selectedSpeciesId) : undefined;
+    if (selectedSpecies) {
+      setOnboardingMovement(player, true);
+      const entityId = player.getDynamicProperty(COMPANION_ENTITY_PLAYER_PROPERTY);
+      const existing = typeof entityId === "string" ? world.getEntity(entityId) : undefined;
+      if (!isCompanionEntity(existing)) system.runTimeout(() => spawnCompanion(player, selectedSpecies), 20);
+      return;
+    }
+    scheduleForcedCompanionChoice(player);
   } catch (err) {
     log(`Failed to evaluate companion grant for ${player.name}: ${String(err)}`);
   }
@@ -138,4 +242,5 @@ export function registerCompanionPetSystem(): void {
   world.beforeEvents.playerInteractWithEntity.subscribe(handleInteract);
   world.beforeEvents.entityHurt.subscribe(handleEntityHurt);
   world.afterEvents.entityDie.subscribe((event) => handleEntityDie(event.deadEntity));
+  world.afterEvents.playerLeave.subscribe((event) => onboardingPlayers.delete(event.playerId));
 }

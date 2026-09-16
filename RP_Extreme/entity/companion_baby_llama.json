@@ -1,0 +1,65 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_baby_llama",
+      "min_engine_version": "1.8.0",
+      "materials": {
+        "default": "llama"
+      },
+      "textures": {
+        "creamy": "textures/entity/phlodgate/companion_baby_llama",
+        "white": "textures/entity/phlodgate/companion_baby_llama",
+        "brown": "textures/entity/phlodgate/companion_baby_llama",
+        "gray": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_none": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_white": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_orange": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_magenta": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_light_blue": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_yellow": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_lime": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_pink": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_gray": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_silver": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_cyan": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_purple": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_blue": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_brown": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_green": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_red": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_black": "textures/entity/phlodgate/companion_baby_llama",
+        "decor_wandering_trader": "textures/entity/phlodgate/companion_baby_llama",
+        "baby_creamy": "textures/entity/phlodgate/companion_baby_llama",
+        "baby_white": "textures/entity/phlodgate/companion_baby_llama",
+        "baby_brown": "textures/entity/phlodgate/companion_baby_llama",
+        "baby_gray": "textures/entity/phlodgate/companion_baby_llama",
+        "baby_decor_wandering_trader": "textures/entity/phlodgate/companion_baby_llama"
+      },
+      "geometry": {
+        "default": "geometry.llama.v1.8",
+        "baby": "geometry.llama.baby"
+      },
+      "animations": {
+        "setup": "animation.llama.setup",
+        "walk": "animation.quadruped.walk",
+        "look_at_target": "animation.common.look_at_target",
+        "baby_transform": "animation.llama.baby_transform"
+      },
+      "animation_controllers": [
+        {
+          "move": "controller.animation.llama.move"
+        }
+      ],
+      "render_controllers": [
+        "controller.render.llama.v2"
+      ],
+      "spawn_egg": {
+        "texture": "spawn_egg_llama"
+      },
+      "scripts": {
+        "scale": "query.is_baby ? 2.0 : 1.0"
+      }
+    }
+  }
+}

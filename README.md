@@ -37,7 +37,7 @@ Geyser transport path.
 
 ```
 npm install
-npm run build      # compiles src/ -> BP/scripts/main.js
+npm run build      # regenerates pet textures and compiles src/ -> BP/scripts/main.js
 npm run typecheck   # tsc --noEmit against the real @minecraft/server types
 npm test            # unit tests for all pure/testable logic
 npm run validate:release # validates pack JSON, UUIDs, UI references, and build output
@@ -50,7 +50,8 @@ npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddo
 2. Copy `dist/Phlodgate_Add-on_v<version>.mcaddon` to a device with Minecraft Bedrock installed and open it,
    **or** import `dist/Phlodgate_BP_v<version>.mcpack` and `dist/Phlodgate_RP_v<version>.mcpack` separately.
 3. In your world's settings, enable both the "Phlodgate Add-On" Behavior Pack and Resource Pack.
-4. Enable the **Beta APIs** experimental toggle (required for any Script API behavior pack).
+4. Use Minecraft Bedrock 1.26.0 or newer. The manifests require the stable `@minecraft/server` 2.9.0 and
+  `@minecraft/server-ui` 2.1.0 modules used by the companion and HUD runtime.
 5. Join the world. Every player receives a "Hydraulic Control Room" item and a "Phlodgate Field Map" item on
    first spawn. Use the Control Room item for settings, and the Field Map item to view the radar/waypoint
    list and quickly add a waypoint at your current position.
@@ -116,10 +117,13 @@ pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard z
 
 ## Bound companion pet (Control Room access point)
 
-On a player's first spawn in the world, a form lets them choose a bound companion from **eleven species**:
-**Wolf, Cat, Fox, Snow Fox, Creaking, Rabbit, Cave Spider, Copper Golem** (all walking, tameable/sittable
-companions) and **Spider, Sniffer, Ravager** (rideable — no saddle required) —
-(`src/features/companion/CompanionPetPlan.ts`, `CompanionPetRuntime.ts`). The companion is:
+On a player's first spawn, movement is locked and a required two-stage form presents **40 choices**: special
+companions and the complete supported passive/breedable baby-animal set. The special list includes Wolf, Cat,
+Fox, Snow Fox, Creaking, Rabbit, Cave Spider, Copper Golem, Zoglin, Axolotl, and a zombification-immune Baby
+Piglin. Spider, Sniffer, and Ravager are rideable without a saddle. The baby-animal category includes
+Armadillo, Axolotl, Bee, Camel, Cat, Chicken, Cow, Donkey, Fox, Goat, Hoglin, Horse, Llama, Mooshroom, Mule,
+Ocelot, Panda, Pig, Polar Bear, Rabbit, Sheep, Sniffer, Strider, Turtle, Wolf, and Tadpole. Closing either form
+reopens it; movement is restored and the choice is persisted only after the selected entity actually spawns.
 
 - **Invulnerable**: a custom entity `minecraft:damage_sensor` rule (`cause: "all"`, `deals_damage: "no"`) plus
   `minecraft:fire_immune` block essentially all damage at the entity-definition level, and
@@ -129,8 +133,9 @@ companions) and **Spider, Sniffer, Ravager** (rideable — no saddle required) �
   hostile. This applies even to species that are hostile mobs in vanilla (Creaking, Ravager) or that natively
   aren't tameable at all (Fox, Snow Fox, Rabbit, Spider, Cave Spider, Sniffer, Copper Golem) — the custom
   entity definition simply never includes any attack/target-acquisition components.
-- **Bound to the player**: tamed to its owner via the real `minecraft:tameable` component's `tame()` API at
-  spawn, tagged and dynamic-property-linked to the owner's player id, and only that owner can interact with it
+- **Bound to the player**: `minecraft:tameable` invokes a real tame event which adds `minecraft:is_tamed` only
+  after `tame(player)` assigns ownership. The entity and selected species IDs are persisted on the player, and
+  only that owner can interact with it
   (`world.beforeEvents.playerInteractWithEntity` cancels the interaction for anyone else, including mounting a
   rideable one).
 - **Sits/stays exactly like a vanilla dog/cat, or rides like a saddle-free mount**: the eight walking species
@@ -146,13 +151,13 @@ companions) and **Spider, Sniffer, Ravager** (rideable — no saddle required) �
 - **Immortal in practice**: even if something removes it outside of normal damage (e.g. an operator command),
   `world.afterEvents.entityDie` respawns an identical companion near its owner a couple seconds later.
 
-Each species (`BP/entities/companion_*.json`) is a **custom** Phlodgate entity, not a reskinned/overridden
+Each species (`BP/entities/companion_*.json`) is a **custom** Phlodgate entity, not an overridden
 vanilla mob — overriding e.g. `minecraft:wolf` or `minecraft:ravager` directly would also change every wild
-instance of that mob in the world. Its client-side look and animations (`RP*/entity/companion_*.json`) reuse
-the corresponding vanilla mob's real geometry/texture/animation/render controller **identifiers** (e.g.
-`geometry.wolf`, `controller.render.wolf.v2`, `textures/entity/wolf/wolf_tame`) exactly like
-`mojang/bedrock-samples`' own entity files do — this references the game's built-in vanilla assets at runtime
-and does not copy or redistribute any texture/model/animation file. For the two newest mobs (Creaking, Copper
+instance of that mob in the world. Its client-side model and animations (`RP*/entity/companion_*.json`) reuse
+the corresponding vanilla geometry/animation identifiers. Every species instead uses its own deterministic,
+original hydraulic-circuit texture under `textures/entity/phlodgate/`, generated by
+`scripts/generate-pet-textures.mjs` at build time and validated for presence, reference integrity, and uniqueness
+across all three resource packs. For the two newest mobs (Creaking, Copper
 Golem), the custom entity also declares the same client-synced properties the reused vanilla render
 controllers read (`minecraft:creaking_state`, `minecraft:oxidation_level`, etc.) with fixed, always-neutral
 default values, so those reused visuals resolve correctly without needing any of the vanilla mobs' oxidation,
@@ -181,25 +186,24 @@ silently does nothing (or silently does something else) would violate this proje
 so the add-on continues to expose those features through the Hydraulic Control Room item and the Field Map item
 instead, both of which are genuine server-initiated `ActionFormData`/`ModalFormData` forms.
 
-## HUD corner overlay (JSON UI)
+## HUD overlays (JSON UI)
 
-All HUD text (minimap radar, compass, food, durability) is written through `player.onScreenDisplay.setActionBar(...)`
-in `ui/HudManager.ts`, which is the only per-tick text surface the Script API exposes (there is no custom/free-form
-`ScreenDisplay` widget API in the current `@minecraft/server`). To get **visual parity with a persistent corner
-minimap** instead of the vanilla bottom-center, auto-fading action bar text, each resource pack variant
-(`RP/`, `RP_Aggressive/`, `RP_Extreme/`) ships a JSON UI override at `ui/hud_screen.json`:
+The HUD now uses two independent public display channels instead of mixing every feature into one box:
 
-- Re-anchors the vanilla `hud_actionbar_text` panel from bottom-center to the **top-left corner** (`anchor_from`/`anchor_to: top_left`, small pixel offset), and left-aligns the text instead of centering it.
-- Forces `alpha: 1` on the panel and its text label, replacing the vanilla fade-in/fade-out animation bindings so the box stays fully opaque and **persistent** instead of fading out ~3 seconds after each update.
-- Adds a `visible` binding that hides the panel whenever the action bar string is empty, so nothing is drawn before the HUD manager's first tick or while all HUD sections are disabled in Player Settings.
-- Registered via `ui/_ui_defs.json` (`"ui_defs": ["ui/hud_screen.json"]`) in each pack.
+- The **compass** uses the title/subtitle channel and is centered in a translucent box directly above the
+  vanilla health/armor/hunger row. It always shows rotating cardinal directions and adds active-waypoint
+  direction/distance when one is selected.
+- The **minimap** alone uses the actionbar channel. It renders a color-coded sampled terrain grid plus nearby
+  destination labels in its own translucent box. Player Settings exposes Square/Circle shape and Top left,
+  Top right, Bottom left, or Bottom right position presets. Invisible formatting markers select one of four
+  JSON UI anchors and are stripped before display; unmarked vanilla/third-party actionbar messages retain a
+  bottom-center fallback.
+- Custom hunger/saturation/exhaustion text is no longer rendered. Vanilla health, armor, and hunger remain
+  untouched. Existing settings are migrated with coordinates and durability overlays disabled by default.
 
-Because `hud_actionbar_text` is a single shared vanilla control, this reposition/persistence applies to **any**
-action bar message shown while this resource pack is active (including vanilla messages and other add-ons'
-action bar text), not only this add-on's own HUD — that is an accepted trade-off of the only overlay mechanism
-JSON UI/Script API expose for a "corner box" look. `HudManager.ts` continues to refresh the action bar every
-`hudRefreshTicks` (default every 2 game-ticks via the interval, gated per player by the configured refresh rate)
-so the corner panel's content stays current without re-triggering any fade.
+Each resource pack variant ships the same minimal `ui/hud_screen.json` override and registers it through
+`ui/_ui_defs.json`. JSON UI is unversioned, so physical client verification remains required after Minecraft UI
+updates.
 
 ## Known platform limitations (by design, not a bug)
 

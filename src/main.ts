@@ -2,7 +2,7 @@ import { EntityInventoryComponent, ItemStack, Player, world } from "@minecraft/s
 import { openMachineInspectionForm } from "./ui/forms/CompanionBridgeForms";
 import { openHydraulicControlRoom } from "./ui/HydraulicControlRoom";
 import { openFieldMapMenu } from "./ui/forms/MinimapForms";
-import { startHudManager } from "./ui/HudManager";
+import { startHudManager, clearHudStateForPlayer } from "./ui/HudManager";
 import { registerQuickTransferTracking } from "./features/inventory/QuickTransfer";
 import { registerOptimizationEventTracking, startOptimizationEngine } from "./features/optimization/OptimizationEngine";
 import { startItemMerging } from "./features/optimization/ItemMerge";
@@ -43,6 +43,7 @@ world.afterEvents.playerSpawn.subscribe((event) => {
 
 world.afterEvents.playerLeave.subscribe((event) => {
   clearFogTrackingForPlayer(event.playerId);
+  clearHudStateForPlayer(event.playerId);
 });
 
 world.afterEvents.itemUse.subscribe((event) => {

@@ -13,12 +13,10 @@ const lastOpenedByPlayer = new Map<string, OpenContainerRef>();
 
 /** Tracks the most recently opened block container per player so the Hydraulic Control Room's Quick Transfer action knows what to target. Call once during startup wiring. */
 export function registerQuickTransferTracking(): void {
-  world.afterEvents.blockContainerOpened?.subscribe((event) => {
-    const opener = event.openSource.entity;
-    if (!opener || opener.typeId !== "minecraft:player") return;
-    const player = opener as Player;
-    lastOpenedByPlayer.set(player.id, {
-      dimensionId: event.dimension.id,
+  world.afterEvents.playerInteractWithBlock.subscribe((event) => {
+    if (!event.block.getComponent("minecraft:inventory")?.container) return;
+    lastOpenedByPlayer.set(event.player.id, {
+      dimensionId: event.player.dimension.id,
       x: event.block.location.x,
       y: event.block.location.y,
       z: event.block.location.z,

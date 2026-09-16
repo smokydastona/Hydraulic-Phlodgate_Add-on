@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_rabbit",
       "materials": { "default": "rabbit" },
       "textures": {
-        "default": "textures/entity/rabbit/rabbit_brown"
+        "default": "textures/entity/phlodgate/companion_rabbit"
       },
       "geometry": { "default": "geometry.rabbit.v2" },
       "animations": {

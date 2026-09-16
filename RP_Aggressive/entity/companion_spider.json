@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_spider",
       "materials": { "default": "spider" },
       "textures": {
-        "default": "textures/entity/spider/spider"
+        "default": "textures/entity/phlodgate/companion_spider"
       },
       "geometry": { "default": "geometry.spider.v1.8" },
       "animations": {

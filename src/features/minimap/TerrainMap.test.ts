@@ -40,6 +40,21 @@ describe("Atlas-inspired terrain map helpers", () => {
     expect(formatTerrainGridPixels(grid)).toEqual(["§7█§7█§7█", "§7█§fX§7█", "§7█§7█§7█"]);
   });
 
+  it("masks grid corners for the circular minimap shape", () => {
+    const grid = {
+      centerX: 0,
+      centerZ: 0,
+      cellSize: 4,
+      width: 5,
+      cells: Array.from({ length: 25 }, () => ({ glyph: "#" as const, height: 64, typeId: "minecraft:stone" })),
+    };
+
+    const lines = formatTerrainGridPixels(grid, "circle");
+    expect(lines[0]).toBe(" §7█§7█§7█ ");
+    expect(lines[2]).toBe("§7█§7█§fX§7█§7█");
+    expect(lines[4]).toBe(" §7█§7█§7█ ");
+  });
+
   it("snaps equivalent positions to one cache key", () => {
     expect(terrainCacheKey("minecraft:overworld", 9, 11, 4)).toBe("minecraft:overworld:8:8:4");
     expect(terrainCacheKey("minecraft:overworld", 10, 13, 4)).toBe("minecraft:overworld:8:12:4");

@@ -1,0 +1,130 @@
+{
+  "format_version": "1.8.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_baby_wolf",
+      "materials": {
+        "default": "wolf"
+      },
+      "textures": {
+        "default": "textures/entity/phlodgate/companion_baby_wolf",
+        "angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "pale_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "pale_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "pale_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "ashen_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "ashen_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "ashen_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "black_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "black_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "black_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "chestnut_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "chestnut_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "chestnut_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "rusty_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "rusty_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "rusty_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "snowy_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "snowy_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "snowy_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "spotted_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "spotted_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "spotted_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "striped_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "striped_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "striped_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "woods_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "woods_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "woods_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_pale_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_pale_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_pale_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_ashen_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_ashen_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_ashen_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_black_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_black_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_black_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_chestnut_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_chestnut_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_chestnut_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_rusty_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_rusty_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_rusty_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_snowy_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_snowy_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_snowy_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_spotted_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_spotted_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_spotted_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_striped_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_striped_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_striped_tame": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_woods_default": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_woods_angry": "textures/entity/phlodgate/companion_baby_wolf",
+        "baby_woods_tame": "textures/entity/phlodgate/companion_baby_wolf"
+      },
+      "geometry": {
+        "default": "geometry.wolf",
+        "baby": "geometry.wolf.baby"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.body_shake_angle = 0.05 * query.frame_alpha + query.shake_angle;",
+          "variable.body_roll_progress = Math.clamp((variable.body_shake_angle - 0.16) / 1.8, 0, 1);",
+          "variable.body_rot_z = Math.sin(variable.body_roll_progress * 180) * Math.sin(variable.body_roll_progress * 1980) * 27;",
+          "variable.upper_body_roll_progress = Math.clamp((variable.body_shake_angle - 0.08) / 1.8, 0, 1);",
+          "variable.upper_body_rot_z = (Math.sin(variable.upper_body_roll_progress * 180) * Math.sin(variable.upper_body_roll_progress * 1980) * 27) - variable.body_rot_z;",
+          "variable.tail_roll_progress = Math.clamp((variable.body_shake_angle - 0.2) / 1.8, 0, 1);",
+          "variable.tail_rot_z = (Math.sin(variable.tail_roll_progress * 180) * Math.sin(variable.tail_roll_progress * 1980) * 27) - variable.body_rot_z;",
+          "variable.head_roll_progress = Math.clamp(variable.body_shake_angle / 1.8, 0, 1);",
+          "variable.head_rot_z = (Math.sin(variable.head_roll_progress * 180) * Math.sin(variable.head_roll_progress * 1980) * 27) - variable.body_rot_z;"
+        ],
+        "scale": "query.is_baby ? 2.0 : 1.0"
+      },
+      "animations": {
+        "wolf_setup": "animation.wolf.setup",
+        "wolf_baby_scaling": "animation.wolf.baby_scaling",
+        "wolf_look_at": "animation.common.look_at_target",
+        "wolf_head_rot_z": "animation.wolf.head_rot_z",
+        "wolf_tail_default": "animation.wolf.tail_default",
+        "wolf_angry": "animation.wolf.angry",
+        "wolf_sitting": "animation.wolf.sitting",
+        "wolf_shaking": "animation.wolf.shaking",
+        "wolf_leg_default": "animation.wolf.leg_default",
+        "wolf_baby_sitting": "animation.wolf.baby_sitting"
+      },
+      "animation_controllers": [
+        {
+          "wolf_setup": "controller.animation.wolf.setup"
+        },
+        {
+          "wolf_look_at": "controller.animation.wolf.look_at"
+        },
+        {
+          "wolf_head_rot_z": "controller.animation.wolf.head_rot_z"
+        },
+        {
+          "wolf_tail_default": "controller.animation.wolf.tail_default"
+        },
+        {
+          "wolf_angry": "controller.animation.wolf.angry"
+        },
+        {
+          "wolf_sitting": "controller.animation.wolf.sitting"
+        },
+        {
+          "wolf_shaking": "controller.animation.wolf.shaking"
+        }
+      ],
+      "render_controllers": [
+        "controller.render.wolf.v2"
+      ],
+      "spawn_egg": {
+        "texture": "spawn_egg_wolf"
+      },
+      "enable_attachables": true
+    }
+  }
+}

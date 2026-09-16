@@ -12,7 +12,7 @@ import {
 
 describe("COMPANION_SPECIES", () => {
   it("provides a reasonably sized, uniquely identified selection", () => {
-    expect(COMPANION_SPECIES.length).toBeGreaterThanOrEqual(11);
+    expect(COMPANION_SPECIES).toHaveLength(40);
     const ids = new Set(COMPANION_SPECIES.map((s) => s.id));
     const entityTypeIds = new Set(COMPANION_SPECIES.map((s) => s.entityTypeId));
     expect(ids.size).toBe(COMPANION_SPECIES.length);
@@ -29,6 +29,38 @@ describe("COMPANION_SPECIES", () => {
   it("marks exactly the spider, sniffer, and ravager as rideable", () => {
     const rideableIds = COMPANION_SPECIES.filter((s) => s.rideable).map((s) => s.id).sort();
     expect(rideableIds).toEqual(["ravager", "sniffer", "spider"]);
+  });
+
+  it("contains every supported passive or breedable baby-animal family", () => {
+    const babyIds = COMPANION_SPECIES.filter((species) => species.category === "baby_animal").map((species) => species.id);
+    expect(babyIds).toEqual([
+      "baby_armadillo",
+      "baby_axolotl",
+      "baby_bee",
+      "baby_camel",
+      "baby_cat",
+      "baby_chicken",
+      "baby_cow",
+      "baby_donkey",
+      "baby_fox",
+      "baby_goat",
+      "baby_hoglin",
+      "baby_horse",
+      "baby_llama",
+      "baby_mooshroom",
+      "baby_mule",
+      "baby_ocelot",
+      "baby_panda",
+      "baby_pig",
+      "baby_polar_bear",
+      "baby_rabbit",
+      "baby_sheep",
+      "baby_sniffer",
+      "baby_strider",
+      "baby_turtle",
+      "baby_wolf",
+      "tadpole",
+    ]);
   });
 });
 

@@ -5,7 +5,7 @@
       "identifier": "phlodgate:companion_fox",
       "materials": { "default": "fox" },
       "textures": {
-        "default": "textures/entity/fox/fox"
+        "default": "textures/entity/phlodgate/companion_fox"
       },
       "geometry": { "default": "geometry.fox" },
       "animations": {
