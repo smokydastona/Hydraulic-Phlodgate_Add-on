@@ -10,6 +10,8 @@ import { getAuditLog } from "../features/optimization/OptimizationEngine";
 import { log } from "../util/Logger";
 import { showFormWithRetry } from "./FormRuntime";
 import { readSelection } from "./FormValidation";
+import { CONTROL_ROOM_MENU, visibleMenuEntries } from "./MenuCatalog";
+import { isOperator } from "../settings/Permissions";
 
 const UNSUPPORTED_NOTICE = [
   "The following are NOT available because the Bedrock Script API does not expose the required hooks:",
@@ -28,17 +30,11 @@ const UNSUPPORTED_NOTICE = [
 ].join("\n");
 
 export async function openHydraulicControlRoom(player: Player): Promise<void> {
-  const form = new ActionFormData()
-    .title("Hydraulic Control Room")
-    .body("Phlodgate Add-On master settings")
-    .button("Hydraulic Companion Bridge & Status")
-    .button("UI & Inventory / Recipes")
-    .button("Waypoints & Compass")
-    .button("Field Map / Minimap")
-    .button("Player Settings (Food, Durability, HUDs)")
-    .button("World Settings (Operator)")
-    .button("Optimization Diagnostics")
-    .button("About / Unsupported Features");
+  const entries = visibleMenuEntries(CONTROL_ROOM_MENU, isOperator(player));
+  const form = new ActionFormData().title("Hydraulic Control Room").body(
+    ["Phlodgate Add-On master settings", "", ...entries.map((entry) => `§7${entry.description}`)].join("\n")
+  );
+  for (const entry of entries) form.button(entry.label);
 
   try {
     const response = await showFormWithRetry(player, () => form, { context: "Hydraulic Control Room" });
@@ -46,29 +42,29 @@ export async function openHydraulicControlRoom(player: Player): Promise<void> {
     const selection = readSelection(response);
     if (selection === undefined) return;
 
-    switch (selection) {
-      case 0:
+    switch (entries[selection]?.action) {
+      case "companion":
         await openCompanionBridgeMenu(player);
         break;
-      case 1:
+      case "inventory":
         await openInventoryMenu(player);
         break;
-      case 2:
+      case "waypoints":
         await openWaypointMenu(player);
         break;
-      case 3:
+      case "field_map":
         await openFieldMapMenu(player);
         break;
-      case 4:
+      case "player_settings":
         await openPlayerSettingsForm(player);
         break;
-      case 5:
+      case "world_settings":
         await openWorldSettingsForm(player);
         break;
-      case 6:
+      case "diagnostics":
         await openDiagnosticsMenu(player);
         break;
-      case 7:
+      case "about":
         await showFormWithRetry(
           player,
           () => new MessageFormData().title("About / Unsupported Features").body(UNSUPPORTED_NOTICE).button1("OK").button2("Close"),

@@ -68,6 +68,15 @@ npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddo
 - `RP_Aggressive/`, `RP_Extreme/` — optional static visual presets (manually selectable, not live-toggle)
 - `scripts/` — Node build/package/clean scripts
 
+## Menu and asset compatibility
+
+The Control Room uses a validated catalog of named routes with descriptions and operator-only filtering. This
+borrows the portable workflow from BetterBedrockMenus while staying inside Bedrock's native forms and the
+existing permission model. The add-on intentionally ships no third-party pixel-art textures: linked asset
+repositories contain extracted game art, external credits, or mixed licensing. Existing custom items use
+vanilla texture identifiers, and the compatibility decisions are recorded in
+`docs/Asset-Compatibility-Report.md`.
+
 ### UI and workbench reliability
 
 The high-traffic Control Room and Inventory/Recipes workflows use a local validated form runtime. It handles

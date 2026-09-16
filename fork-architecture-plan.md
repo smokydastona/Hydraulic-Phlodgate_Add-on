@@ -18,6 +18,9 @@ inputs, not code or asset dependencies:
   introducing undocumented Ore UI commands or a second UI runtime.
 - `Block-Workbench`, `Mods-pemc`, `MCVault`, `Bedrock-Nexus`, `OruuCreations`, and the Calagopus editor establish
   desktop/network/file-system product boundaries that are explicitly excluded from this behavior-pack runtime.
+- `BetterBedrockMenus`, `Bedrock-Java-ChibiArtAssets`, `assets-plus`, `MiniX`, `pixel-asset-master-skills`,
+  `PixelSRPG-Forge`, `ClawLibrary`, and `pixel-asset-gen` establish the menu/catalog, provenance, and
+  deterministic-asset boundaries recorded in `docs/Asset-Compatibility-Report.md`.
 
 ## Current architecture
 
@@ -29,6 +32,7 @@ inputs, not code or asset dependencies:
 6. `HudManager.ts` remains the single actionbar writer, preventing minimap, food, durability, coordinate, and compass features from overwriting each other.
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
+9. `MenuCatalog.ts` owns Control Room route metadata, operator visibility, validation, and action-form bounds.
 
 ## Fork boundaries
 
@@ -39,6 +43,9 @@ renderer/assets. Those require separate products with their own distribution, pe
 The add-on may extend the current implementation with additional pure block classifications, companion marker
 contracts, or bounded sampling policies. Any new runtime surface must remain dimension-scoped, cache-bounded,
 exception-safe, and covered by unit tests.
+
+Asset additions must have explicit provenance, a compatible redistribution license, a bounded texture size, and
+a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.
 
 ## Release gates
 
