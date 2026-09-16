@@ -12,7 +12,7 @@
         "armor_none": "textures/entity/phlodgate/companion_baby_donkey"
       },
       "geometry": {
-        "default": "geometry.horse"
+        "default": "geometry.phlodgate.companion_baby_donkey"
       },
       "animations": {
         "setup": "animation.horse.setup",

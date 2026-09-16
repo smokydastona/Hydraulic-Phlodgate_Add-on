@@ -14,7 +14,7 @@
         "baby_brown": "textures/entity/phlodgate/companion_baby_mooshroom"
       },
       "geometry": {
-        "default": "geometry.mooshroom.v2",
+        "default": "geometry.phlodgate.companion_baby_mooshroom",
         "baby": "geometry.cow.baby"
       },
       "animations": {

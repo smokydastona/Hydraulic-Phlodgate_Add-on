@@ -10,6 +10,7 @@ import { startFogController, clearFogTrackingForPlayer } from "./features/fog/Fo
 import { startCompanionDetector } from "./features/companion/CompanionRuntime";
 import { registerCompanionPetSystem } from "./features/companion/CompanionPetRuntime";
 import { quickEquipFromSelectedSlot, startAccessoryRuntime } from "./features/accessories/AccessoryRuntime";
+import { registerLootrSystem } from "./features/lootr/LootrRuntime";
 import { getAccessoryDefinition } from "./features/accessories/AccessoryPlan";
 import { openAccessoryCabinet } from "./ui/forms/AccessoryForms";
 import { invalidateTerrainCache } from "./features/minimap/TerrainSampler";
@@ -87,5 +88,6 @@ startFogController();
 startCompanionDetector();
 registerCompanionPetSystem();
 startAccessoryRuntime();
+registerLootrSystem();
 
 log("Phlodgate Add-On initialized.");

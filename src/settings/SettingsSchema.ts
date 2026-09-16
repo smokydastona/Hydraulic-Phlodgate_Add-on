@@ -74,6 +74,10 @@ export interface WorldSettings {
   fogOptimizerEnabled: boolean;
   volumetricFogEnabled: boolean;
   extremeFpsMode: boolean;
+  /** Lootr-style instanced loot: every player gets their own copy of a naturally generated container. */
+  lootrChestsEnabled: boolean;
+  trinketWorldLootEnabled: boolean;
+  trinketLootChancePercent: number;
   protectedEntityTypeIds: string[];
 }
 
@@ -97,6 +101,9 @@ export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
   fogOptimizerEnabled: true,
   volumetricFogEnabled: true,
   extremeFpsMode: false,
+  lootrChestsEnabled: true,
+  trinketWorldLootEnabled: true,
+  trinketLootChancePercent: 12,
   protectedEntityTypeIds: [],
 };
 
@@ -121,5 +128,8 @@ export function migratePlayerSettings(payload: VersionedPayload<Partial<PlayerSe
 }
 
 export function migrateWorldSettings(payload: VersionedPayload<Partial<WorldSettings>>): WorldSettings {
-  return { ...DEFAULT_WORLD_SETTINGS, ...payload.data };
+  const migrated = { ...DEFAULT_WORLD_SETTINGS, ...payload.data };
+  const chance = Number(migrated.trinketLootChancePercent);
+  migrated.trinketLootChancePercent = Number.isFinite(chance) ? Math.min(100, Math.max(0, Math.round(chance))) : 12;
+  return migrated;
 }

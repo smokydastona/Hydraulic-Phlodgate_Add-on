@@ -17,7 +17,7 @@
         "baby_warm": "textures/entity/phlodgate/companion_baby_cow"
       },
       "geometry": {
-        "default": "geometry.cow.v2",
+        "default": "geometry.phlodgate.companion_baby_cow",
         "warm": "geometry.cow.warm",
         "cold": "geometry.cow.cold",
         "baby": "geometry.cow.baby"

@@ -12,7 +12,7 @@
         "baby": "textures/entity/phlodgate/companion_baby_sheep"
       },
       "geometry": {
-        "default": "geometry.sheep.v1.8",
+        "default": "geometry.phlodgate.companion_baby_sheep",
         "sheared": "geometry.sheep.sheared.v1.8",
         "baby": "geometry.sheep.baby"
       },

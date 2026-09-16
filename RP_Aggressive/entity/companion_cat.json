@@ -3,11 +3,15 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_cat",
-      "materials": { "default": "cat" },
+      "materials": {
+        "default": "cat"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_cat"
       },
-      "geometry": { "default": "geometry.cat" },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_cat"
+      },
       "animations": {
         "sneak": "animation.cat.sneak",
         "walk": "animation.cat.walk",
@@ -17,10 +21,16 @@
         "lie_down": "animation.cat.lie_down"
       },
       "animation_controllers": [
-        { "look_at_target": "controller.animation.cat.look_at_target" },
-        { "move": "controller.animation.cat.move" }
+        {
+          "look_at_target": "controller.animation.cat.look_at_target"
+        },
+        {
+          "move": "controller.animation.cat.move"
+        }
       ],
-      "render_controllers": ["controller.render.cat.v2"]
+      "render_controllers": [
+        "controller.render.cat.v2"
+      ]
     }
   }
 }

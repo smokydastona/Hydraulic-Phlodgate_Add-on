@@ -15,7 +15,7 @@
         "baby_sleep_arctic": "textures/entity/phlodgate/companion_baby_fox"
       },
       "geometry": {
-        "default": "geometry.fox",
+        "default": "geometry.phlodgate.companion_baby_fox",
         "baby": "geometry.fox.baby"
       },
       "animations": {

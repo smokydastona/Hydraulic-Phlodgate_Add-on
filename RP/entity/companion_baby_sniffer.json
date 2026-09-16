@@ -17,7 +17,7 @@
         "scale": "query.is_baby ? (1 / 0.45) : 1.0"
       },
       "geometry": {
-        "default": "geometry.sniffer",
+        "default": "geometry.phlodgate.companion_baby_sniffer",
         "baby": "geometry.sniffer.baby"
       },
       "animations": {

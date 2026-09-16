@@ -3,20 +3,30 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_sniffer",
-      "materials": { "default": "sniffer" },
+      "materials": {
+        "default": "sniffer"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_sniffer"
       },
-      "geometry": { "default": "geometry.sniffer" },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_sniffer"
+      },
       "animations": {
         "walk": "animation.sniffer.walk",
         "look_at_target": "animation.common.look_at_target"
       },
       "animation_controllers": [
-        { "general": "controller.animation.sniffer.general" },
-        { "walk": "controller.animation.sniffer.walk" }
+        {
+          "general": "controller.animation.sniffer.general"
+        },
+        {
+          "walk": "controller.animation.sniffer.walk"
+        }
       ],
-      "render_controllers": ["controller.render.sniffer.v2"]
+      "render_controllers": [
+        "controller.render.sniffer.v2"
+      ]
     }
   }
 }

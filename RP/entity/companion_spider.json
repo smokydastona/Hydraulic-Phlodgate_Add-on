@@ -3,18 +3,28 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_spider",
-      "materials": { "default": "spider" },
+      "materials": {
+        "default": "spider"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_spider"
       },
-      "geometry": { "default": "geometry.spider.v1.8" },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_spider"
+      },
       "animations": {
         "default_leg_pose": "animation.spider.default_leg_pose",
         "look_at_target": "animation.spider.look_at_target",
         "walk": "animation.spider.walk"
       },
-      "animation_controllers": [{ "move": "controller.animation.spider.move" }],
-      "render_controllers": ["controller.render.spider"]
+      "animation_controllers": [
+        {
+          "move": "controller.animation.spider.move"
+        }
+      ],
+      "render_controllers": [
+        "controller.render.spider"
+      ]
     }
   }
 }

@@ -1,5 +1,5 @@
 // src/main.ts
-import { ItemStack as ItemStack5, world as world10 } from "@minecraft/server";
+import { ItemStack as ItemStack6, world as world11 } from "@minecraft/server";
 
 // src/ui/forms/CompanionBridgeForms.ts
 import { ActionFormData, MessageFormData, ModalFormData } from "@minecraft/server-ui";
@@ -342,6 +342,9 @@ var DEFAULT_WORLD_SETTINGS = {
   fogOptimizerEnabled: true,
   volumetricFogEnabled: true,
   extremeFpsMode: false,
+  lootrChestsEnabled: true,
+  trinketWorldLootEnabled: true,
+  trinketLootChancePercent: 12,
   protectedEntityTypeIds: []
 };
 var SETTINGS_SCHEMA_VERSION = 6;
@@ -357,7 +360,10 @@ function migratePlayerSettings(payload) {
   return migrated;
 }
 function migrateWorldSettings(payload) {
-  return { ...DEFAULT_WORLD_SETTINGS, ...payload.data };
+  const migrated = { ...DEFAULT_WORLD_SETTINGS, ...payload.data };
+  const chance = Number(migrated.trinketLootChancePercent);
+  migrated.trinketLootChancePercent = Number.isFinite(chance) ? Math.min(100, Math.max(0, Math.round(chance))) : 12;
+  return migrated;
 }
 
 // src/util/Logger.ts
@@ -729,7 +735,7 @@ var MODES = ["balanced", "aggressive", "extreme"];
 async function openWorldSettingsForm(player) {
   if (!requireOperator(player)) return;
   const settings = getWorldSettings();
-  const form = new ModalFormData3().title("World Settings (Operator)").dropdown("Optimization mode", MODES, { defaultValueIndex: MODES.indexOf(settings.optimizationMode) }).toggle("Enable despawn optimization", { defaultValue: settings.despawnOptimizationEnabled }).toggle("Enable distant despawn", { defaultValue: settings.distantDespawnEnabled }).toggle("Enable off-screen despawn", { defaultValue: settings.offScreenDespawnEnabled }).toggle("Protect named entities", { defaultValue: settings.protectNamedEntities }).toggle("Protect tamed pets", { defaultValue: settings.protectTamedPets }).toggle("Protect bosses", { defaultValue: settings.protectBosses }).toggle("Protect player-placed armor stands", { defaultValue: settings.protectArmorStands }).toggle("Protect villagers/traders", { defaultValue: settings.protectVillagersAndTraders }).toggle("Protect entities in active combat", { defaultValue: settings.protectEntitiesInCombat }).toggle("Protect modded entities / machine proxies", { defaultValue: settings.protectModdedEntities }).toggle("Audit mode only (log, do not remove)", { defaultValue: settings.auditModeOnly }).toggle("Enable item merging", { defaultValue: settings.itemMergingEnabled }).toggle("Enable debris cleanup", { defaultValue: settings.debrisCleanupEnabled }).toggle("Enable particle cleanup (resource-pack presets)", { defaultValue: settings.particleCleanupEnabled }).toggle("Enable fog optimizer", { defaultValue: settings.fogOptimizerEnabled }).toggle("Enable volumetric fog", { defaultValue: settings.volumetricFogEnabled }).toggle("Extreme FPS mode (minimal fog)", { defaultValue: settings.extremeFpsMode });
+  const form = new ModalFormData3().title("World Settings (Operator)").dropdown("Optimization mode", MODES, { defaultValueIndex: MODES.indexOf(settings.optimizationMode) }).toggle("Enable despawn optimization", { defaultValue: settings.despawnOptimizationEnabled }).toggle("Enable distant despawn", { defaultValue: settings.distantDespawnEnabled }).toggle("Enable off-screen despawn", { defaultValue: settings.offScreenDespawnEnabled }).toggle("Protect named entities", { defaultValue: settings.protectNamedEntities }).toggle("Protect tamed pets", { defaultValue: settings.protectTamedPets }).toggle("Protect bosses", { defaultValue: settings.protectBosses }).toggle("Protect player-placed armor stands", { defaultValue: settings.protectArmorStands }).toggle("Protect villagers/traders", { defaultValue: settings.protectVillagersAndTraders }).toggle("Protect entities in active combat", { defaultValue: settings.protectEntitiesInCombat }).toggle("Protect modded entities / machine proxies", { defaultValue: settings.protectModdedEntities }).toggle("Audit mode only (log, do not remove)", { defaultValue: settings.auditModeOnly }).toggle("Enable item merging", { defaultValue: settings.itemMergingEnabled }).toggle("Enable debris cleanup", { defaultValue: settings.debrisCleanupEnabled }).toggle("Enable particle cleanup (resource-pack presets)", { defaultValue: settings.particleCleanupEnabled }).toggle("Enable fog optimizer", { defaultValue: settings.fogOptimizerEnabled }).toggle("Enable volumetric fog", { defaultValue: settings.volumetricFogEnabled }).toggle("Extreme FPS mode (minimal fog)", { defaultValue: settings.extremeFpsMode }).toggle("Lootr chests (per-player loot in generated containers)", { defaultValue: settings.lootrChestsEnabled }).toggle("Trinkets generate in world loot", { defaultValue: settings.trinketWorldLootEnabled }).slider("Trinket loot chance (%)", 0, 100, { defaultValue: settings.trinketLootChancePercent, valueStep: 1 });
   try {
     const response = await showFormWithRetry(player, () => form, { context: "World settings form" });
     if (!response || response.canceled || !response.formValues) return;
@@ -758,7 +764,10 @@ async function openWorldSettingsForm(player) {
       particleCleanupEnabled: values[14],
       fogOptimizerEnabled: values[15],
       volumetricFogEnabled: values[16],
-      extremeFpsMode: values[17]
+      extremeFpsMode: values[17],
+      lootrChestsEnabled: values[18],
+      trinketWorldLootEnabled: values[19],
+      trinketLootChancePercent: values[20]
     });
     player.sendMessage("\xA7aWorld settings saved.");
   } catch (err) {
@@ -3186,6 +3195,334 @@ function registerCompanionPetSystem() {
   world9.afterEvents.playerLeave.subscribe((event) => onboardingPlayers.delete(event.playerId));
 }
 
+// src/features/lootr/LootrRuntime.ts
+import {
+  ItemStack as ItemStack5,
+  system as system8,
+  world as world10
+} from "@minecraft/server";
+
+// src/features/lootr/LootrPlan.ts
+var MAX_TRACKED_CONTAINERS = 192;
+var MAX_SERIALIZED_LENGTH = 28e3;
+function containerKey(dimensionId, x, y, z) {
+  return `${dimensionId}:${Math.floor(x)}:${Math.floor(y)}:${Math.floor(z)}`;
+}
+function sanitizeEnchantments(raw) {
+  if (!Array.isArray(raw)) return void 0;
+  const result = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") continue;
+    const candidate = entry;
+    const id = typeof candidate.id === "string" ? candidate.id : void 0;
+    const level = Number(candidate.level);
+    if (!id || !Number.isFinite(level) || level <= 0) continue;
+    result.push({ id, level: Math.min(255, Math.floor(level)) });
+  }
+  return result.length > 0 ? result : void 0;
+}
+function sanitizeDescriptor(raw) {
+  if (!raw || typeof raw !== "object") return void 0;
+  const candidate = raw;
+  const typeId = typeof candidate.typeId === "string" ? candidate.typeId.trim() : "";
+  const slot = Number(candidate.slot);
+  const amount = Number(candidate.amount);
+  if (!typeId || !Number.isInteger(slot) || slot < 0 || !Number.isFinite(amount) || amount <= 0) return void 0;
+  const descriptor = { slot, typeId, amount: Math.min(255, Math.floor(amount)) };
+  if (typeof candidate.nameTag === "string" && candidate.nameTag.length > 0) {
+    descriptor.nameTag = candidate.nameTag.slice(0, 64);
+  }
+  if (Array.isArray(candidate.lore)) {
+    const lore = candidate.lore.filter((line) => typeof line === "string").slice(0, 8);
+    if (lore.length > 0) descriptor.lore = lore;
+  }
+  const damage = Number(candidate.damage);
+  if (Number.isFinite(damage) && damage > 0) descriptor.damage = Math.floor(damage);
+  const enchantments = sanitizeEnchantments(candidate.enchantments);
+  if (enchantments) descriptor.enchantments = enchantments;
+  return descriptor;
+}
+function sanitizeDescriptorList(raw) {
+  if (!Array.isArray(raw)) return [];
+  const result = [];
+  for (const entry of raw) {
+    const descriptor = sanitizeDescriptor(entry);
+    if (descriptor) result.push(descriptor);
+  }
+  return result;
+}
+function parseLootrState(raw) {
+  if (!raw || raw.trim() === "") return {};
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const state = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!value || typeof value !== "object") continue;
+      const record = value;
+      const players = {};
+      if (record.players && typeof record.players === "object" && !Array.isArray(record.players)) {
+        for (const [playerId, items] of Object.entries(record.players)) {
+          if (typeof playerId !== "string" || playerId.length === 0) continue;
+          players[playerId] = sanitizeDescriptorList(items);
+        }
+      }
+      const touched = Number(record.touched);
+      state[key] = {
+        snapshot: sanitizeDescriptorList(record.snapshot),
+        players,
+        lastOpener: typeof record.lastOpener === "string" ? record.lastOpener : void 0,
+        touched: Number.isFinite(touched) ? touched : 0
+      };
+    }
+    return state;
+  } catch {
+    return {};
+  }
+}
+function serializeLootrState(state) {
+  const entries = Object.entries(state).sort((a, b) => b[1].touched - a[1].touched);
+  let kept = entries.slice(0, MAX_TRACKED_CONTAINERS);
+  let serialized = JSON.stringify(Object.fromEntries(kept));
+  while (serialized.length > MAX_SERIALIZED_LENGTH && kept.length > 0) {
+    kept = kept.slice(0, kept.length - 1);
+    serialized = JSON.stringify(Object.fromEntries(kept));
+  }
+  return serialized;
+}
+function decideOpenAction(record, playerId) {
+  if (!playerId) return { kind: "none" };
+  if (!record) return { kind: "snapshot", loadFor: playerId };
+  if (record.lastOpener === playerId) return { kind: "none" };
+  return { kind: "load", loadFor: playerId, persistFor: record.lastOpener };
+}
+function copyForPlayer(record, playerId) {
+  const existing = record.players[playerId];
+  const source = existing ?? record.snapshot;
+  return source.map((item) => ({ ...item }));
+}
+function rollTrinketDrop(roll, pick, chancePercent, trinketIds) {
+  if (trinketIds.length === 0) return void 0;
+  if (!Number.isFinite(roll) || !Number.isFinite(pick)) return void 0;
+  const chance = Math.min(100, Math.max(0, chancePercent));
+  if (chance <= 0) return void 0;
+  if (roll * 100 >= chance) return void 0;
+  const index = Math.min(trinketIds.length - 1, Math.max(0, Math.floor(pick * trinketIds.length)));
+  return trinketIds[index];
+}
+function withTrinketInserted(items, trinketTypeId, containerSize) {
+  const used = new Set(items.map((item) => item.slot));
+  for (let slot = 0; slot < containerSize; slot++) {
+    if (used.has(slot)) continue;
+    return [...items.map((item) => ({ ...item })), { slot, typeId: trinketTypeId, amount: 1 }];
+  }
+  return items.map((item) => ({ ...item }));
+}
+
+// src/features/lootr/LootrRuntime.ts
+var LOOTR_STATE_PROPERTY = "phlodgate:lootr_state";
+var PLACED_CONTAINERS_PROPERTY = "phlodgate:lootr_placed";
+var MAX_PLACED_TRACKED = 512;
+var placedContainers = /* @__PURE__ */ new Set();
+var touchCounter = 0;
+function readState() {
+  return parseLootrState(world10.getDynamicProperty(LOOTR_STATE_PROPERTY));
+}
+function writeState(state) {
+  try {
+    world10.setDynamicProperty(LOOTR_STATE_PROPERTY, serializeLootrState(state));
+  } catch (err) {
+    log(`Failed to persist Lootr state: ${String(err)}`);
+  }
+}
+function loadPlacedContainers() {
+  try {
+    const raw = world10.getDynamicProperty(PLACED_CONTAINERS_PROPERTY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    placedContainers = new Set(Array.isArray(parsed) ? parsed.filter((k) => typeof k === "string") : []);
+  } catch {
+    placedContainers = /* @__PURE__ */ new Set();
+  }
+}
+function savePlacedContainers() {
+  try {
+    world10.setDynamicProperty(PLACED_CONTAINERS_PROPERTY, JSON.stringify([...placedContainers]));
+  } catch (err) {
+    log(`Failed to persist player-placed container list: ${String(err)}`);
+  }
+}
+function getContainer2(block) {
+  try {
+    const inventory = block.getComponent("minecraft:inventory");
+    return inventory?.container ?? void 0;
+  } catch {
+    return void 0;
+  }
+}
+function describeItem(item, slot) {
+  const descriptor = { slot, typeId: item.typeId, amount: item.amount };
+  if (item.nameTag) descriptor.nameTag = item.nameTag;
+  const lore = item.getLore();
+  if (lore.length > 0) descriptor.lore = lore;
+  try {
+    const durability = item.getComponent("minecraft:durability");
+    if (durability && durability.damage > 0) descriptor.damage = durability.damage;
+  } catch {
+  }
+  try {
+    const enchantable = item.getComponent("minecraft:enchantable");
+    const enchantments = enchantable?.getEnchantments() ?? [];
+    if (enchantments.length > 0) {
+      descriptor.enchantments = enchantments.map((entry) => ({ id: entry.type.id, level: entry.level }));
+    }
+  } catch {
+  }
+  return descriptor;
+}
+function buildItem(descriptor) {
+  let item;
+  try {
+    item = new ItemStack5(descriptor.typeId, descriptor.amount);
+  } catch {
+    return void 0;
+  }
+  if (descriptor.nameTag) item.nameTag = descriptor.nameTag;
+  if (descriptor.lore) item.setLore(descriptor.lore);
+  if (descriptor.damage !== void 0) {
+    try {
+      const durability = item.getComponent("minecraft:durability");
+      if (durability) durability.damage = Math.min(durability.maxDurability, descriptor.damage);
+    } catch {
+    }
+  }
+  if (descriptor.enchantments) {
+    try {
+      const enchantable = item.getComponent("minecraft:enchantable");
+      for (const entry of descriptor.enchantments) {
+        try {
+          enchantable?.addEnchantment({ type: entry.id, level: entry.level });
+        } catch {
+        }
+      }
+    } catch {
+    }
+  }
+  return item;
+}
+function snapshotContainer(container) {
+  const items = [];
+  for (let slot = 0; slot < container.size; slot++) {
+    const item = container.getItem(slot);
+    if (item) items.push(describeItem(item, slot));
+  }
+  return items;
+}
+function applyToContainer(container, items) {
+  for (let slot = 0; slot < container.size; slot++) container.setItem(slot, void 0);
+  for (const descriptor of items) {
+    if (descriptor.slot >= container.size) continue;
+    const item = buildItem(descriptor);
+    if (item) container.setItem(descriptor.slot, item);
+  }
+}
+function seedTrinket(items, containerSize) {
+  const settings = getWorldSettings();
+  if (!settings.trinketWorldLootEnabled) return items;
+  const trinketIds = ACCESSORY_DEFINITIONS.map((entry) => entry.itemTypeId);
+  const chosen = rollTrinketDrop(Math.random(), Math.random(), settings.trinketLootChancePercent, trinketIds);
+  if (!chosen) return items;
+  return withTrinketInserted(items, chosen, containerSize);
+}
+function handleContainerOpen(player, block) {
+  const settings = getWorldSettings();
+  if (!settings.lootrChestsEnabled) return;
+  let key;
+  let container;
+  try {
+    if (!block.isValid || !player.isValid) return;
+    key = containerKey(block.dimension.id, block.location.x, block.location.y, block.location.z);
+    if (placedContainers.has(key)) return;
+    container = getContainer2(block);
+  } catch (err) {
+    log(`Lootr could not inspect a container: ${String(err)}`);
+    return;
+  }
+  if (!container) return;
+  const state = readState();
+  const existing = state[key];
+  const action = decideOpenAction(existing, player.id);
+  if (action.kind === "none") return;
+  try {
+    if (action.kind === "snapshot") {
+      const generated = seedTrinket(snapshotContainer(container), container.size);
+      if (generated.length === 0) return;
+      state[key] = { snapshot: generated, players: {}, lastOpener: player.id, touched: ++touchCounter };
+      applyToContainer(container, copyForPlayer(state[key], player.id));
+      writeState(state);
+      return;
+    }
+    const record = existing;
+    if (action.persistFor) record.players[action.persistFor] = snapshotContainer(container);
+    applyToContainer(container, copyForPlayer(record, action.loadFor));
+    record.lastOpener = action.loadFor;
+    record.touched = ++touchCounter;
+    state[key] = record;
+    writeState(state);
+  } catch (err) {
+    log(`Lootr failed to swap container contents for ${player.name}: ${String(err)}`);
+  }
+}
+function forgetContainer(dimensionId, x, y, z) {
+  const key = containerKey(dimensionId, x, y, z);
+  let changed = false;
+  if (placedContainers.delete(key)) {
+    savePlacedContainers();
+    changed = true;
+  }
+  const state = readState();
+  if (state[key]) {
+    delete state[key];
+    writeState(state);
+    changed = true;
+  }
+  if (!changed) return;
+}
+function registerLootrSystem() {
+  loadPlacedContainers();
+  world10.afterEvents.playerPlaceBlock.subscribe((event) => {
+    try {
+      if (!getContainer2(event.block)) return;
+      const key = containerKey(event.block.dimension.id, event.block.location.x, event.block.location.y, event.block.location.z);
+      if (placedContainers.size >= MAX_PLACED_TRACKED) {
+        const oldest = placedContainers.values().next().value;
+        if (typeof oldest === "string") placedContainers.delete(oldest);
+      }
+      placedContainers.add(key);
+      savePlacedContainers();
+    } catch (err) {
+      log(`Lootr failed to record a player-placed container: ${String(err)}`);
+    }
+  });
+  world10.afterEvents.playerBreakBlock.subscribe((event) => {
+    try {
+      forgetContainer(
+        event.dimension.id,
+        event.block.location.x,
+        event.block.location.y,
+        event.block.location.z
+      );
+    } catch (err) {
+      log(`Lootr failed to release a broken container: ${String(err)}`);
+    }
+  });
+  world10.beforeEvents.playerInteractWithBlock.subscribe((event) => {
+    if (event.player.isSneaking) return;
+    const player = event.player;
+    const block = event.block;
+    system8.run(() => handleContainerOpen(player, block));
+  });
+}
+
 // src/main.ts
 var CONTROL_ROOM_ITEM = "phlodgate:control_room_remote";
 var FIELD_MAP_ITEM = "phlodgate:field_map";
@@ -3198,12 +3535,12 @@ function giveItemIfMissing(player, typeId) {
   for (let i = 0; i < container.size; i++) {
     if (container.getItem(i)?.typeId === typeId) return;
   }
-  const leftover = container.addItem(new ItemStack5(typeId, 1));
+  const leftover = container.addItem(new ItemStack6(typeId, 1));
   if (leftover) {
     player.dimension.spawnItem(leftover, player.location);
   }
 }
-world10.afterEvents.playerSpawn.subscribe((event) => {
+world11.afterEvents.playerSpawn.subscribe((event) => {
   if (!event.initialSpawn) return;
   try {
     for (const typeId of STARTER_ITEMS) giveItemIfMissing(event.player, typeId);
@@ -3211,11 +3548,11 @@ world10.afterEvents.playerSpawn.subscribe((event) => {
     log(`Failed to give starter items to ${event.player.name}: ${String(err)}`);
   }
 });
-world10.afterEvents.playerLeave.subscribe((event) => {
+world11.afterEvents.playerLeave.subscribe((event) => {
   clearFogTrackingForPlayer(event.playerId);
   clearHudStateForPlayer(event.playerId);
 });
-world10.afterEvents.itemUse.subscribe((event) => {
+world11.afterEvents.itemUse.subscribe((event) => {
   if (event.itemStack.typeId === CONTROL_ROOM_ITEM) {
     void openHydraulicControlRoom(event.source);
   } else if (event.itemStack.typeId === FIELD_MAP_ITEM) {
@@ -3227,9 +3564,9 @@ world10.afterEvents.itemUse.subscribe((event) => {
     event.source.sendMessage(result.ok ? `\xA7a${result.message}` : `\xA77${result.message}`);
   }
 });
-world10.afterEvents.playerBreakBlock.subscribe(() => invalidateTerrainCache());
-world10.afterEvents.playerPlaceBlock.subscribe(() => invalidateTerrainCache());
-world10.afterEvents.playerInteractWithBlock.subscribe((event) => {
+world11.afterEvents.playerBreakBlock.subscribe(() => invalidateTerrainCache());
+world11.afterEvents.playerPlaceBlock.subscribe(() => invalidateTerrainCache());
+world11.afterEvents.playerInteractWithBlock.subscribe((event) => {
   if (!event.isFirstEvent) return;
   if (event.beforeItemStack?.typeId === CONTROL_ROOM_ITEM) {
     void openMachineInspectionForm(event.player);
@@ -3237,12 +3574,13 @@ world10.afterEvents.playerInteractWithBlock.subscribe((event) => {
 });
 registerQuickTransferTracking();
 registerOptimizationEventTracking();
-startHudManager(() => [...world10.getAllPlayers()]);
+startHudManager(() => [...world11.getAllPlayers()]);
 startOptimizationEngine();
 startItemMerging();
 startFogController();
 startCompanionDetector();
 registerCompanionPetSystem();
 startAccessoryRuntime();
+registerLootrSystem();
 log("Phlodgate Add-On initialized.");
 //# sourceMappingURL=main.js.map

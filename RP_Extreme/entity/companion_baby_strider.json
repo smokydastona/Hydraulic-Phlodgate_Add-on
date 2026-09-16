@@ -15,7 +15,7 @@
         "baby_suffocated": "textures/entity/phlodgate/companion_baby_strider"
       },
       "geometry": {
-        "default": "geometry.strider",
+        "default": "geometry.phlodgate.companion_baby_strider",
         "baby": "geometry.strider.baby"
       },
       "spawn_egg": {

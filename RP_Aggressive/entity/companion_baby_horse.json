@@ -26,7 +26,7 @@
         "armor_diamond": "textures/entity/phlodgate/companion_baby_horse"
       },
       "geometry": {
-        "default": "geometry.horse"
+        "default": "geometry.phlodgate.companion_baby_horse"
       },
       "animations": {
         "setup": "animation.horse.setup",

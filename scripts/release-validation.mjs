@@ -219,6 +219,23 @@ function validateCompanionAssets(root) {
       if (!textures.includes(expectedTexture)) {
         throw new Error(`${clientEntityPath}: must reference its unique texture ${expectedTexture}`);
       }
+
+      // Companion models must be pack-owned files so they can be opened and edited in Blockbench; a bare
+      // vanilla geometry.* reference is not editable.
+      const expectedGeometry = `geometry.phlodgate.companion_${speciesId}`;
+      const geometry = clientEntity?.["minecraft:client_entity"]?.description?.geometry?.default;
+      if (geometry !== expectedGeometry) {
+        throw new Error(`${clientEntityPath}: geometry.default must be ${expectedGeometry}, found ${geometry}`);
+      }
+      const modelPath = path.join(root, packName, "models", "entity", "phlodgate", `companion_${speciesId}.geo.json`);
+      if (!existsSync(modelPath)) throw new Error(`Missing editable companion model: ${modelPath}`);
+      const model = readJson(modelPath);
+      const modelIdentifier =
+        model?.["minecraft:geometry"]?.[0]?.description?.identifier ??
+        Object.keys(model ?? {}).find((key) => key.startsWith("geometry."));
+      if (modelIdentifier !== expectedGeometry) {
+        throw new Error(`${modelPath}: identifier must be ${expectedGeometry}, found ${modelIdentifier}`);
+      }
       const lang = readFileSync(path.join(root, packName, "texts", "en_US.lang"), "utf8");
       if (!lang.includes(`entity.phlodgate:companion_${speciesId}.name=`)) {
         throw new Error(`${packName}/texts/en_US.lang: missing companion_${speciesId} localization`);

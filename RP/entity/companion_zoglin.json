@@ -3,15 +3,28 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_zoglin",
-      "materials": { "default": "zoglin" },
-      "textures": { "default": "textures/entity/phlodgate/companion_zoglin" },
-      "geometry": { "default": "geometry.hoglin" },
+      "materials": {
+        "default": "zoglin"
+      },
+      "textures": {
+        "default": "textures/entity/phlodgate/companion_zoglin"
+      },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_zoglin"
+      },
       "animations": {
         "walk": "animation.hoglin.walk",
         "look_at_target": "animation.hoglin.look_at_target"
       },
-      "scripts": { "animate": ["walk", "look_at_target"] },
-      "render_controllers": ["controller.render.zoglin.v2"]
+      "scripts": {
+        "animate": [
+          "walk",
+          "look_at_target"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.zoglin.v2"
+      ]
     }
   }
 }

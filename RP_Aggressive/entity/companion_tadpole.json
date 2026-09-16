@@ -10,7 +10,7 @@
         "default": "textures/entity/phlodgate/companion_tadpole"
       },
       "geometry": {
-        "default": "geometry.tadpole"
+        "default": "geometry.phlodgate.companion_tadpole"
       },
       "spawn_egg": {
         "texture": "spawn_egg_tadpole"

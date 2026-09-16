@@ -3,18 +3,28 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_rabbit",
-      "materials": { "default": "rabbit" },
+      "materials": {
+        "default": "rabbit"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_rabbit"
       },
-      "geometry": { "default": "geometry.rabbit.v2" },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_rabbit"
+      },
       "animations": {
         "move": "animation.rabbit.move.v2",
         "look_at_target": "animation.common.look_at_target",
         "idle_head_tilt": "animation.rabbit.idle_head_tilt"
       },
-      "animation_controllers": [{ "general": "controller.animation.rabbit.general.v2" }],
-      "render_controllers": ["controller.render.rabbit.v2"]
+      "animation_controllers": [
+        {
+          "general": "controller.animation.rabbit.general.v2"
+        }
+      ],
+      "render_controllers": [
+        "controller.render.rabbit.v2"
+      ]
     }
   }
 }

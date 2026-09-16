@@ -53,7 +53,7 @@
         "baby_jellie_tame": "textures/entity/phlodgate/companion_baby_cat"
       },
       "geometry": {
-        "default": "geometry.cat",
+        "default": "geometry.phlodgate.companion_baby_cat",
         "baby": "geometry.cat.baby"
       },
       "animations": {

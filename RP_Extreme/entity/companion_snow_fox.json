@@ -3,11 +3,15 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_snow_fox",
-      "materials": { "default": "fox" },
+      "materials": {
+        "default": "fox"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_snow_fox"
       },
-      "geometry": { "default": "geometry.fox" },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_snow_fox"
+      },
       "animations": {
         "walk": "animation.quadruped.walk",
         "look_at_target": "animation.common.look_at_target",
@@ -21,9 +25,14 @@
         "move": "controller.animation.fox.move"
       },
       "scripts": {
-        "animate": ["setup", "move"]
+        "animate": [
+          "setup",
+          "move"
+        ]
       },
-      "render_controllers": ["controller.render.fox.v2"]
+      "render_controllers": [
+        "controller.render.fox.v2"
+      ]
     }
   }
 }

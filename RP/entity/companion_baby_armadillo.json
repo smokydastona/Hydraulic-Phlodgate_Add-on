@@ -7,7 +7,7 @@
         "default": "armadillo"
       },
       "geometry": {
-        "default": "geometry.armadillo",
+        "default": "geometry.phlodgate.companion_baby_armadillo",
         "baby": "geometry.armadillo.baby"
       },
       "textures": {

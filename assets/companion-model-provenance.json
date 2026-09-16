@@ -1,0 +1,208 @@
+{
+  "repository": "https://github.com/Mojang/bedrock-samples",
+  "commit": "46ba6ea985fb5a92d79a9419198f10dda14c199d",
+  "license": "Minecraft End User License Agreement (official sample content)",
+  "note": "Official Mojang sample geometry, re-identified under geometry.phlodgate.* so the models can be opened and edited in Blockbench. Bone names are unchanged so the reused vanilla animations still bind.",
+  "models": {
+    "companion_axolotl": {
+      "source": "resource_pack/models/entity/axolotl.geo.json",
+      "vanillaIdentifier": "geometry.axolotl",
+      "sha256": "fb0a5856d939862ca53190ac6458b220c8100c159db2c013052b4acce359d7c1"
+    },
+    "companion_baby_armadillo": {
+      "source": "resource_pack/models/entity/armadillo.geo.json",
+      "vanillaIdentifier": "geometry.armadillo",
+      "sha256": "f1e49b3898248203b67f168d4032b49af2b68481bc3b46be31ed3173fc457413"
+    },
+    "companion_baby_axolotl": {
+      "source": "resource_pack/models/entity/axolotl.geo.json",
+      "vanillaIdentifier": "geometry.axolotl",
+      "sha256": "26c2cb4de49a83502262fe26fe19b5a5684824ac30a32befcf2fa9a7d5e277e5"
+    },
+    "companion_baby_bee": {
+      "source": "resource_pack/models/entity/bee.geo.json",
+      "vanillaIdentifier": "geometry.bee",
+      "sha256": "a13e6557ecbdf26a568c0eabf4331ec34c8fff566d0324a13cd042c090bbcb30"
+    },
+    "companion_baby_camel": {
+      "source": "resource_pack/models/entity/camel.geo.json",
+      "vanillaIdentifier": "geometry.camel",
+      "sha256": "3ca1c93d0f7efc86a541165dae3660fd6fd6119191dc154c934120f06c10dc4c"
+    },
+    "companion_baby_cat": {
+      "source": "resource_pack/models/entity/cat.geo.json",
+      "vanillaIdentifier": "geometry.cat",
+      "sha256": "c6bc018b18cc351d9112dddd3ac8fe457cef1fe8d7f141cd8b24cb9b09d9e098"
+    },
+    "companion_baby_chicken": {
+      "source": "resource_pack/models/entity/chicken.geo.json",
+      "vanillaIdentifier": "geometry.chicken.v1.12",
+      "sha256": "2eae48c7f9fe647062ab501d0c56e10af2e14739e91d8e2405f47881362c7d17"
+    },
+    "companion_baby_cow": {
+      "source": "resource_pack/models/entity/cow.v2.geo.json",
+      "vanillaIdentifier": "geometry.cow.v2",
+      "sha256": "a5d1294e13684b453b7408d03911241c37cee66e389a819c14399f185e9cae3b"
+    },
+    "companion_baby_donkey": {
+      "source": "resource_pack/models/entity/horse_v1.geo.json",
+      "vanillaIdentifier": "geometry.horse",
+      "sha256": "d1605af7f3d0b83bdaca364a92f5deba6e350da3277100dbf6d435b6400592b0"
+    },
+    "companion_baby_fox": {
+      "source": "resource_pack/models/entity/fox.geo.json",
+      "vanillaIdentifier": "geometry.fox",
+      "sha256": "2f5da3f6a9735a36421ca15ab0a62fc7862420c1c4b5b73749d38272d7902bf5"
+    },
+    "companion_baby_goat": {
+      "source": "resource_pack/models/entity/goat.geo.json",
+      "vanillaIdentifier": "geometry.goat",
+      "sha256": "0dcd78eb6eddfb074d7eea182a99898eef58286f3005142c28b71ad19b07ef6d"
+    },
+    "companion_baby_hoglin": {
+      "source": "resource_pack/models/entity/hoglin.geo.json",
+      "vanillaIdentifier": "geometry.hoglin",
+      "sha256": "edd56d1333739e292656e96baadf757a244a132f2cb88ce2dd514a973970c550"
+    },
+    "companion_baby_horse": {
+      "source": "resource_pack/models/entity/horse_v1.geo.json",
+      "vanillaIdentifier": "geometry.horse",
+      "sha256": "4445cf6d6ff9a013149e2ceaa8637624b9fe130515d6a2ced6af34b4125144fc"
+    },
+    "companion_baby_llama": {
+      "source": "resource_pack/models/entity/llama.geo.json",
+      "vanillaIdentifier": "geometry.llama.v1.8",
+      "sha256": "f12eba952e62e838889e16914e9051d36b8bdf251a02b0f2102acb031df01b43"
+    },
+    "companion_baby_mooshroom": {
+      "source": "resource_pack/models/entity/mooshroom.v2.geo.json",
+      "vanillaIdentifier": "geometry.mooshroom.v2",
+      "sha256": "2d294f117e5f594dcc32074347e455f0b1ad666930ef6a135ed8c42b3ddb3d00"
+    },
+    "companion_baby_mule": {
+      "source": "resource_pack/models/entity/horse_v1.geo.json",
+      "vanillaIdentifier": "geometry.horse",
+      "sha256": "d3fc96d2534726aab015f6006e2d5c2d1b3fdebacbafa8b0498de67a74205c9d"
+    },
+    "companion_baby_ocelot": {
+      "source": "resource_pack/models/entity/ocelot.geo.json",
+      "vanillaIdentifier": "geometry.ocelot.v1.8",
+      "sha256": "4f29fd24ac66255490f8aa7e69f399fc6207b844d11c1dd209f14ec4c5a9f10b"
+    },
+    "companion_baby_panda": {
+      "source": "resource_pack/models/entity/panda.geo.json",
+      "vanillaIdentifier": "geometry.panda",
+      "sha256": "77f148f02f2fcbaee861e6ae6682ab59c6f4d396877be299115fa81120cb5826"
+    },
+    "companion_baby_pig": {
+      "source": "resource_pack/models/entity/pig.v3.geo.json",
+      "vanillaIdentifier": "geometry.pig.v3",
+      "sha256": "612bae75c35ca1fe7be22f70e4bfd1c1f5da3b41512458854a22dc087028b066"
+    },
+    "companion_baby_piglin": {
+      "source": "resource_pack/models/entity/baby_piglin.geo.json",
+      "vanillaIdentifier": "geometry.piglin.baby",
+      "sha256": "381359234e14159df28cdcf7109f23747c9d73dc096c831c2faee8a0180af0a4"
+    },
+    "companion_baby_polar_bear": {
+      "source": "resource_pack/models/entity/polar_bear.geo.json",
+      "vanillaIdentifier": "geometry.polarbear",
+      "sha256": "450b6651bdc92cb437161130bf1fda57491fdb663d2d0ca92c2c1d41b0c69b90"
+    },
+    "companion_baby_rabbit": {
+      "source": "resource_pack/models/entity/rabbit.v2.geo.json",
+      "vanillaIdentifier": "geometry.rabbit.v2",
+      "sha256": "8f60c95a6d93f0a414a859bbf30a19543752d1289fe9b6e9c5e32801b7560c92"
+    },
+    "companion_baby_sheep": {
+      "source": "resource_pack/models/entity/sheep.geo.json",
+      "vanillaIdentifier": "geometry.sheep.v1.8",
+      "sha256": "98273198b1615609e3c14d4b6001963141ad3cba102e76b3f086ab3ab8cf1cc3"
+    },
+    "companion_baby_sniffer": {
+      "source": "resource_pack/models/entity/sniffer.geo.json",
+      "vanillaIdentifier": "geometry.sniffer",
+      "sha256": "33afc9b935cb30d785645fcab9f9d9fc8618740f59f9f71ce6ae8f0925afda01"
+    },
+    "companion_baby_strider": {
+      "source": "resource_pack/models/entity/strider.geo.json",
+      "vanillaIdentifier": "geometry.strider",
+      "sha256": "09264043208f8eb87b9d3065c5dd741d886000ee1a07adb8e0b213fd5acfb8d4"
+    },
+    "companion_baby_turtle": {
+      "source": "resource_pack/models/entity/turtle.geo.json",
+      "vanillaIdentifier": "geometry.turtle",
+      "sha256": "840f0e05d866358813627c089c920ea359962af30e9bd190ce7942b97ba03009"
+    },
+    "companion_baby_wolf": {
+      "source": "resource_pack/models/entity/wolf.geo.json",
+      "vanillaIdentifier": "geometry.wolf",
+      "sha256": "8f6cd4b883389fa2323eee5b0a1539363b21168e55047cdc59fabb74fffd524d"
+    },
+    "companion_cat": {
+      "source": "resource_pack/models/entity/cat.geo.json",
+      "vanillaIdentifier": "geometry.cat",
+      "sha256": "20477f2c97d98de1084e3d1f4ee26c6af2b90f909211d2af89135e3484af1c65"
+    },
+    "companion_cave_spider": {
+      "source": "resource_pack/models/entity/spider.geo.json",
+      "vanillaIdentifier": "geometry.spider.v1.8",
+      "sha256": "478bed0d16bf12c127f8f1128fff2c790e554d6ca3fc53bcb3148d4a448382ef"
+    },
+    "companion_copper_golem": {
+      "source": "resource_pack/models/entity/copper_golem.geo.json",
+      "vanillaIdentifier": "geometry.copper_golem",
+      "sha256": "b0dd5177c34a195cd07c987f15935e79b9428827c605801f0a2d01a456a152ed"
+    },
+    "companion_creaking": {
+      "source": "resource_pack/models/entity/creaking.geo.json",
+      "vanillaIdentifier": "geometry.creaking",
+      "sha256": "a9fdc19e364c09b016a6d2b8f8eade73ff55815a34ceec3b94ba41ffcfd28527"
+    },
+    "companion_fox": {
+      "source": "resource_pack/models/entity/fox.geo.json",
+      "vanillaIdentifier": "geometry.fox",
+      "sha256": "dd4025a7a25a944440a783579b87bff7f7bd10841e122de66e33dbb8d06031de"
+    },
+    "companion_rabbit": {
+      "source": "resource_pack/models/entity/rabbit.v2.geo.json",
+      "vanillaIdentifier": "geometry.rabbit.v2",
+      "sha256": "6c7fb0e17620d249c18ddab5f0e724a8d44128769cc815b05726baa01c4bc672"
+    },
+    "companion_ravager": {
+      "source": "resource_pack/models/entity/ravager.geo.json",
+      "vanillaIdentifier": "geometry.ravager",
+      "sha256": "c6d5681877b3fc07607ca561259d7e364199fe3bab6f8e17fdaf27511f61a1fe"
+    },
+    "companion_sniffer": {
+      "source": "resource_pack/models/entity/sniffer.geo.json",
+      "vanillaIdentifier": "geometry.sniffer",
+      "sha256": "40b1ac43327ce831be3eaaf7da4f381b1300da93acd0c70e753871cbff0c1011"
+    },
+    "companion_snow_fox": {
+      "source": "resource_pack/models/entity/fox.geo.json",
+      "vanillaIdentifier": "geometry.fox",
+      "sha256": "d7b9d9eaf3c1195e21828aa6c56b5ee36687a09aec8570135eb5fe99939a892c"
+    },
+    "companion_spider": {
+      "source": "resource_pack/models/entity/spider.geo.json",
+      "vanillaIdentifier": "geometry.spider.v1.8",
+      "sha256": "77832803ee5bd8c74e48041405bf4a4fe4b835c2112061f2ff7fe3455a5a574f"
+    },
+    "companion_tadpole": {
+      "source": "resource_pack/models/entity/tadpole.geo.json",
+      "vanillaIdentifier": "geometry.tadpole",
+      "sha256": "20e5072b41f53a8d09a6339eade176d16354a874b4b719449d151b74eb997042"
+    },
+    "companion_wolf": {
+      "source": "resource_pack/models/entity/wolf.geo.json",
+      "vanillaIdentifier": "geometry.wolf",
+      "sha256": "b8dc2a955130db32a407cadefed4a433cf153693d5811bb85121a4d536efbdd5"
+    },
+    "companion_zoglin": {
+      "source": "resource_pack/models/entity/hoglin.geo.json",
+      "vanillaIdentifier": "geometry.hoglin",
+      "sha256": "62c6712a04a63fc8433457ac0a97b3b6097327e37bbeea576f2bb88ce4617a15"
+    }
+  }
+}

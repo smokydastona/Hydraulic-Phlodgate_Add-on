@@ -23,7 +23,7 @@
         "baby_aggressive": "textures/entity/phlodgate/companion_baby_panda"
       },
       "geometry": {
-        "default": "geometry.panda",
+        "default": "geometry.phlodgate.companion_baby_panda",
         "baby": "geometry.panda.baby"
       },
       "animations": {
@@ -40,7 +40,11 @@
         "baby_lying": "animation.panda.baby_lying"
       },
       "scripts": {
-        "animate": ["baby_transform", "walk", "look_at_target"],
+        "animate": [
+          "baby_transform",
+          "walk",
+          "look_at_target"
+        ],
         "scale": "query.is_baby ? (1 / 0.4) : 1.0"
       },
       "render_controllers": [

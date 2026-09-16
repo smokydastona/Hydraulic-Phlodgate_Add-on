@@ -142,6 +142,9 @@ implementation.
 11. `AccessoryPlan.ts` owns the fixed named-slot catalog, trinket compatibility, persisted-state normalization,
   and effect aggregation; `AccessoryRuntime.ts` owns transactional inventory transfer, quick-equip, bounded
   effect refresh, and dynamic-property persistence; `AccessoryForms.ts` owns the Trinket Cabinet workflow.
+12. `LootrPlan.ts` owns pure per-player container-loot decisions: container keying, item-descriptor
+  sanitization, open-action resolution, bounded serialization with least-recently-used eviction, and the
+  deterministic trinket roll. `LootrRuntime.ts` wires those decisions to real containers.
 
 ## Fork boundaries
 
@@ -157,6 +160,32 @@ out-of-range, and cross-dimension targets before rendering, and the player marke
 Accessory additions must use a fixed catalog entry, an explicit compatible slot set, a non-stackable behavior item,
 localization in every resource-pack variant, and idempotent effect reconciliation. Accessory state is player-local
 dynamic-property JSON; no Java NBT, external database, client keybind, or renderer dependency is allowed.
+
+## Instanced container loot (Lootr-style)
+
+Naturally generated containers are virtualized per player: the first player to open one has its generated
+contents captured as an immutable snapshot, and every player thereafter works against their own copy. One
+player can no longer empty a structure chest for everyone.
+
+The implementation is bounded and defensive by construction:
+
+- Containers a player placed are recorded through `playerPlaceBlock` and permanently excluded, so ordinary
+  storage is never rewritten. Breaking a container releases both records.
+- Item descriptors preserve type, count, name, lore, durability damage, and enchantments. Unknown item ids and
+  incompatible enchantments are skipped individually rather than discarding a whole container.
+- The store is capped at 192 containers and 28000 serialized characters, evicting least recently touched
+  entries, because world dynamic properties are size-limited.
+- Empty generated containers are never tracked, and every persisted payload is re-sanitized on read, so a
+  corrupted or hand-edited property degrades to "untracked" instead of throwing.
+
+Trinkets seed into that same snapshot, which is how accessories appear in the world in standalone mode: on
+first open a bounded percentage roll may add one catalog trinket to a free slot. Because the trinket lands in
+the snapshot rather than in one player's copy, every player who opens that container has the same chance to
+find it. Both the instancing and the trinket roll are operator toggles, with the drop chance exposed as a
+0-100 slider in World Settings.
+
+This is not a port of Lootr's Java implementation: Bedrock's Script API exposes no custom container screen, so
+the pack swaps the real container's contents at open time rather than rendering a per-player inventory view.
 
 Asset additions must have explicit provenance, a compatible redistribution license, a bounded texture size, and
 a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.
@@ -177,6 +206,17 @@ from the real block type id sampled at that position: substring family rules (ev
 `*_ore`, deepslate/tuff stone variant, ...) plus a stable hashed fallback that gives blocks this build has
 never seen a consistent, distinguishable color. Machinery published through the companion vector contract is
 deliberately excluded from the map.
+
+Every companion ships an editable model. `scripts/vendor-companion-models.mjs` resolves each species' geometry
+in Mojang's official `bedrock-samples` resource pack, copies it into `<pack>/models/entity/phlodgate/` under
+`geometry.phlodgate.companion_<species>`, and repoints the client entity at the copy. Bone names are left
+untouched, so the reused vanilla animations and render controllers still bind. Both the modern per-entity
+format and the legacy 1.8 combined format are supported, since Mojang ships some mobs in each. The script
+resolves every mapping before writing anything, so a partial failure cannot leave the packs half-repointed,
+and it records the upstream commit, source path, original vanilla identifier, and a SHA-256 per model in
+`assets/companion-model-provenance.json`. Only an explicit `--download` run touches the network.
+`validate:release` fails if any client entity still points at a bare vanilla `geometry.*` identifier, if a
+model file is missing from any variant, or if a model's identifier does not match its species.
 
 ## Release gates
 

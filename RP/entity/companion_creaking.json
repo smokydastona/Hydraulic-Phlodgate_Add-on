@@ -3,13 +3,21 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_creaking",
-      "materials": { "default": "creaking", "eyes": "creaking_eyes" },
-      "geometry": { "default": "geometry.creaking" },
+      "materials": {
+        "default": "creaking",
+        "eyes": "creaking_eyes"
+      },
+      "geometry": {
+        "default": "geometry.phlodgate.companion_creaking"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_creaking",
         "eyes": "textures/entity/phlodgate/companion_creaking"
       },
-      "render_controllers": ["controller.render.creaking", "controller.render.creaking_eyes"],
+      "render_controllers": [
+        "controller.render.creaking",
+        "controller.render.creaking_eyes"
+      ],
       "scripts": {
         "pre_animation": [
           "variable.state = query.property('minecraft:creaking_state');",
@@ -20,7 +28,12 @@
           "variable.twitching = variable.state == 'twitching';",
           "variable.has_emissive_eyes = false;"
         ],
-        "animate": ["look_at_target_controller", "walk_controller", "sway_controller", "twitch_controller"]
+        "animate": [
+          "look_at_target_controller",
+          "walk_controller",
+          "sway_controller",
+          "twitch_controller"
+        ]
       },
       "animations": {
         "look_at_target": "animation.creaking.look_at_target",

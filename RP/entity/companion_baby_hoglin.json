@@ -11,7 +11,7 @@
         "baby": "textures/entity/phlodgate/companion_baby_hoglin"
       },
       "geometry": {
-        "default": "geometry.hoglin",
+        "default": "geometry.phlodgate.companion_baby_hoglin",
         "baby": "geometry.hoglin.baby"
       },
       "spawn_egg": {

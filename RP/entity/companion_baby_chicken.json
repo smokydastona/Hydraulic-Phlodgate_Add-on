@@ -18,7 +18,7 @@
         "baby_cold": "textures/entity/phlodgate/companion_baby_chicken"
       },
       "geometry": {
-        "default": "geometry.chicken.v1.12",
+        "default": "geometry.phlodgate.companion_baby_chicken",
         "warm": "geometry.chicken.v1.12",
         "cold": "geometry.chicken.cold",
         "baby": "geometry.chicken.baby"

@@ -17,7 +17,7 @@
         "baby_angry_nectar": "textures/entity/phlodgate/companion_baby_bee"
       },
       "geometry": {
-        "default": "geometry.bee",
+        "default": "geometry.phlodgate.companion_baby_bee",
         "baby": "geometry.bee.baby"
       },
       "animations": {

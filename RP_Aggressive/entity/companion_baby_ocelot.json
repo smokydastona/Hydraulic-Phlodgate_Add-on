@@ -15,7 +15,7 @@
         "baby_wild": "textures/entity/phlodgate/companion_baby_ocelot"
       },
       "geometry": {
-        "default": "geometry.ocelot.v1.8",
+        "default": "geometry.phlodgate.companion_baby_ocelot",
         "baby": "geometry.cat.baby"
       },
       "animations": {

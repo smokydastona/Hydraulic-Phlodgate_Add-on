@@ -32,7 +32,10 @@ export async function openWorldSettingsForm(player: Player): Promise<void> {
     .toggle("Enable particle cleanup (resource-pack presets)", { defaultValue: settings.particleCleanupEnabled })
     .toggle("Enable fog optimizer", { defaultValue: settings.fogOptimizerEnabled })
     .toggle("Enable volumetric fog", { defaultValue: settings.volumetricFogEnabled })
-    .toggle("Extreme FPS mode (minimal fog)", { defaultValue: settings.extremeFpsMode });
+    .toggle("Extreme FPS mode (minimal fog)", { defaultValue: settings.extremeFpsMode })
+    .toggle("Lootr chests (per-player loot in generated containers)", { defaultValue: settings.lootrChestsEnabled })
+    .toggle("Trinkets generate in world loot", { defaultValue: settings.trinketWorldLootEnabled })
+    .slider("Trinket loot chance (%)", 0, 100, { defaultValue: settings.trinketLootChancePercent, valueStep: 1 });
 
   try {
     const response = await showFormWithRetry(player, () => form, { context: "World settings form" });
@@ -56,7 +59,10 @@ export async function openWorldSettingsForm(player: Player): Promise<void> {
       boolean,
       boolean,
       boolean,
-      boolean
+      boolean,
+      boolean,
+      boolean,
+      number
     ];
 
     const modeIndex = values[0];
@@ -85,6 +91,9 @@ export async function openWorldSettingsForm(player: Player): Promise<void> {
       fogOptimizerEnabled: values[15],
       volumetricFogEnabled: values[16],
       extremeFpsMode: values[17],
+      lootrChestsEnabled: values[18],
+      trinketWorldLootEnabled: values[19],
+      trinketLootChancePercent: values[20],
     });
 
     player.sendMessage("§aWorld settings saved.");

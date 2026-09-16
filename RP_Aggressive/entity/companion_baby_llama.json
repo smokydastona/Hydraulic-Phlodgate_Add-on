@@ -37,7 +37,7 @@
         "baby_decor_wandering_trader": "textures/entity/phlodgate/companion_baby_llama"
       },
       "geometry": {
-        "default": "geometry.llama.v1.8",
+        "default": "geometry.phlodgate.companion_baby_llama",
         "baby": "geometry.llama.baby"
       },
       "animations": {

@@ -3,13 +3,16 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "phlodgate:companion_copper_golem",
-      "materials": { "default": "copper_golem", "eyes": "copper_golem_eyes" },
+      "materials": {
+        "default": "copper_golem",
+        "eyes": "copper_golem_eyes"
+      },
       "textures": {
         "default": "textures/entity/phlodgate/companion_copper_golem",
         "eyes_default": "textures/entity/phlodgate/companion_copper_golem"
       },
       "geometry": {
-        "default": "geometry.copper_golem",
+        "default": "geometry.phlodgate.companion_copper_golem",
         "standing": "geometry.copper_golem",
         "running": "geometry.copper_golem.running"
       },
@@ -25,9 +28,16 @@
           "v.walking = query.modified_move_speed > 0.01;",
           "v.chest_interaction = 'none';"
         ],
-        "animate": ["look_at_target", "walk_controller", "idle_controller"]
+        "animate": [
+          "look_at_target",
+          "walk_controller",
+          "idle_controller"
+        ]
       },
-      "render_controllers": ["controller.render.copper_golem", "controller.render.copper_golem_eyes"],
+      "render_controllers": [
+        "controller.render.copper_golem",
+        "controller.render.copper_golem_eyes"
+      ],
       "enable_attachables": true
     }
   }

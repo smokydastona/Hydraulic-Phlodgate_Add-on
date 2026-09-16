@@ -24,7 +24,7 @@
         "baby_toast": "textures/entity/phlodgate/companion_baby_rabbit"
       },
       "geometry": {
-        "default": "geometry.rabbit.v2",
+        "default": "geometry.phlodgate.companion_baby_rabbit",
         "baby": "geometry.rabbit.baby"
       },
       "animations": {

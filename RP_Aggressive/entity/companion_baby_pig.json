@@ -18,7 +18,7 @@
         "baby_cold": "textures/entity/phlodgate/companion_baby_pig"
       },
       "geometry": {
-        "default": "geometry.pig.v3",
+        "default": "geometry.phlodgate.companion_baby_pig",
         "baby": "geometry.pig.baby"
       },
       "animations": {

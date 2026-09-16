@@ -4,14 +4,14 @@
     "name": "Phlodgate Add-On (Aggressive Visuals)",
     "description": "Optional static visual preset: reduced particle spam and simplified weather output for better performance. Select manually from the resource pack list, do not enable together with the Extreme preset.",
     "uuid": "491b6f04-8ae6-4506-8c19-bb7ae0c32c0d",
-    "version": [1, 0, 11],
+    "version": [1, 0, 12],
     "min_engine_version": [1, 26, 51]
   },
   "modules": [
     {
       "type": "resources",
       "uuid": "35f6cd8f-5e0e-4da6-b84b-9944822ce4e7",
-      "version": [1, 0, 11]
+      "version": [1, 0, 12]
     }
   ],
   "metadata": {

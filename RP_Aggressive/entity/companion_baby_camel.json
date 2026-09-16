@@ -11,7 +11,7 @@
         "baby": "textures/entity/phlodgate/companion_baby_camel"
       },
       "geometry": {
-        "default": "geometry.camel",
+        "default": "geometry.phlodgate.companion_baby_camel",
         "baby": "geometry.camel.baby"
       },
       "spawn_egg": {
