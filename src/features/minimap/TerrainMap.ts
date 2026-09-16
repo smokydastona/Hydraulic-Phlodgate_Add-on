@@ -53,18 +53,50 @@ export function terrainGlyphForTypeId(typeId: string): TerrainGlyph {
   return "#";
 }
 
+/** Material families, matched as substrings so every current and future variant in a family resolves without
+ *  being enumerated (all `*_leaves`, all `*_log`, all `*_ore`, all deepslate/tuff stone variants, ...). */
+const TERRAIN_COLOR_RULES: ReadonlyArray<readonly [readonly string[], string]> = [
+  [["water", "bubble_column", "kelp", "seagrass"], "§9"],
+  [["lava", "magma"], "§c"],
+  [["leaves", "grass", "moss", "vine", "fern", "bamboo", "azalea", "sapling", "flower", "wheat", "crop"], "§a"],
+  [["sand", "gravel", "clay", "dirt", "mud", "podzol", "terracotta"], "§6"],
+  [["snow", "ice", "powder_snow", "quartz", "calcite", "diorite"], "§f"],
+  [["ore", "raw_", "coal_block", "amethyst", "netherite", "ancient_debris"], "§e"],
+  [["log", "wood", "planks", "stem", "hyphae", "fence", "door", "stairs", "slab"], "§3"],
+  [["stone", "deepslate", "andesite", "granite", "cobble", "basalt", "blackstone", "tuff", "bedrock"], "§7"],
+  [["netherrack", "nylium", "soul", "crimson", "warped", "shroomlight"], "§4"],
+  [["air", "void", "barrier", "structure_void"], "§0"],
+];
+
+/** Stable per-block fallback so blocks this build has never seen still get a consistent, distinguishable
+ *  color instead of collapsing into one flat gray. */
+const FALLBACK_COLORS = ["§1", "§2", "§3", "§5", "§8", "§b", "§d", "§e"] as const;
+
+export function terrainColorForTypeId(typeId: string): string {
+  const normalized = typeId.toLowerCase();
+  for (const [keywords, color] of TERRAIN_COLOR_RULES) {
+    if (keywords.some((keyword) => normalized.includes(keyword))) return color;
+  }
+
+  let hash = 0;
+  for (let index = 0; index < normalized.length; index++) hash = (hash * 31 + normalized.charCodeAt(index)) >>> 0;
+  return FALLBACK_COLORS[hash % FALLBACK_COLORS.length];
+}
+
 /** Renders a richer pseudo-pixel glyph for HUD and Field Map presentation. */
 export function pixelTerrainGlyphForTypeId(typeId: string): string {
-  const normalized = typeId.toLowerCase();
-  if (normalized.includes("water") || normalized.includes("bubble_column")) return "§9█";
-  if (normalized.includes("lava")) return "§c█";
-  if (normalized.includes("grass") || normalized.includes("moss") || normalized.includes("leaves")) return "§a█";
-  if (normalized.includes("sand") || normalized.includes("gravel")) return "§6█";
-  if (normalized.includes("snow") || normalized.includes("ice")) return "§f█";
-  if (normalized.includes("ore") || normalized.includes("coal") || normalized.includes("iron") || normalized.includes("gold") || normalized.includes("copper")) return "§8█";
-  if (normalized.includes("stone") || normalized.includes("deepslate") || normalized.includes("andesite") || normalized.includes("diorite") || normalized.includes("granite")) return "§7█";
-  if (normalized.includes("log") || normalized.includes("wood") || normalized.includes("planks")) return "§e█";
-  return "§8█";
+  return `${terrainColorForTypeId(typeId)}█`;
+}
+
+/** Companion-published targets whose kind marks them as machinery are never drawn on the map. */
+export function isMachineTarget(kind?: string): boolean {
+  const normalized = (kind ?? "").toLowerCase();
+  return (
+    normalized.includes("machine") ||
+    normalized.includes("factory") ||
+    normalized.includes("device") ||
+    normalized.includes("workstation")
+  );
 }
 
 export function formatTerrainGrid(grid: TerrainGrid): string[] {

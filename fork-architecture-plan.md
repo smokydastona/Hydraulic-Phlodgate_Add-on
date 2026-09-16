@@ -114,12 +114,17 @@ Asset additions must have explicit provenance, a compatible redistribution licen
 a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.
 
 `scripts/generate-minimap-textures.mjs` seeds an originally-authored minimap art set under
-`<pack>/textures/ui/phlodgate/minimap/` (frames, block tiles, cave tiles, entity icons, waypoint icons,
-markers). It never overwrites an existing file, so hand-drawn replacements survive every rebuild, and
-`validate:release` fails if any required art file is missing from any resource-pack variant. The minimap frame
-is wired into `hud_screen.json`; the tile and icon files are a real, shipped, art-ready palette, but the Script
-API exposes no way to blit a per-cell texture into a HUD widget, so cell content itself remains font-glyph
-rendered. Replacing the glyph font sheet is the supported route to restyle cells.
+`<pack>/textures/ui/phlodgate/minimap/` (frames, entity icons, waypoint icons, markers). It never overwrites an
+existing file, so hand-drawn replacements survive every rebuild, and `validate:release` fails if any required
+art file is missing from any resource-pack variant. The minimap frame is wired into `hud_screen.json`; the icon
+files are a real, shipped, art-ready palette.
+
+No per-block tile art ships, and `validate:release` actively rejects any `block_*`/`cave_*` file in that
+directory. A fixed tile set can never cover unknown or future blocks, so terrain cell color is instead derived
+from the real block type id sampled at that position: substring family rules (every `*_leaves`, `*_log`,
+`*_ore`, deepslate/tuff stone variant, ...) plus a stable hashed fallback that gives blocks this build has
+never seen a consistent, distinguishable color. Machinery published through the companion vector contract is
+deliberately excluded from the map.
 
 ## Release gates
 

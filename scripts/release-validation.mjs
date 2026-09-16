@@ -185,23 +185,6 @@ function validateMinimapArtSet(packRoot) {
     "frame_square",
     "frame_circle",
     "frame_cave",
-    "block_water",
-    "block_lava",
-    "block_grass",
-    "block_sand",
-    "block_snow",
-    "block_ice",
-    "block_stone",
-    "block_ore",
-    "block_wood",
-    "block_leaves",
-    "block_path",
-    "block_unknown",
-    "cave_floor",
-    "cave_wall",
-    "cave_air",
-    "cave_lava",
-    "cave_ore",
     "entity_player",
     "entity_companion",
     "entity_passive",
@@ -209,12 +192,10 @@ function validateMinimapArtSet(packRoot) {
     "entity_boss",
     "entity_villager",
     "entity_item",
-    "entity_machine",
     "waypoint_default",
     "waypoint_active",
     "waypoint_death",
     "waypoint_home",
-    "waypoint_machine",
     "waypoint_offscreen",
     "marker_north",
     "marker_center",
@@ -223,6 +204,15 @@ function validateMinimapArtSet(packRoot) {
   for (const name of required) {
     const texturePath = path.join(artDirectory, `${name}.png`);
     if (!existsSync(texturePath)) throw new Error(`Missing minimap art asset: ${texturePath}`);
+  }
+
+  // Terrain cell color is derived from the real block type id at runtime, so no per-block tile art may ship:
+  // a fixed tile set could never cover unknown or future blocks.
+  for (const stalePrefix of ["block_", "cave_"]) {
+    const stale = readdirSync(artDirectory).filter((entry) => entry.startsWith(stalePrefix));
+    if (stale.length > 0) {
+      throw new Error(`${artDirectory}: per-block tile art is not supported (${stale.join(", ")})`);
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatTerrainGrid, formatTerrainGridPixels, terrainCacheKey, terrainGlyphForTypeId, pixelTerrainGlyphForTypeId, parseCompanionVectorPayload } from "./TerrainMap";
+import { formatTerrainGrid, formatTerrainGridPixels, terrainCacheKey, terrainGlyphForTypeId, pixelTerrainGlyphForTypeId, parseCompanionVectorPayload, isMachineTarget } from "./TerrainMap";
 
 describe("Atlas-inspired terrain map helpers", () => {
   it("classifies common surface blocks into stable glyphs", () => {
@@ -25,7 +25,32 @@ describe("Atlas-inspired terrain map helpers", () => {
     expect(pixelTerrainGlyphForTypeId("minecraft:water")).toBe("§9█");
     expect(pixelTerrainGlyphForTypeId("minecraft:grass_block")).toBe("§a█");
     expect(pixelTerrainGlyphForTypeId("minecraft:stone")).toBe("§7█");
-    expect(pixelTerrainGlyphForTypeId("minecraft:iron_ore")).toBe("§8█");
+    expect(pixelTerrainGlyphForTypeId("minecraft:iron_ore")).toBe("§e█");
+  });
+
+  it("resolves every leaf variant through one family rule", () => {
+    for (const leaf of ["oak_leaves", "cherry_leaves", "azalea_leaves", "pale_oak_leaves", "some_future_leaves"]) {
+      expect(pixelTerrainGlyphForTypeId(`minecraft:${leaf}`)).toBe("§a█");
+    }
+  });
+
+  it("gives unknown blocks a stable, non-uniform fallback color", () => {
+    const first = pixelTerrainGlyphForTypeId("somemod:unheard_of_block");
+    expect(first).toBe(pixelTerrainGlyphForTypeId("somemod:unheard_of_block"));
+
+    const distinct = new Set(
+      ["a:one", "a:two", "a:three", "a:four", "a:five", "a:six"].map((id) => pixelTerrainGlyphForTypeId(id))
+    );
+    expect(distinct.size).toBeGreaterThan(1);
+  });
+
+  it("treats machine-like target kinds as hidden from the map", () => {
+    expect(isMachineTarget("machine")).toBe(true);
+    expect(isMachineTarget("Hydraulic Factory")).toBe(true);
+    expect(isMachineTarget("device")).toBe(true);
+    expect(isMachineTarget("workstation")).toBe(true);
+    expect(isMachineTarget("waypoint")).toBe(false);
+    expect(isMachineTarget(undefined)).toBe(false);
   });
 
   it("formats colorful pseudo-pixel terrain grids with a centered player marker", () => {

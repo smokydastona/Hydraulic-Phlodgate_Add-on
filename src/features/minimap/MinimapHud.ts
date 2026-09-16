@@ -3,7 +3,7 @@ import { getPlayerSettings } from "../../settings/SettingsStore";
 import { angularDelta, bearingDegrees, distanceXZ } from "../../util/Vector";
 import { listWaypoints } from "../waypoints/WaypointManager";
 import { arrowForDelta, formatDistance, isSameDimension } from "../waypoints/WaypointMath";
-import { formatTerrainGridPixels, getCompanionTargetColor, parseCompanionVectorPayload } from "./TerrainMap";
+import { formatTerrainGridPixels, getCompanionTargetColor, isMachineTarget, parseCompanionVectorPayload } from "./TerrainMap";
 import { nearestEntries, withinRadius } from "./MinimapMath";
 import { sampleTerrainGrid } from "./TerrainSampler";
 import { system } from "@minecraft/server";
@@ -44,6 +44,7 @@ export function buildMinimapLines(player: Player): string[] | undefined {
 
   const companionTargets = parseCompanionVectorPayload(player.getDynamicProperty(COMPANION_VECTOR_PROPERTY) as string | undefined)
     .filter((target) => {
+      if (isMachineTarget(target.kind) || isMachineTarget(target.category)) return false;
       const distance = Math.hypot(target.x, target.z);
       const range = target.range;
       if (range?.min !== undefined && distance < range.min) return false;

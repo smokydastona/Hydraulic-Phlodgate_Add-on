@@ -78,16 +78,6 @@ function panelShader(fill, border, corner, round) {
   };
 }
 
-/** Solid map tile with a subtle two-tone dither so adjacent tiles stay readable at small scale. */
-function tileShader(base, accent) {
-  return (x, y) => {
-    const dither = ((x >> 1) + (y >> 1)) % 2 === 0;
-    const color = dither ? base : accent;
-    const bevel = y < 1 ? 16 : y > 14 ? -16 : 0;
-    return [color[0] + bevel, color[1] + bevel, color[2] + bevel, 255];
-  };
-}
-
 /** Centered icon shape on a transparent background. */
 function iconShader(shape, body, outline) {
   return (x, y, width, height) => {
@@ -129,29 +119,6 @@ const frames = {
   frame_cave: [64, 64, panelShader([26, 18, 14, 205], [206, 138, 62], [250, 214, 148], false)],
 };
 
-const blockTiles = {
-  block_water: [[38, 92, 186], [46, 108, 205]],
-  block_lava: [[214, 88, 34], [238, 132, 44]],
-  block_grass: [[74, 150, 68], [88, 170, 78]],
-  block_sand: [[212, 194, 134], [226, 210, 156]],
-  block_snow: [[228, 238, 244], [244, 250, 252]],
-  block_ice: [[150, 204, 232], [176, 222, 242]],
-  block_stone: [[124, 124, 130], [140, 140, 146]],
-  block_ore: [[92, 96, 108], [188, 168, 96]],
-  block_wood: [[124, 90, 52], [142, 106, 64]],
-  block_leaves: [[56, 118, 58], [68, 138, 66]],
-  block_path: [[150, 128, 96], [164, 142, 108]],
-  block_unknown: [[58, 60, 68], [70, 72, 80]],
-};
-
-const caveTiles = {
-  cave_floor: [[86, 74, 62], [102, 88, 72]],
-  cave_wall: [[44, 38, 34], [56, 48, 42]],
-  cave_air: [[22, 20, 24], [30, 28, 32]],
-  cave_lava: [[198, 74, 28], [236, 118, 36]],
-  cave_ore: [[74, 70, 78], [196, 176, 104]],
-};
-
 const icons = {
   entity_player: ["arrow", [96, 220, 240], [236, 252, 255]],
   entity_companion: ["circle", [118, 220, 150], [232, 255, 238]],
@@ -160,12 +127,10 @@ const icons = {
   entity_boss: ["diamond", [176, 74, 200], [244, 208, 252]],
   entity_villager: ["circle", [160, 132, 96], [238, 220, 190]],
   entity_item: ["square", [216, 176, 84], [250, 232, 186]],
-  entity_machine: ["square", [92, 198, 214], [220, 248, 252]],
   waypoint_default: ["pin", [240, 200, 84], [255, 244, 200]],
   waypoint_active: ["pin", [118, 232, 128], [226, 255, 230]],
   waypoint_death: ["pin", [226, 96, 96], [255, 214, 214]],
   waypoint_home: ["pin", [128, 176, 244], [222, 236, 255]],
-  waypoint_machine: ["pin", [96, 214, 230], [220, 250, 255]],
   waypoint_offscreen: ["arrow", [240, 216, 120], [255, 248, 214]],
   marker_north: ["diamond", [236, 240, 248], [150, 160, 180]],
   marker_center: ["circle", [255, 255, 255], [120, 200, 230]],
@@ -174,9 +139,6 @@ const icons = {
 const textures = new Map();
 for (const [name, [width, height, shader]] of Object.entries(frames)) {
   textures.set(name, encodePng(width, height, shader));
-}
-for (const [name, [base, accent]] of [...Object.entries(blockTiles), ...Object.entries(caveTiles)]) {
-  textures.set(name, encodePng(16, 16, tileShader(base, accent)));
 }
 for (const [name, [shape, body, outline]] of Object.entries(icons)) {
   textures.set(name, encodePng(32, 32, iconShader(shape, body, outline)));
