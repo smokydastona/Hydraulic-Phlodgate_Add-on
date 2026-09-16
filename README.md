@@ -50,8 +50,8 @@ npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddo
 2. Copy `dist/Phlodgate_Add-on_v<version>.mcaddon` to a device with Minecraft Bedrock installed and open it,
    **or** import `dist/Phlodgate_BP_v<version>.mcpack` and `dist/Phlodgate_RP_v<version>.mcpack` separately.
 3. In your world's settings, enable both the "Phlodgate Add-On" Behavior Pack and Resource Pack.
-4. Use Minecraft Bedrock 1.26.0 or newer. The manifests require the stable `@minecraft/server` 2.9.0 and
-  `@minecraft/server-ui` 2.1.0 modules used by the companion and HUD runtime.
+4. Use Minecraft Bedrock 26.51 or newer. The manifests require the current stable `@minecraft/server` 2.10.0
+  and `@minecraft/server-ui` 2.2.0 modules used by the companion and HUD runtime.
 5. Join the world. Every player receives a "Hydraulic Control Room" item and a "Phlodgate Field Map" item on
    first spawn. Use the Control Room item for settings, and the Field Map item to view the radar/waypoint
    list and quickly add a waypoint at your current position.

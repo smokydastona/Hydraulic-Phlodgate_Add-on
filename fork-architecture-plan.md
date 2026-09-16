@@ -54,7 +54,7 @@ NBT access, and packet APIs have no counterpart in `@minecraft/server`, and the 
 process) is a different product entirely from a Bedrock Behavior Pack. Their *concepts* (bind a tamed mob to a
 player, invulnerable, right-click opens a menu) are exactly what this feature implements, just built from
 scratch against the real Bedrock APIs verified in `node_modules/@minecraft/server/index.d.ts` for this project's
-pinned `@minecraft/server@2.9.0`.
+pinned `@minecraft/server@2.10.0`.
 
 **The three Bedrock-specific repositories** confirmed custom entity definitions are the right mechanism, but
 their actual model/texture assets were not used: fan-made recreations of Mojang's Minecraft Earth/Legends
@@ -124,7 +124,7 @@ a validation path. Extracted or mixed-license art is not accepted into the shipp
 - Recipe catalogs remain usable with companion registrations through category navigation and pagination.
 - The Behavior Pack has no hard dependency on one visual-variant UUID; this prevents false missing-dependency
   warnings when Balanced, Aggressive, or Extreme is selected. Script dependencies remain pinned to stable
-  `@minecraft/server` 2.9.0 and `@minecraft/server-ui` 2.1.0, with a 1.26.0 minimum engine.
+  `@minecraft/server` 2.10.0 and `@minecraft/server-ui` 2.2.0, with a 26.51 minimum engine.
 - A physical Bedrock client test confirms HUD placement, terrain refresh after block edits, waypoint markers,
   square/circle and four-corner minimap settings, centered compass placement, forced pet selection/spawn,
   sit/mount/shift-click behavior, custom pet textures, and all three resource-pack variants.

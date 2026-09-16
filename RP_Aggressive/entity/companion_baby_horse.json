@@ -82,11 +82,7 @@
       },
       "render_controllers": [
         "controller.render.horse.v1.and.v2"
-      ],
-      "spawn_egg": {
-        "texture": "spawn_egg",
-        "texture_index": 23
-      }
+      ]
     }
   }
 }

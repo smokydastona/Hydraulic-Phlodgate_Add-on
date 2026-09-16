@@ -1,7 +1,8 @@
 {
   "name": "phlodgate-add-on",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
+  "type": "module",
   "description": "Phlodgate Add-On - standalone Bedrock client enhancement pack (Behavior Pack + Resource Pack).",
   "scripts": {
     "generate:pet-textures": "node scripts/generate-pet-textures.mjs",
@@ -16,12 +17,13 @@
     "clean": "node scripts/clean.mjs"
   },
   "devDependencies": {
-    "@minecraft/server": "^2.9.0",
-    "@minecraft/server-ui": "^2.1.0",
+    "@minecraft/server": "2.10.0",
+    "@minecraft/server-ui": "2.2.0",
     "@types/node": "^24.10.0",
     "archiver": "^7.0.1",
     "esbuild": "^0.28.2",
     "typescript": "^5.5.4",
+    "vite": "^8.3.0",
     "vitest": "^5.0.1"
   }
 }

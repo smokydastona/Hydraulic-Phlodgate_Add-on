@@ -89,6 +89,11 @@ for (const entry of babies) {
   description.identifier = `phlodgate:companion_${entry.id}`;
   const texturePath = `textures/entity/phlodgate/companion_${entry.id}`;
   for (const key of Object.keys(description.textures ?? {})) description.textures[key] = texturePath;
+  delete description.spawn_egg;
+  if (entry.id === "baby_panda") {
+    delete description.animation_controllers;
+    description.scripts = { ...(description.scripts ?? {}), animate: ["baby_transform", "walk", "look_at_target"] };
+  }
 
   const behaviorPath = path.join(root, "BP", "entities", `companion_${entry.id}.json`);
   mkdirSync(path.dirname(behaviorPath), { recursive: true });

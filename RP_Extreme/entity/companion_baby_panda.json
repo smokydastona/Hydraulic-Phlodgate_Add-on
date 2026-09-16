@@ -39,26 +39,13 @@
         "baby_rolling": "animation.panda.baby_rolling",
         "baby_lying": "animation.panda.baby_lying"
       },
-      "animation_controllers": [
-        {
-          "move": "controller.animation.panda.move"
-        },
-        {
-          "unhappy": "controller.animation.panda.unhappy"
-        },
-        {
-          "sneezing": "controller.animation.panda.sneezing"
-        }
-      ],
+      "scripts": {
+        "animate": ["baby_transform", "walk", "look_at_target"],
+        "scale": "query.is_baby ? (1 / 0.4) : 1.0"
+      },
       "render_controllers": [
         "controller.render.panda.v2"
-      ],
-      "spawn_egg": {
-        "texture": "spawn_egg_panda"
-      },
-      "scripts": {
-        "scale": "query.is_baby ? (1 / 0.4) : 1.0"
-      }
+      ]
     }
   }
 }

@@ -1,5 +1,5 @@
 import { deflateSync } from "node:zlib";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -107,7 +107,8 @@ for (const [speciesId, [width, height, base, accent, highlight]] of Object.entri
   for (const packName of packNames) {
     const directory = path.join(root, packName, "textures", "entity", "phlodgate");
     mkdirSync(directory, { recursive: true });
-    writeFileSync(path.join(directory, `companion_${speciesId}.png`), png);
+    const texturePath = path.join(directory, `companion_${speciesId}.png`);
+    if (!existsSync(texturePath)) writeFileSync(texturePath, png);
   }
 }
 

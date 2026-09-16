@@ -4,11 +4,12 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const REQUIRED_ENGINE_VERSION = [1, 26, 0];
+const REQUIRED_ENGINE_VERSION = [1, 26, 51];
 const REQUIRED_SCRIPT_MODULES = new Map([
-  ["@minecraft/server", "2.9.0"],
-  ["@minecraft/server-ui", "2.1.0"],
+  ["@minecraft/server", "2.10.0"],
+  ["@minecraft/server-ui", "2.2.0"],
 ]);
+const RIDEABLE_COMPANIONS = new Set(["spider", "sniffer", "ravager"]);
 
 function readJson(filePath) {
   try {
@@ -113,6 +114,14 @@ function validateCompanionAssets(root) {
     for (const hostileComponent of ["minecraft:attack", "minecraft:behavior.melee_attack", "minecraft:behavior.melee_box_attack", "minecraft:behavior.nearest_attackable_target"]) {
       if (behaviorText.includes(`\"${hostileComponent}\"`)) throw new Error(`${behaviorPath}: hostile component ${hostileComponent} is forbidden`);
     }
+    if (RIDEABLE_COMPANIONS.has(speciesId)) {
+      if (!components["minecraft:rideable"] || !components["minecraft:input_ground_controlled"]) {
+        throw new Error(`${behaviorPath}: rideable companions require minecraft:rideable and minecraft:input_ground_controlled`);
+      }
+      if (components["minecraft:item_controllable"] || components["minecraft:behavior.controlled_by_player"]) {
+        throw new Error(`${behaviorPath}: saddle-free mounts must not require item-based control components`);
+      }
+    }
 
     for (const packName of ["RP", "RP_Aggressive", "RP_Extreme"]) {
       const clientEntityPath = path.join(root, packName, "entity", `companion_${speciesId}.json`);
@@ -164,6 +173,18 @@ export function validateRelease(root) {
   // pack dependency on one specific RP UUID caused Bedrock to report a "missing dependency" warning whenever a
   // player enabled a different variant, even though the pack still worked. Enforce that this stays removed.
   const behaviorDependencies = manifests.get("BP").dependencies ?? [];
+  const packageManifest = readJson(path.join(root, "package.json"));
+  const expectedPackVersion = [1, 0, Number(packageManifest.version.split(".")[2])];
+  for (const [packName, manifest] of manifests) {
+    if (compareVersions(manifest.header.version, expectedPackVersion) !== 0) {
+      throw new Error(`${packName}/manifest.json: pack version must match npm release ${expectedPackVersion.join(".")}`);
+    }
+    for (const module of manifest.modules) {
+      if (compareVersions(module.version, manifest.header.version) !== 0) {
+        throw new Error(`${packName}/manifest.json: module ${module.uuid} version must match its header`);
+      }
+    }
+  }
   const resourcePackUuids = new Set(["RP", "RP_Aggressive", "RP_Extreme"].map((name) => manifests.get(name).header.uuid));
   const hardPackDependency = behaviorDependencies.find((dependency) => typeof dependency?.uuid === "string" && resourcePackUuids.has(dependency.uuid));
   if (hardPackDependency) {
@@ -175,6 +196,9 @@ export function validateRelease(root) {
     const dependency = behaviorDependencies.find((entry) => entry?.module_name === moduleName);
     if (dependency?.version !== version) {
       throw new Error(`BP/manifest.json: ${moduleName} must use stable version ${version}`);
+    }
+    if (packageManifest.devDependencies?.[moduleName] !== version) {
+      throw new Error(`package.json: ${moduleName} must exactly match manifest version ${version}`);
     }
   }
 
