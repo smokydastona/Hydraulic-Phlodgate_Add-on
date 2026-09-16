@@ -1175,6 +1175,23 @@ function terrainCacheKey(dimensionId, x, z, cellSize) {
   return `${dimensionId}:${centerX}:${centerZ}:${cellSize}`;
 }
 
+// src/features/minimap/TerrainBudget.ts
+var MAX_WORLD_READS_PER_REFRESH = 96;
+var MAX_REMEMBERED_CELLS = 2e4;
+function canSampleThisRefresh(readsUsed, alreadyRemembered, budget = MAX_WORLD_READS_PER_REFRESH) {
+  if (alreadyRemembered) return false;
+  return readsUsed < Math.max(0, budget);
+}
+function keysToEvict(orderedKeys, limit = MAX_REMEMBERED_CELLS) {
+  const overflow = orderedKeys.length - Math.max(0, limit);
+  if (overflow <= 0) return [];
+  return orderedKeys.slice(0, overflow);
+}
+function cellKeyForBlock(dimensionId, x, z, cellSize) {
+  const size = Math.max(1, Math.floor(cellSize));
+  return `${dimensionId}:${Math.floor(x / size) * size}:${Math.floor(z / size) * size}`;
+}
+
 // src/features/minimap/TerrainSampler.ts
 var DEFAULT_CELL_SIZE = 4;
 var CACHE_TTL_TICKS = 100;
@@ -1184,24 +1201,37 @@ var MAX_GRID_WIDTH = 21;
 var MIN_CELL_SIZE = 1;
 var MAX_CELL_SIZE = 32;
 var cache = /* @__PURE__ */ new Map();
-var MAX_REMEMBERED_CELLS = 2e4;
 var rememberedCells = /* @__PURE__ */ new Map();
 var UNKNOWN_TYPE_ID = "phlodgate:unmapped";
-function sampleCell(dimension, x, z, minY) {
+function rememberCell(memoryKey, cell) {
+  rememberedCells.set(memoryKey, cell);
+  for (const key of keysToEvict([...rememberedCells.keys()], MAX_REMEMBERED_CELLS)) {
+    rememberedCells.delete(key);
+  }
+}
+function sampleCell(dimension, x, z, minY, context) {
   const memoryKey = `${dimension.id}:${x}:${z}`;
+  const remembered = rememberedCells.get(memoryKey);
+  if (!canSampleThisRefresh(context.readsUsed, remembered !== void 0)) {
+    return remembered ?? { glyph: "?", height: minY, typeId: UNKNOWN_TYPE_ID };
+  }
+  context.readsUsed++;
   try {
     const block = dimension.getTopmostBlock({ x, z });
-    if (!block) return { glyph: "?", height: minY, typeId: "minecraft:air" };
+    if (!block) {
+      const cell2 = { glyph: "?", height: minY, typeId: "minecraft:air" };
+      rememberCell(memoryKey, cell2);
+      return cell2;
+    }
     const cell = {
       glyph: terrainGlyphForTypeId(block.typeId),
       height: block.location.y,
       typeId: block.typeId
     };
-    if (rememberedCells.size >= MAX_REMEMBERED_CELLS) rememberedCells.clear();
-    rememberedCells.set(memoryKey, cell);
+    rememberCell(memoryKey, cell);
     return cell;
   } catch {
-    return rememberedCells.get(memoryKey) ?? { glyph: "?", height: minY, typeId: UNKNOWN_TYPE_ID };
+    return remembered ?? { glyph: "?", height: minY, typeId: UNKNOWN_TYPE_ID };
   }
 }
 function sampleTerrainGrid(dimension, centerX, centerZ, currentTick, cellSize = DEFAULT_CELL_SIZE, requestedWidth = DEFAULT_GRID_WIDTH) {
@@ -1217,18 +1247,24 @@ function sampleTerrainGrid(dimension, centerX, centerZ, currentTick, cellSize = 
   const cells = [];
   const heightRange = dimension.heightRange;
   const minY = Math.floor(heightRange.min);
+  const context = { readsUsed: 0 };
   for (let row = -half; row <= half; row++) {
     for (let column = -half; column <= half; column++) {
-      cells.push(sampleCell(dimension, centerGridX + column * safeCellSize, centerGridZ + row * safeCellSize, minY));
+      cells.push(
+        sampleCell(dimension, centerGridX + column * safeCellSize, centerGridZ + row * safeCellSize, minY, context)
+      );
     }
   }
   const grid = { centerX: centerGridX, centerZ: centerGridZ, cellSize: safeCellSize, width, cells };
-  cache.set(key, { expiresAt: currentTick + CACHE_TTL_TICKS, grid });
+  const ttl = context.readsUsed > 0 ? Math.min(CACHE_TTL_TICKS, 20) : CACHE_TTL_TICKS;
+  cache.set(key, { expiresAt: currentTick + ttl, grid });
   return grid;
 }
-function invalidateTerrainCache() {
+function invalidateTerrainAt(dimensionId, x, z) {
   cache.clear();
-  rememberedCells.clear();
+  for (let size = MIN_CELL_SIZE; size <= MAX_CELL_SIZE; size *= 2) {
+    rememberedCells.delete(cellKeyForBlock(dimensionId, x, z, size));
+  }
 }
 
 // src/ui/forms/MinimapForms.ts
@@ -2354,7 +2390,7 @@ import { system as system5 } from "@minecraft/server";
 var RADAR_MAX_LISTED = 3;
 var COMPANION_VECTOR_PROPERTY = "phlodgate:companion_vectors";
 var MAX_COMPANION_TARGETS = 8;
-var HUD_GRID_WIDTH = 17;
+var HUD_GRID_WIDTH = 21;
 function buildTerrainLines(player, shape, cellSize, markers) {
   try {
     const location = player.location;
@@ -3564,23 +3600,34 @@ world11.afterEvents.itemUse.subscribe((event) => {
     event.source.sendMessage(result.ok ? `\xA7a${result.message}` : `\xA77${result.message}`);
   }
 });
-world11.afterEvents.playerBreakBlock.subscribe(() => invalidateTerrainCache());
-world11.afterEvents.playerPlaceBlock.subscribe(() => invalidateTerrainCache());
+world11.afterEvents.playerBreakBlock.subscribe(
+  (event) => invalidateTerrainAt(event.dimension.id, event.block.location.x, event.block.location.z)
+);
+world11.afterEvents.playerPlaceBlock.subscribe(
+  (event) => invalidateTerrainAt(event.dimension.id, event.block.location.x, event.block.location.z)
+);
 world11.afterEvents.playerInteractWithBlock.subscribe((event) => {
   if (!event.isFirstEvent) return;
   if (event.beforeItemStack?.typeId === CONTROL_ROOM_ITEM) {
     void openMachineInspectionForm(event.player);
   }
 });
-registerQuickTransferTracking();
-registerOptimizationEventTracking();
-startHudManager(() => [...world11.getAllPlayers()]);
-startOptimizationEngine();
-startItemMerging();
-startFogController();
-startCompanionDetector();
-registerCompanionPetSystem();
-startAccessoryRuntime();
-registerLootrSystem();
+function safeRegister(name, register) {
+  try {
+    register();
+  } catch (err) {
+    log(`Subsystem "${name}" failed to start and is disabled for this session: ${String(err)}`);
+  }
+}
+safeRegister("quick transfer", registerQuickTransferTracking);
+safeRegister("optimization events", registerOptimizationEventTracking);
+safeRegister("hud manager", () => startHudManager(() => [...world11.getAllPlayers()]));
+safeRegister("optimization engine", startOptimizationEngine);
+safeRegister("item merging", startItemMerging);
+safeRegister("fog controller", startFogController);
+safeRegister("companion detector", startCompanionDetector);
+safeRegister("companion pets", registerCompanionPetSystem);
+safeRegister("accessories", startAccessoryRuntime);
+safeRegister("instanced loot", registerLootrSystem);
 log("Phlodgate Add-On initialized.");
 //# sourceMappingURL=main.js.map

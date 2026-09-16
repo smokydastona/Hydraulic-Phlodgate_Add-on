@@ -34,10 +34,39 @@
   "phlodgate_minimap_small@hud.phlodgate_minimap_box": { "$phlodgate_font_scale": 1.0 },
   "phlodgate_minimap_large@hud.phlodgate_minimap_box": { "$phlodgate_font_scale": 1.41 },
 
+  "phlodgate_plain_actionbar": {
+    "type": "image",
+    "texture": "textures/ui/hud_tip_text_background",
+    "size": ["100%c + 12px", "100%c + 5px"],
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_middle",
+    "offset": [0, -72],
+    "alpha": 0.6,
+    "layer": 30,
+    "$atext": "$actionbar_text",
+    "visible": "((((($atext - '[PGL:TL1]') = $atext) and (($atext - '[PGL:TL2]') = $atext)) and ((($atext - '[PGL:TR1]') = $atext) and (($atext - '[PGL:TR2]') = $atext))) and (((($atext - '[PGL:BL1]') = $atext) and (($atext - '[PGL:BL2]') = $atext)) and ((($atext - '[PGL:BR1]') = $atext) and (($atext - '[PGL:BR2]') = $atext))))",
+    "controls": [
+      {
+        "actionbar_message": {
+          "type": "label",
+          "$atext": "$actionbar_text",
+          "text": "$atext",
+          "anchor_from": "center",
+          "anchor_to": "center",
+          "color": "$tool_tip_text",
+          "localize": false,
+          "shadow": true,
+          "layer": 31
+        }
+      }
+    ]
+  },
+
   "phlodgate_minimap_root": {
     "type": "panel",
     "size": ["100%", "100%"],
     "controls": [
+      { "phlodgate_plain@hud.phlodgate_plain_actionbar": {} },
       { "phlodgate_top_left_small@hud.phlodgate_minimap_small": { "$phlodgate_marker": "[PGL:TL1]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_alignment": "left" } },
       { "phlodgate_top_left_large@hud.phlodgate_minimap_large": { "$phlodgate_marker": "[PGL:TL2]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_alignment": "left" } },
       { "phlodgate_top_right_small@hud.phlodgate_minimap_small": { "$phlodgate_marker": "[PGL:TR1]", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_alignment": "right" } },
@@ -59,10 +88,7 @@
     }
   },
 
-  "hud_actionbar_text": {
-    "$atext": "$actionbar_text",
-    "visible": "((((($atext - '[PGL:TL1]') = $atext) and (($atext - '[PGL:TL2]') = $atext)) and ((($atext - '[PGL:TR1]') = $atext) and (($atext - '[PGL:TR2]') = $atext))) and (((($atext - '[PGL:BL1]') = $atext) and (($atext - '[PGL:BL2]') = $atext)) and ((($atext - '[PGL:BR1]') = $atext) and (($atext - '[PGL:BR2]') = $atext))))"
-  },
+  "hud_actionbar_text": { "ignored": true },
 
   "hud_title_text": {
     "anchor_from": "bottom_middle",

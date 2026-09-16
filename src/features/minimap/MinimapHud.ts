@@ -11,10 +11,9 @@ import { system } from "@minecraft/server";
 const RADAR_MAX_LISTED = 3;
 const COMPANION_VECTOR_PROPERTY = "phlodgate:companion_vectors";
 const MAX_COMPANION_TARGETS = 8;
-// 17x17 grid at 16 blocks/cell gives a half-width radius of 128 blocks (8 * 16),
-// satisfying the "see at least 128 blocks around the player" requirement while
-// keeping enough cells for the terrain to look meaningfully detailed.
-const HUD_GRID_WIDTH = 17;
+// 21x21 cells is the widest grid that still fits a corner box. At the default 1x zoom (16 blocks per
+// cell) that covers a 160-block half-width, comfortably past the 128-block requirement.
+const HUD_GRID_WIDTH = 21;
 
 function buildTerrainLines(player: Player, shape: "square" | "circle", cellSize: number, markers: readonly TerrainMarker[]): string[] {
   try {

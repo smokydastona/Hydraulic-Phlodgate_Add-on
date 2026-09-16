@@ -108,10 +108,20 @@ implementation.
 
 1. `MinimapMath.ts` owns deterministic radar bearings, cardinal rotation, nearest-marker ordering, and radius filtering.
 2. `TerrainMap.ts` owns type-id classification, colored text glyphs, safe companion-vector parsing, and pure grid formatting.
-3. `TerrainSampler.ts` owns bounded `Dimension.getBlock` sampling and a dimension/position/scale/width cache.
-4. `MinimapHud.ts` composes a color-coded 17x17 terrain map at a bounded 1x/2x/4x/8x zoom (16/8/4/2 blocks
-  per cell, preserving a 128-block default radius), with elevation relief and nearest waypoint/companion markers
-  in square or circular form.
+3. `TerrainSampler.ts` owns bounded world sampling, a dimension/position/scale/width grid cache, and the
+  explored-terrain memory. Two rules keep the map usable:
+
+  - Block edits invalidate **only the cell they changed** (`invalidateTerrainAt`). An earlier revision cleared
+    the whole memory on every break/place, which collapsed the map to the currently loaded chunks and was the
+    real cause of the "only a few chunks" complaint. `invalidateTerrainCache` remains for dimension-wide resets
+    and must not be wired to block events.
+  - World reads are budgeted per refresh (`TerrainBudget.ts`). Outside loaded chunks `getTopmostBlock` throws,
+    and a full map would raise hundreds of exceptions every refresh on low-end hardware. Cells already in
+    memory are free to redraw, so an unexplored map fills in progressively instead of spiking, and a partially
+    filled grid uses a short cache TTL so the remaining cells are sampled soon after.
+4. `MinimapHud.ts` composes a color-coded 21x21 terrain map at a bounded 1x/2x/4x/8x zoom (16/8/4/2 blocks
+  per cell; the default 1x covers a 160-block half-width), with elevation relief and nearest waypoint/companion
+  markers in square or circular form.
 5. `MinimapForms.ts` provides the on-demand Field Map and waypoint actions.
 6. `HudManager.ts` owns two independent channels: plain-token-routed actionbar content for the minimap and
   background-free title/subtitle content for the centered compass above vanilla status bars. The minimap token
@@ -133,6 +143,16 @@ implementation.
   A control that needs `$actionbar_text` must be produced by a `hud_actionbar_text_factory` and inserted into
   `root_panel` through a `modifications` array - that is the only documented way to receive the variable in a
   control this pack owns.
+
+  Vanilla's own `hud_actionbar_text` is set to `"ignored": true` rather than being hidden by a molang
+  expression. Relying on an expression left it rendering, so the minimap appeared twice - once in the corner
+  box and once in vanilla's centered box. Because that control is suppressed outright, the pack renders
+  unmarked actionbar messages itself in a bottom-centre box, so third-party and vanilla actionbar text is
+  preserved. `validate:release` enforces both halves of that contract.
+
+  Every subsystem is registered through a `safeRegister` wrapper in `main.ts`. A throw while the script module
+  loads takes the whole behavior pack down with it, which on a console client surfaces as a failure to enter
+  the world; isolating each registration degrades one feature instead of the entire add-on.
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
 9. `MenuCatalog.ts` owns Control Room route metadata, operator visibility, validation, and action-form bounds.

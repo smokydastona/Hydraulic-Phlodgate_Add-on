@@ -143,8 +143,9 @@ Instead, this add-on ships a **Script API Minimap HUD**:
 - A rotating text radar strip (`features/minimap/MinimapHud.ts`) showing the four cardinal directions and
   nearby waypoints as glyphs, positioned by bearing relative to your current facing, plus a distance-sorted
   list of the nearest waypoints.
-- A live sampled 17x17 terrain grid in the persistent HUD, using a bounded 1x/2x/4x/8x zoom control over
-  16/8/4/2 blocks per cell, colored surface classes, elevation shading, and a centered player marker.
+- A live sampled 21x21 terrain grid in the persistent HUD, using a bounded 1x/2x/4x/8x zoom control over
+  16/8/4/2 blocks per cell, colored surface classes, elevation shading, and a centered player marker. At the
+  default 1x zoom that covers a 160-block half-width.
 - Waypoint and valid companion-vector markers overlaid at their real sampled X/Z cells, with hidden machine/item
   categories, disabled targets, out-of-range targets, and cross-dimension waypoints excluded.
 - A **Phlodgate Field Map** item (given on spawn) that opens a full-screen form with the same radar, the
@@ -255,8 +256,15 @@ Each resource pack variant ships the same `ui/hud_screen.json` override. Vanilla
 path and are deliberately **not** listed in `ui/_ui_defs.json`, which registers new UI files only. Two JSON UI
 rules are enforced by `validate:release` because breaking either fails silently in-game: operators may never be
 applied to the hardcoded `$actionbar_text` variable directly (it must be copied into `$atext` first), and any
-control needing that variable must come from a `hud_actionbar_text_factory` inserted into `root_panel`. JSON UI
-is unversioned, so physical client verification remains required after Minecraft UI updates.
+control needing that variable must come from a `hud_actionbar_text_factory` inserted into `root_panel`.
+Vanilla's own actionbar control is suppressed with `"ignored": true` so the map cannot render twice, and the
+pack draws unmarked actionbar messages itself in a bottom-centre box so other content's messages still appear.
+JSON UI is unversioned, so physical client verification remains required after Minecraft UI updates.
+
+The map remembers terrain you have already walked past, so it keeps drawing explored ground after those chunks
+unload. Block edits forget only the single cell they changed. World reads are budgeted per refresh, so an
+unexplored map fills in progressively rather than stalling a console client with hundreds of failed reads at
+once.
 
 ## Known platform limitations (by design, not a bug)
 

@@ -13,7 +13,7 @@ import { quickEquipFromSelectedSlot, startAccessoryRuntime } from "./features/ac
 import { registerLootrSystem } from "./features/lootr/LootrRuntime";
 import { getAccessoryDefinition } from "./features/accessories/AccessoryPlan";
 import { openAccessoryCabinet } from "./ui/forms/AccessoryForms";
-import { invalidateTerrainCache } from "./features/minimap/TerrainSampler";
+import { invalidateTerrainAt } from "./features/minimap/TerrainSampler";
 import { log } from "./util/Logger";
 
 const CONTROL_ROOM_ITEM = "phlodgate:control_room_remote";
@@ -64,8 +64,12 @@ world.afterEvents.itemUse.subscribe((event) => {
   }
 });
 
-world.afterEvents.playerBreakBlock.subscribe(() => invalidateTerrainCache());
-world.afterEvents.playerPlaceBlock.subscribe(() => invalidateTerrainCache());
+world.afterEvents.playerBreakBlock.subscribe((event) =>
+  invalidateTerrainAt(event.dimension.id, event.block.location.x, event.block.location.z)
+);
+world.afterEvents.playerPlaceBlock.subscribe((event) =>
+  invalidateTerrainAt(event.dimension.id, event.block.location.x, event.block.location.z)
+);
 
 world.afterEvents.playerInteractWithBlock.subscribe((event) => {
   if (!event.isFirstEvent) return;
@@ -78,16 +82,26 @@ world.afterEvents.playerInteractWithBlock.subscribe((event) => {
 // (world.beforeEvents.chatSend is not present in this API version), so the Hydraulic Control Room menu
 // is only reachable via the control room item, matching the plan's "custom item" access path.
 
-registerQuickTransferTracking();
-registerOptimizationEventTracking();
+/** A throw while the script module loads takes the whole behavior pack down with it, which on a console
+ *  client surfaces as a failure to enter the world. Each subsystem is isolated so one bad registration
+ *  degrades that single feature instead of the entire add-on. */
+function safeRegister(name: string, register: () => void): void {
+  try {
+    register();
+  } catch (err) {
+    log(`Subsystem "${name}" failed to start and is disabled for this session: ${String(err)}`);
+  }
+}
 
-startHudManager(() => [...world.getAllPlayers()]);
-startOptimizationEngine();
-startItemMerging();
-startFogController();
-startCompanionDetector();
-registerCompanionPetSystem();
-startAccessoryRuntime();
-registerLootrSystem();
+safeRegister("quick transfer", registerQuickTransferTracking);
+safeRegister("optimization events", registerOptimizationEventTracking);
+safeRegister("hud manager", () => startHudManager(() => [...world.getAllPlayers()]));
+safeRegister("optimization engine", startOptimizationEngine);
+safeRegister("item merging", startItemMerging);
+safeRegister("fog controller", startFogController);
+safeRegister("companion detector", startCompanionDetector);
+safeRegister("companion pets", registerCompanionPetSystem);
+safeRegister("accessories", startAccessoryRuntime);
+safeRegister("instanced loot", registerLootrSystem);
 
 log("Phlodgate Add-On initialized.");

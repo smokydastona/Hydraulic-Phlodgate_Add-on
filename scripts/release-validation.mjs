@@ -158,10 +158,20 @@ function validateHudDefinition(filePath) {
     throw new Error(`${filePath}: the minimap factory must be inserted into root_panel via modifications`);
   }
 
+  // Vanilla's actionbar control must be suppressed outright. Leaving it visible and relying on a molang
+  // expression to hide it rendered the minimap twice: once in our corner box and once in vanilla's box.
+  if (hud["hud_actionbar_text"]?.ignored !== true) {
+    throw new Error(`${filePath}: hud_actionbar_text must be ignored, or the minimap renders twice`);
+  }
+  if (!serialized.includes("actionbar_message")) {
+    throw new Error(`${filePath}: a replacement actionbar_message label must render non-Phlodgate messages`);
+  }
+
   const cornerControls = hud["phlodgate_minimap_root"]?.controls ?? [];
   const cornerNames = cornerControls.flatMap((entry) => Object.keys(entry).map((key) => key.split("@")[0]));
-  if (cornerNames.length !== 8) {
-    throw new Error(`${filePath}: expected all 8 minimap corner/size controls, found ${cornerNames.length}`);
+  const corners = cornerNames.filter((name) => name.startsWith("phlodgate_top") || name.startsWith("phlodgate_bottom"));
+  if (corners.length !== 8) {
+    throw new Error(`${filePath}: expected all 8 minimap corner/size controls, found ${corners.length}`);
   }
 }
 
