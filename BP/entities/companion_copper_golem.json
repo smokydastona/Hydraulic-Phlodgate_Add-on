@@ -1,0 +1,64 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "phlodgate:companion_copper_golem",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "properties": {
+        "minecraft:oxidation_level": {
+          "type": "enum",
+          "values": ["unoxidized", "exposed", "weathered", "oxidized"],
+          "default": "unoxidized",
+          "client_sync": true
+        },
+        "minecraft:is_waxed": { "type": "bool", "default": false, "client_sync": true },
+        "minecraft:chest_interaction": {
+          "type": "enum",
+          "values": ["none", "take", "take_fail", "put", "put_fail"],
+          "default": "none",
+          "client_sync": true
+        },
+        "minecraft:has_flower": { "type": "bool", "default": false, "client_sync": true },
+        "minecraft:is_becoming_statue": { "type": "bool", "default": false, "client_sync": true }
+      }
+    },
+    "components": {
+      "minecraft:type_family": { "family": ["phlodgate_companion", "copper_golem", "mob"] },
+      "minecraft:collision_box": { "width": 0.6, "height": 0.98 },
+      "minecraft:health": { "value": 20, "max": 20 },
+      "minecraft:knockback_resistance": { "value": 1 },
+      "minecraft:fire_immune": true,
+      "minecraft:damage_sensor": {
+        "triggers": { "cause": "all", "deals_damage": "no" }
+      },
+      "minecraft:breathable": { "total_supply": 15, "suffocate_time": 0 },
+      "minecraft:physics": {},
+      "minecraft:movement": { "value": 0.2 },
+      "minecraft:movement.basic": {},
+      "minecraft:navigation.walk": { "avoid_damage_blocks": true, "avoid_water": true, "can_pass_doors": true, "can_open_doors": true, "using_door_annotation": true },
+      "minecraft:jump.static": {},
+      "minecraft:can_climb": {},
+      "minecraft:nameable": {},
+      "minecraft:is_tamed": {},
+      "minecraft:tameable": { "probability": 1.0, "tame_items": [] },
+      "minecraft:sittable": {},
+      "minecraft:leashable": { "unleash_on_removal": false },
+      "minecraft:behavior.stay_while_sitting": { "priority": 0 },
+      "minecraft:behavior.follow_owner": {
+        "priority": 1,
+        "speed_multiplier": 1.0,
+        "start_distance": 10,
+        "stop_distance": 2,
+        "post_teleport_distance": -1,
+        "ignore_vibration": true
+      },
+      "minecraft:behavior.teleport_to_owner": {
+        "priority": 2,
+        "filters": { "test": "owner_distance", "operator": ">", "value": 24 }
+      },
+      "minecraft:behavior.look_at_player": { "priority": 8, "look_distance": 6.0, "probability": 0.02 }
+    }
+  }
+}

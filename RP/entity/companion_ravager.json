@@ -1,0 +1,24 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_ravager",
+      "materials": { "default": "ravager" },
+      "textures": {
+        "default": "textures/entity/illager/ravager"
+      },
+      "geometry": { "default": "geometry.ravager" },
+      "animations": {
+        "walk": "animation.ravager.walk",
+        "look_at_target": "animation.common.look_at_target",
+        "idle_mouth": "animation.ravager.idle_mouth",
+        "move": "controller.animation.ravager.move",
+        "head": "controller.animation.ravager.head_movement"
+      },
+      "scripts": {
+        "animate": ["move", "head"]
+      },
+      "render_controllers": ["controller.render.ravager"]
+    }
+  }
+}

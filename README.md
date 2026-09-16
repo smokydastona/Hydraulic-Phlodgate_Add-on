@@ -116,33 +116,47 @@ pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard z
 
 ## Bound companion pet (Control Room access point)
 
-On a player's first spawn in the world, a form lets them choose a bound companion — **Wolf**, **Cat**, or
-**Fox** (`src/features/companion/CompanionPetPlan.ts`, `CompanionPetRuntime.ts`). The companion is:
+On a player's first spawn in the world, a form lets them choose a bound companion from **eleven species**:
+**Wolf, Cat, Fox, Snow Fox, Creaking, Rabbit, Cave Spider, Copper Golem** (all walking, tameable/sittable
+companions) and **Spider, Sniffer, Ravager** (rideable — no saddle required) —
+(`src/features/companion/CompanionPetPlan.ts`, `CompanionPetRuntime.ts`). The companion is:
 
 - **Invulnerable**: a custom entity `minecraft:damage_sensor` rule (`cause: "all"`, `deals_damage: "no"`) plus
   `minecraft:fire_immune` block essentially all damage at the entity-definition level, and
   `world.beforeEvents.entityHurt` additionally cancels any hurt event targeting it as a script-side backstop.
 - **Completely neutral**: it has no attack, target-acquisition, or owner-defense behaviors of any kind — only
-  following, sitting, and looking at the player, so it can never become hostile.
+  following (and, for the rideable species, being steered) and looking at the player, so it can never become
+  hostile. This applies even to species that are hostile mobs in vanilla (Creaking, Ravager) or that natively
+  aren't tameable at all (Fox, Snow Fox, Rabbit, Spider, Cave Spider, Sniffer, Copper Golem) — the custom
+  entity definition simply never includes any attack/target-acquisition components.
 - **Bound to the player**: tamed to its owner via the real `minecraft:tameable` component's `tame()` API at
   spawn, tagged and dynamic-property-linked to the owner's player id, and only that owner can interact with it
-  (`world.beforeEvents.playerInteractWithEntity` cancels the interaction for anyone else).
-- **Sits/stays exactly like a vanilla dog/cat**: it keeps the real `minecraft:tameable` + `minecraft:sittable` +
-  `minecraft:behavior.stay_while_sitting` components, so a plain click toggles sit/stand through the same
-  native engine interaction vanilla tamed mobs use — nothing is reimplemented or faked.
+  (`world.beforeEvents.playerInteractWithEntity` cancels the interaction for anyone else, including mounting a
+  rideable one).
+- **Sits/stays exactly like a vanilla dog/cat, or rides like a saddle-free mount**: the eight walking species
+  keep the real `minecraft:tameable` + `minecraft:sittable` + `minecraft:behavior.stay_while_sitting`
+  components, so a plain click toggles sit/stand through the same native engine interaction vanilla tamed mobs
+  use. The three rideable species (Spider, Sniffer, Ravager) instead carry `minecraft:rideable` +
+  `minecraft:behavior.controlled_by_player` with no saddle/item requirement of any kind — exactly like a boat
+  or minecart, a plain click mounts and the owner steers it directly. Nothing here is reimplemented or faked;
+  every interaction is the engine's own native tamed-mob or rideable-mob behavior.
 - **Opens the Hydraulic Control Room on shift+click**: the owner's sneak-click is detected and cancels the
-  default interaction (so it doesn't also toggle sit) before calling the same `openHydraulicControlRoom()` used
-  by the Control Room Remote item.
+  default interaction (so it doesn't also toggle sit/mount) before calling the same `openHydraulicControlRoom()`
+  used by the Control Room Remote item.
 - **Immortal in practice**: even if something removes it outside of normal damage (e.g. an operator command),
   `world.afterEvents.entityDie` respawns an identical companion near its owner a couple seconds later.
 
-Each species (`BP/entities/companion_wolf.json`, `companion_cat.json`, `companion_fox.json`) is a **custom**
-Phlodgate entity, not a reskinned/overridden vanilla wolf/cat/fox — overriding `minecraft:wolf` directly would
-also change every wild wolf in the world. Its client-side look and animations
-(`RP*/entity/companion_*.json`) reuse the corresponding vanilla mob's real geometry/texture/animation/render
-controller **identifiers** (e.g. `geometry.wolf`, `controller.render.wolf.v2`, `textures/entity/wolf/wolf_tame`)
-exactly like `mojang/bedrock-samples`' own entity files do — this references the game's built-in vanilla assets
-at runtime and does not copy or redistribute any texture/model/animation file.
+Each species (`BP/entities/companion_*.json`) is a **custom** Phlodgate entity, not a reskinned/overridden
+vanilla mob — overriding e.g. `minecraft:wolf` or `minecraft:ravager` directly would also change every wild
+instance of that mob in the world. Its client-side look and animations (`RP*/entity/companion_*.json`) reuse
+the corresponding vanilla mob's real geometry/texture/animation/render controller **identifiers** (e.g.
+`geometry.wolf`, `controller.render.wolf.v2`, `textures/entity/wolf/wolf_tame`) exactly like
+`mojang/bedrock-samples`' own entity files do — this references the game's built-in vanilla assets at runtime
+and does not copy or redistribute any texture/model/animation file. For the two newest mobs (Creaking, Copper
+Golem), the custom entity also declares the same client-synced properties the reused vanilla render
+controllers read (`minecraft:creaking_state`, `minecraft:oxidation_level`, etc.) with fixed, always-neutral
+default values, so those reused visuals resolve correctly without needing any of the vanilla mobs' oxidation,
+statue, or chest-transport logic.
 
 See the "Companion pet research findings" section of `fork-architecture-plan.md` for the full compatibility
 report against the eight external repositories reviewed for this feature.

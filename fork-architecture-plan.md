@@ -64,12 +64,18 @@ shipped companion entities (`phlodgate:companion_wolf/cat/fox`) reference the **
 wolf/cat/fox geometry, textures, and animation/render controllers by identifier only — the same technique
 `mojang/bedrock-samples` itself uses — which needs no new art assets and carries no licensing ambiguity.
 
-**Implementation delivered**: custom, fully neutral, invulnerable, owner-bound companion entities for Wolf,
-Cat, and Fox; a first-spawn species-choice form; native vanilla-identical sit/stand toggling via
-`minecraft:tameable`/`minecraft:sittable`; shift-click routing to `openHydraulicControlRoom()`; layered
-invulnerability (`minecraft:damage_sensor` + `minecraft:fire_immune` + a script-side `entityHurt` cancellation);
-and an `entityDie` respawn safety net. See the README's "Bound companion pet" section for the full behavior
-breakdown and `src/features/companion/CompanionPetPlan.ts`/`CompanionPetRuntime.ts` for the implementation.
+**Implementation delivered**: custom, fully neutral, invulnerable, owner-bound companion entities for eleven
+species — Wolf, Cat, Fox, Snow Fox, Creaking, Rabbit, Cave Spider, and Copper Golem (walking, native
+`minecraft:tameable`/`minecraft:sittable` sit/stand toggle), plus Spider, Sniffer, and Ravager (rideable via
+`minecraft:rideable` + `minecraft:behavior.controlled_by_player`, no saddle/item requirement); a first-spawn
+species-choice form; shift-click routing to `openHydraulicControlRoom()`; layered invulnerability
+(`minecraft:damage_sensor` + `minecraft:fire_immune` + a script-side `entityHurt` cancellation); and an
+`entityDie` respawn safety net. The Creaking and Copper Golem entities additionally declare the same
+client-synced entity properties (`minecraft:creaking_state`, `minecraft:oxidation_level`, etc.) their reused
+vanilla render controllers read, pinned to fixed neutral/unoxidized defaults, since none of those two mobs'
+original hostile/statue/chest-transport logic is included. See the README's "Bound companion pet" section for
+the full behavior breakdown and `src/features/companion/CompanionPetPlan.ts`/`CompanionPetRuntime.ts` for the
+implementation.
 
 ## Current architecture
 

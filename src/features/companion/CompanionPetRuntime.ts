@@ -92,8 +92,8 @@ function handleInteract(event: PlayerInteractWithEntityBeforeEvent): void {
     });
     return;
   }
-  // "allow_default_sit_toggle": leave the event uncancelled so the entity's native tameable/sittable
-  // interaction (identical to a vanilla tamed dog/cat) toggles sit/stand.
+  // "allow_default_interaction": leave the event uncancelled so the entity's own native interaction runs \u2014
+  // the tameable/sittable toggle for a walking companion, or mounting (no saddle required) for a rideable one.
 }
 
 function handleEntityHurt(event: EntityHurtBeforeEvent): void {

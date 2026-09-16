@@ -4,4 +4,12 @@ pack.description=Optional maximum-performance visual preset for low-end devices.
 entity.phlodgate:companion_wolf.name=Companion Wolf
 entity.phlodgate:companion_cat.name=Companion Cat
 entity.phlodgate:companion_fox.name=Companion Fox
+entity.phlodgate:companion_snow_fox.name=Companion Snow Fox
+entity.phlodgate:companion_creaking.name=Companion Creaking
+entity.phlodgate:companion_rabbit.name=Companion Rabbit
+entity.phlodgate:companion_spider.name=Companion Spider
+entity.phlodgate:companion_cave_spider.name=Companion Cave Spider
+entity.phlodgate:companion_sniffer.name=Companion Sniffer
+entity.phlodgate:companion_ravager.name=Companion Ravager
+entity.phlodgate:companion_copper_golem.name=Companion Copper Golem
 

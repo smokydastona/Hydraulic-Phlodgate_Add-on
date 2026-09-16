@@ -1,0 +1,37 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_creaking",
+      "materials": { "default": "creaking", "eyes": "creaking_eyes" },
+      "geometry": { "default": "geometry.creaking" },
+      "textures": {
+        "default": "textures/entity/creaking/creaking",
+        "eyes": "textures/entity/creaking/creaking_eyes"
+      },
+      "render_controllers": ["controller.render.creaking", "controller.render.creaking_eyes"],
+      "scripts": {
+        "pre_animation": [
+          "variable.state = query.property('minecraft:creaking_state');",
+          "variable.is_immobile = variable.state == 'hostile_observed';",
+          "variable.walking = query.modified_move_speed > 0.01;",
+          "variable.attacking = false;",
+          "variable.swaying = query.property('minecraft:creaking_swaying_ticks') > 0;",
+          "variable.twitching = variable.state == 'twitching';",
+          "variable.has_emissive_eyes = false;"
+        ],
+        "animate": ["look_at_target_controller", "walk_controller", "sway_controller", "twitch_controller"]
+      },
+      "animations": {
+        "look_at_target": "animation.creaking.look_at_target",
+        "look_at_target_controller": "controller.animation.creaking.look_at_target",
+        "walk": "animation.creaking.walk",
+        "walk_controller": "controller.animation.creaking.walk",
+        "sway": "animation.creaking.sway",
+        "sway_controller": "controller.animation.creaking.sway",
+        "twitch": "animation.creaking.twitch",
+        "twitch_controller": "controller.animation.creaking.twitch"
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@ import {
 
 describe("COMPANION_SPECIES", () => {
   it("provides a reasonably sized, uniquely identified selection", () => {
-    expect(COMPANION_SPECIES.length).toBeGreaterThanOrEqual(3);
+    expect(COMPANION_SPECIES.length).toBeGreaterThanOrEqual(11);
     const ids = new Set(COMPANION_SPECIES.map((s) => s.id));
     const entityTypeIds = new Set(COMPANION_SPECIES.map((s) => s.entityTypeId));
     expect(ids.size).toBe(COMPANION_SPECIES.length);
@@ -24,6 +24,11 @@ describe("COMPANION_SPECIES", () => {
 
   it("includes the default species", () => {
     expect(findCompanionSpecies(DEFAULT_COMPANION_SPECIES_ID)).toBeDefined();
+  });
+
+  it("marks exactly the spider, sniffer, and ravager as rideable", () => {
+    const rideableIds = COMPANION_SPECIES.filter((s) => s.rideable).map((s) => s.id).sort();
+    expect(rideableIds).toEqual(["ravager", "sniffer", "spider"]);
   });
 });
 
@@ -62,8 +67,8 @@ describe("decideCompanionInteraction", () => {
     expect(decideCompanionInteraction(true, true)).toBe("open_control_room");
   });
 
-  it("allows the default (vanilla-like) sit/stand toggle for the owner's plain click", () => {
-    expect(decideCompanionInteraction(true, false)).toBe("allow_default_sit_toggle");
+  it("allows the default interaction (sit toggle or mount) for the owner's plain click", () => {
+    expect(decideCompanionInteraction(true, false)).toBe("allow_default_interaction");
   });
 });
 
