@@ -70,6 +70,24 @@ npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddo
 - `RP_Aggressive/`, `RP_Extreme/` — optional static visual presets (manually selectable, not live-toggle)
 - `scripts/` — Node build/package/clean scripts
 
+## Trinket Cabinet and accessory abilities
+
+The add-on includes a Bedrock-native accessory system inspired by the portable concepts in CuriosPaper,
+Dorios' Trinkets, Accessories, Accessorify, and Majrusz's Accessories. The **Phlodgate Trinket Cabinet** exposes
+ten physical slots across Head, Necklace, Back, Body, Belt, Hands, Bracelet, two Rings, and Charm. Seven curated
+non-stackable trinkets provide real abilities: Speed, Water Breathing, Slow Falling, Fire Resistance, Night Vision,
+Resistance, and Haste.
+
+Use the cabinet from the Hydraulic Control Room or the starter cabinet item to equip and unequip items. Holding a
+trinket and using it quick-equips it into the first compatible empty slot. State is persisted per player through
+validated dynamic-property JSON. Effects refresh for a short bounded duration and expire naturally after removal,
+so the runtime does not delete unrelated effects supplied by another feature or server.
+
+This is a truthful Script API implementation, not a Java Curios/Accessories port: client keybinds, NBT accessory
+components, loader mixins, armor-stand model layers, Geyser mappings, external databases, and third-party art are
+outside the Bedrock runtime. See `docs/Accessory-Compatibility-Report.md` for the full research, asset/license,
+security, performance, and release disposition.
+
 ## Menu and asset compatibility
 
 The Control Room uses a validated catalog of named routes with descriptions and operator-only filtering. This

@@ -9,12 +9,16 @@ import { startItemMerging } from "./features/optimization/ItemMerge";
 import { startFogController, clearFogTrackingForPlayer } from "./features/fog/FogController";
 import { startCompanionDetector } from "./features/companion/CompanionRuntime";
 import { registerCompanionPetSystem } from "./features/companion/CompanionPetRuntime";
+import { quickEquipFromSelectedSlot, startAccessoryRuntime } from "./features/accessories/AccessoryRuntime";
+import { getAccessoryDefinition } from "./features/accessories/AccessoryPlan";
+import { openAccessoryCabinet } from "./ui/forms/AccessoryForms";
 import { invalidateTerrainCache } from "./features/minimap/TerrainSampler";
 import { log } from "./util/Logger";
 
 const CONTROL_ROOM_ITEM = "phlodgate:control_room_remote";
 const FIELD_MAP_ITEM = "phlodgate:field_map";
-const STARTER_ITEMS = [CONTROL_ROOM_ITEM, FIELD_MAP_ITEM];
+const ACCESSORY_CABINET_ITEM = "phlodgate:trinket_cabinet";
+const STARTER_ITEMS = [CONTROL_ROOM_ITEM, FIELD_MAP_ITEM, ACCESSORY_CABINET_ITEM];
 
 function giveItemIfMissing(player: Player, typeId: string): void {
   const inventory = player.getComponent("minecraft:inventory") as EntityInventoryComponent | undefined;
@@ -51,6 +55,11 @@ world.afterEvents.itemUse.subscribe((event) => {
     void openHydraulicControlRoom(event.source);
   } else if (event.itemStack.typeId === FIELD_MAP_ITEM) {
     void openFieldMapMenu(event.source);
+  } else if (event.itemStack.typeId === ACCESSORY_CABINET_ITEM) {
+    void openAccessoryCabinet(event.source);
+  } else if (getAccessoryDefinition(event.itemStack.typeId)) {
+    const result = quickEquipFromSelectedSlot(event.source);
+    event.source.sendMessage(result.ok ? `§a${result.message}` : `§7${result.message}`);
   }
 });
 
@@ -77,5 +86,6 @@ startItemMerging();
 startFogController();
 startCompanionDetector();
 registerCompanionPetSystem();
+startAccessoryRuntime();
 
 log("Phlodgate Add-On initialized.");

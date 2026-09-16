@@ -44,6 +44,18 @@ inputs, not code or asset dependencies:
   a minimap. Its useful boundary is a restrained control surface and explicit smoke-test discipline. It does not
   provide a Bedrock renderer, and this pack does not claim Xaero compatibility or mutate client key mappings.
   The full source, asset, security, and release disposition is recorded in `docs/Minimap-Fork-Compatibility-Report.md`.
+- `Brothergaming52/CuriosPaper` contributes named accessory slots, duplicate ring slots, quick equip, effect
+  lifecycle, and explicit GUI/API boundaries. Its Paper events, commands, armor-stand models, database, and GPL
+  implementation are not portable.
+- `DoriosStudios/Dorios-Trinkets` is the closest Bedrock reference for script-driven trinket state, effect hooks,
+  and interaction UI. `DoriosStudios/UtilityCraft` and the broader Dorios Studios organization contribute
+  namespaced Bedrock pack organization, extension boundaries, and release discipline; their machines, libraries,
+  and art are not dependencies.
+- `wisp-forest/accessories`, `pajicadvance/accessorify`, and `Majrusz/MajruszsAccessories` contribute the
+  data-driven slot predicate, unique-slot, vanilla-item conversion, utility accessory, and equip/unequip
+  lifecycle concepts. Their Fabric/Forge/NeoForge APIs, NBT components, mixins, keybinds, and render layers are
+  outside the public Bedrock runtime. The complete source, asset, license, security, and release disposition is
+  recorded in `docs/Accessory-Compatibility-Report.md`.
 
 ## Companion pet research findings
 
@@ -112,6 +124,9 @@ implementation.
 10. `CompanionPetPlan.ts` owns the companion species catalog, interaction-decision logic, and spawn-placement
     math (pure/unit-tested); `CompanionPetRuntime.ts` wires it to spawning, taming, interaction routing,
     damage cancellation, and the death-safety-net respawn.
+11. `AccessoryPlan.ts` owns the fixed named-slot catalog, trinket compatibility, persisted-state normalization,
+  and effect aggregation; `AccessoryRuntime.ts` owns transactional inventory transfer, quick-equip, bounded
+  effect refresh, and dynamic-property persistence; `AccessoryForms.ts` owns the Trinket Cabinet workflow.
 
 ## Fork boundaries
 
@@ -123,6 +138,10 @@ The add-on may extend the current implementation with additional pure block clas
 contracts, or bounded sampling policies. Any new runtime surface must remain dimension-scoped, cache-bounded,
 exception-safe, and covered by unit tests. The current minimap marker overlay filters invalid, disabled, hidden,
 out-of-range, and cross-dimension targets before rendering, and the player marker always wins the center cell.
+
+Accessory additions must use a fixed catalog entry, an explicit compatible slot set, a non-stackable behavior item,
+localization in every resource-pack variant, and idempotent effect reconciliation. Accessory state is player-local
+dynamic-property JSON; no Java NBT, external database, client keybind, or renderer dependency is allowed.
 
 Asset additions must have explicit provenance, a compatible redistribution license, a bounded texture size, and
 a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.
@@ -155,6 +174,8 @@ deliberately excluded from the map.
   verifies every catalog pet's behavior, client definition, localization, neutral/invulnerable contract, and
   unique texture in all resource-pack variants.
 - `npm run package` produces the Behavior Pack, Resource Pack, and add-on archives.
+- Accessory release validation confirms all cabinet/trinket item definitions, catalog IDs, non-stackable limits,
+  and localization keys across Balanced, Aggressive, and Extreme resource packs.
 - Every JSON pack file parses successfully and manifests retain unique UUIDs.
 - Forms reject malformed responses and retry transient busy states within bounded limits.
 - Recipe catalogs remain usable with companion registrations through category navigation and pagination.

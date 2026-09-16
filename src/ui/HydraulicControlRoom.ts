@@ -5,6 +5,7 @@ import { openWorldSettingsForm } from "./forms/WorldSettingsForms";
 import { openWaypointMenu } from "./forms/WaypointForms";
 import { openFieldMapMenu } from "./forms/MinimapForms";
 import { openInventoryMenu } from "./forms/RecipeForms";
+import { openAccessoryCabinet } from "./forms/AccessoryForms";
 import { openCompanionBridgeMenu } from "./forms/CompanionBridgeForms";
 import { getAuditLog } from "../features/optimization/OptimizationEngine";
 import { log } from "../util/Logger";
@@ -48,6 +49,9 @@ export async function openHydraulicControlRoom(player: Player): Promise<void> {
         break;
       case "inventory":
         await openInventoryMenu(player);
+        break;
+      case "accessories":
+        await openAccessoryCabinet(player);
         break;
       case "waypoints":
         await openWaypointMenu(player);

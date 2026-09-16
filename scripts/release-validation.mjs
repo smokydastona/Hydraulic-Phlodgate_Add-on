@@ -10,6 +10,16 @@ const REQUIRED_SCRIPT_MODULES = new Map([
   ["@minecraft/server-ui", "2.2.0"],
 ]);
 const RIDEABLE_COMPANIONS = new Set(["spider", "sniffer", "ravager"]);
+const ACCESSORY_ITEMS = new Map([
+  ["trinket_cabinet", "phlodgate:trinket_cabinet"],
+  ["speed_ring", "phlodgate:speed_ring"],
+  ["water_necklace", "phlodgate:water_necklace"],
+  ["feather_charm", "phlodgate:feather_charm"],
+  ["fire_charm", "phlodgate:fire_charm"],
+  ["night_amulet", "phlodgate:night_amulet"],
+  ["vitality_bracelet", "phlodgate:vitality_bracelet"],
+  ["haste_gloves", "phlodgate:haste_gloves"],
+]);
 
 function readJson(filePath) {
   try {
@@ -259,12 +269,38 @@ function validateMinimapIconProvenance(root) {
   }
 }
 
+function validateAccessoryAssets(root) {
+  const catalogPath = path.join(root, "src", "features", "accessories", "AccessoryPlan.ts");
+  const catalog = readFileSync(catalogPath, "utf8");
+  for (const [fileStem, itemId] of ACCESSORY_ITEMS) {
+    if (fileStem !== "trinket_cabinet" && !catalog.includes(`itemTypeId: "${itemId}"`)) {
+      throw new Error(`${catalogPath}: missing catalog entry ${itemId}`);
+    }
+    const itemPath = path.join(root, "BP", "items", `${fileStem}.json`);
+    if (!existsSync(itemPath)) throw new Error(`Missing accessory item definition: ${itemPath}`);
+    const item = readJson(itemPath)?.["minecraft:item"];
+    if (item?.description?.identifier !== itemId) throw new Error(`${itemPath}: identifier must be ${itemId}`);
+    if (item?.components?.["minecraft:max_stack_size"] !== 1) throw new Error(`${itemPath}: accessories must be non-stackable`);
+  }
+
+  for (const packName of ["RP", "RP_Aggressive", "RP_Extreme"]) {
+    const languagePath = path.join(root, packName, "texts", "en_US.lang");
+    const language = readFileSync(languagePath, "utf8");
+    for (const fileStem of ACCESSORY_ITEMS.keys()) {
+      if (!language.includes(`item.phlodgate:${fileStem}.name=`)) {
+        throw new Error(`${languagePath}: missing localization for ${fileStem}`);
+      }
+    }
+  }
+}
+
 export function validateRelease(root) {
   const packNames = ["BP", "RP", "RP_Aggressive", "RP_Extreme"];
   const manifests = new Map();
   const seenIds = new Set();
 
   validateMinimapIconProvenance(root);
+  validateAccessoryAssets(root);
 
   for (const packName of packNames) {
     const packRoot = path.join(root, packName);

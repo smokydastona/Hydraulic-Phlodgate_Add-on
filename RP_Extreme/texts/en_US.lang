@@ -1,6 +1,15 @@
 pack.name=Phlodgate Add-On - Extreme Visuals
 pack.description=Optional maximum-performance visual preset for low-end devices. Enable instead of the default resource pack.
 
+item.phlodgate:trinket_cabinet.name=Phlodgate Trinket Cabinet
+item.phlodgate:speed_ring.name=Swiftstep Ring
+item.phlodgate:water_necklace.name=Tideglass Necklace
+item.phlodgate:feather_charm.name=Featherfall Charm
+item.phlodgate:fire_charm.name=Emberguard Charm
+item.phlodgate:night_amulet.name=Moonveil Amulet
+item.phlodgate:vitality_bracelet.name=Vitality Bracelet
+item.phlodgate:haste_gloves.name=Haste Gloves
+
 entity.phlodgate:companion_wolf.name=Companion Wolf
 entity.phlodgate:companion_cat.name=Companion Cat
 entity.phlodgate:companion_fox.name=Companion Fox

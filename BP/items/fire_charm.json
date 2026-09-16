@@ -1,0 +1,7 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:item": {
+    "description": { "identifier": "phlodgate:fire_charm", "menu_category": { "category": "equipment" } },
+    "components": { "minecraft:max_stack_size": 1, "minecraft:icon": { "texture": "magma_cream" }, "minecraft:display_name": { "value": "Emberguard Charm" }, "minecraft:glint": true }
+  }
+}

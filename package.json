@@ -1,6 +1,6 @@
 {
   "name": "phlodgate-add-on",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "private": true,
   "type": "module",
   "description": "Phlodgate Add-On - standalone Bedrock client enhancement pack (Behavior Pack + Resource Pack).",

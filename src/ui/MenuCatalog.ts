@@ -1,6 +1,7 @@
 export type MenuAction =
   | "companion"
   | "inventory"
+  | "accessories"
   | "waypoints"
   | "field_map"
   | "player_settings"
@@ -19,6 +20,7 @@ export interface MenuEntry {
 export const CONTROL_ROOM_MENU: readonly MenuEntry[] = [
   { id: "companion", label: "Hydraulic Companion Bridge & Status", description: "Bridge state, machine inspection, and mod namespaces.", action: "companion" },
   { id: "inventory", label: "UI & Inventory / Recipes", description: "Recipe browser, categories, mass crafting, and transfers.", action: "inventory" },
+  { id: "accessories", label: "Trinket Cabinet", description: "Equip compatible accessories and manage active abilities.", action: "accessories" },
   { id: "waypoints", label: "Waypoints & Compass", description: "Manage saved destinations and the active compass target.", action: "waypoints" },
   { id: "field_map", label: "Field Map / Minimap", description: "Open terrain sampling, radar, and waypoint actions.", action: "field_map" },
   { id: "player_settings", label: "Player Settings (Food, Durability, HUDs)", description: "Configure personal HUD and overlay preferences.", action: "player_settings" },
