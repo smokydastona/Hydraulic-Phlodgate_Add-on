@@ -36,8 +36,8 @@ that cannot be redistributed or executed inside a public Bedrock behavior/resour
 
 The current pack ships no third-party pixel art. Custom textures from the linked projects were not copied because
 source repositories contain extracted game assets, credited external packs, or explicit mixed-license warnings.
-Existing item icons use vanilla resource-pack texture identifiers (`map_filled` and `clock`), and the HUD uses
-JSON UI labels and formatting codes. This is compatible with the public Bedrock runtime and avoids hidden asset
+Existing item icons use the validator-resolved vanilla resource-pack texture identifier (`map_filled`), and the
+HUD uses JSON UI labels and formatting codes. This is compatible with the public Bedrock runtime and avoids hidden asset
 licenses, oversized atlases, texture override collisions, and unnecessary pack dependencies.
 
 ## Security and performance

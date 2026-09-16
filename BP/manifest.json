@@ -24,7 +24,7 @@
   "dependencies": [
     { "module_name": "@minecraft/server", "version": "2.9.0" },
     { "module_name": "@minecraft/server-ui", "version": "2.1.0" },
-    { "uuid": "209ae00b-68e5-47f6-bd66-3d642f6ec0db", "version": [0, 3, 0] }
+    { "uuid": "209ae00b-68e5-47f6-bd66-3d642f6ec0db", "version": [1, 0, 0] }
   ],
   "metadata": {
     "authors": ["Phlodgate Add-On Team"],
