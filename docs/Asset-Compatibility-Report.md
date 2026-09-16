@@ -34,11 +34,19 @@ that cannot be redistributed or executed inside a public Bedrock behavior/resour
 
 ## Asset boundary
 
-The current pack ships no third-party pixel art. Custom textures from the linked projects were not copied because
-source repositories contain extracted game assets, credited external packs, or explicit mixed-license warnings.
-Existing item icons use the validator-resolved vanilla resource-pack texture identifier (`map_filled`), and the
-HUD uses JSON UI labels and formatting codes. This is compatible with the public Bedrock runtime and avoids hidden asset
-licenses, oversized atlases, texture override collisions, and unnecessary pack dependencies.
+The pack ships exactly one third-party art set: the 14 minimap icons vendored from
+[`tstamborski/pixelart-icons`](https://github.com/tstamborski/pixelart-icons) under **CC0-1.0** (public domain
+dedication, single author, single license, attribution not required). They are pinned to upstream commit
+`5e3810b968e6f0c8507a78807e32ade7e9db2372`, recorded with a per-file source path and SHA-256 in
+`assets/minimap-icon-provenance.json`, and re-verified on every `validate:release` run — a byte of drift in any
+resource-pack variant fails the release. `scripts/vendor-minimap-icons.mjs` re-syncs them offline from the
+committed copies; only an explicit `--download` run touches the network.
+
+Textures from the other linked projects were still not copied, because those repositories contain extracted game
+assets, credited external packs, or explicit mixed-license warnings. Minimap frames remain locally generated,
+existing item icons use the validator-resolved vanilla resource-pack texture identifier (`map_filled`), and the
+HUD uses JSON UI labels and formatting codes. This keeps the pack compatible with the public Bedrock runtime and
+avoids hidden asset licenses, oversized atlases, texture override collisions, and unnecessary pack dependencies.
 
 ## Security and performance
 

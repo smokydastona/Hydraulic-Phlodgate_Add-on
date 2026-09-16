@@ -1,13 +1,14 @@
 {
   "name": "phlodgate-add-on",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "private": true,
   "type": "module",
   "description": "Phlodgate Add-On - standalone Bedrock client enhancement pack (Behavior Pack + Resource Pack).",
   "scripts": {
     "generate:pet-textures": "node scripts/generate-pet-textures.mjs",
     "generate:minimap-textures": "node scripts/generate-minimap-textures.mjs",
-    "generate:companion-assets": "node scripts/generate-pet-textures.mjs && node scripts/generate-minimap-textures.mjs && node scripts/normalize-companion-behaviors.mjs",
+    "vendor:minimap-icons": "node scripts/vendor-minimap-icons.mjs",
+    "generate:companion-assets": "node scripts/generate-pet-textures.mjs && node scripts/generate-minimap-textures.mjs && node scripts/vendor-minimap-icons.mjs && node scripts/normalize-companion-behaviors.mjs",
     "build": "npm run generate:companion-assets && node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch",
     "test": "vitest run",

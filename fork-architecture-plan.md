@@ -113,11 +113,15 @@ exception-safe, and covered by unit tests.
 Asset additions must have explicit provenance, a compatible redistribution license, a bounded texture size, and
 a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.
 
-`scripts/generate-minimap-textures.mjs` seeds an originally-authored minimap art set under
-`<pack>/textures/ui/phlodgate/minimap/` (frames, entity icons, waypoint icons, markers). It never overwrites an
-existing file, so hand-drawn replacements survive every rebuild, and `validate:release` fails if any required
-art file is missing from any resource-pack variant. The minimap frame is wired into `hud_screen.json`; the icon
-files are a real, shipped, art-ready palette.
+`scripts/generate-minimap-textures.mjs` generates the minimap frames under
+`<pack>/textures/ui/phlodgate/minimap/` and never overwrites an existing file, so hand-drawn replacements
+survive every rebuild. The 14 entity/waypoint/marker icons in that directory are vendored pixel art from
+`tstamborski/pixelart-icons` under CC0-1.0 (public domain), pinned to an upstream commit and recorded per-file
+with a SHA-256 in `assets/minimap-icon-provenance.json`; `scripts/vendor-minimap-icons.mjs` re-syncs them into
+all three resource-pack variants offline, and only an explicit `--download` run touches the network.
+`validate:release` fails if any required art file is missing from any variant, if the recorded license is not
+CC0-1.0, if the upstream commit is not a pinned full sha, or if any vendored icon's bytes drift from its
+recorded hash.
 
 No per-block tile art ships, and `validate:release` actively rejects any `block_*`/`cave_*` file in that
 directory. A fixed tile set can never cover unknown or future blocks, so terrain cell color is instead derived

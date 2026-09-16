@@ -216,10 +216,36 @@ function validateMinimapArtSet(packRoot) {
   }
 }
 
+function validateMinimapIconProvenance(root) {
+  const provenancePath = path.join(root, "assets", "minimap-icon-provenance.json");
+  if (!existsSync(provenancePath)) throw new Error(`Missing minimap icon provenance record: ${provenancePath}`);
+
+  const provenance = readJson(provenancePath);
+  if (provenance.license !== "CC0-1.0") {
+    throw new Error(`${provenancePath}: vendored minimap icons must stay under a public-domain CC0-1.0 license`);
+  }
+  if (!/^[0-9a-f]{40}$/.test(provenance.commit ?? "")) {
+    throw new Error(`${provenancePath}: upstream commit must be pinned to a full sha`);
+  }
+
+  for (const packName of ["RP", "RP_Aggressive", "RP_Extreme"]) {
+    for (const [iconName, entry] of Object.entries(provenance.icons ?? {})) {
+      const iconPath = path.join(root, packName, "textures", "ui", "phlodgate", "minimap", `${iconName}.png`);
+      if (!existsSync(iconPath)) throw new Error(`Missing vendored minimap icon: ${iconPath}`);
+      const hash = createHash("sha256").update(readFileSync(iconPath)).digest("hex");
+      if (hash !== entry.sha256) {
+        throw new Error(`${iconPath}: does not match recorded provenance hash for ${entry.source}`);
+      }
+    }
+  }
+}
+
 export function validateRelease(root) {
   const packNames = ["BP", "RP", "RP_Aggressive", "RP_Extreme"];
   const manifests = new Map();
   const seenIds = new Set();
+
+  validateMinimapIconProvenance(root);
 
   for (const packName of packNames) {
     const packRoot = path.join(root, packName);

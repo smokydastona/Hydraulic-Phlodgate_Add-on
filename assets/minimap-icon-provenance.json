@@ -1,0 +1,64 @@
+{
+  "repository": "https://github.com/tstamborski/pixelart-icons",
+  "commit": "5e3810b968e6f0c8507a78807e32ade7e9db2372",
+  "license": "CC0-1.0",
+  "note": "Public-domain (CC0-1.0) pixel art. Attribution is not required by the license; recorded here for provenance.",
+  "icons": {
+    "entity_player": {
+      "source": "png/target16.png",
+      "sha256": "d716c38d1354ea5f4fcdbd35dbda8a677f208fb413834553df0cd6307bc07d3c"
+    },
+    "entity_companion": {
+      "source": "png/heart16.png",
+      "sha256": "18c3e1757c6fc9148dde817c8944c73d3126fe5c2279d3889875d61b9ed7c064"
+    },
+    "entity_passive": {
+      "source": "png/happy16.png",
+      "sha256": "9a741bca8313bdefce933291dbfbadd0987a7dd28cdd7691df5341c00fc239f3"
+    },
+    "entity_hostile": {
+      "source": "png/ghost16.png",
+      "sha256": "48a8ccd1b5c70e712140332753ed8d2a51a465714f8a592ba2a18c5deba506ec"
+    },
+    "entity_boss": {
+      "source": "png/star-red32.png",
+      "sha256": "bd48a0a896f7645469e5990d65b31e4ef6d060ac2d4db11bb82bae84d052277e"
+    },
+    "entity_villager": {
+      "source": "png/coin16.png",
+      "sha256": "65f8a206941d701929510b6a8969d7ea3212230c2cbf3f2f09617451c616f7d7"
+    },
+    "entity_item": {
+      "source": "png/gem16.png",
+      "sha256": "70d5e2fc92b83f2c8e02f5004c22a9e962acec2b1ad879a2c8a24bc4ef6bbdee"
+    },
+    "waypoint_default": {
+      "source": "png/flag-blue16.png",
+      "sha256": "4099e486dca2af660e0893e026699f40d797ea8713530a8ff7ce67cc49e2f622"
+    },
+    "waypoint_active": {
+      "source": "png/flag-red16.png",
+      "sha256": "1dbfc42127a68726ecf33ca47b966fdb4cee38da200fee73c32425150730d20a"
+    },
+    "waypoint_death": {
+      "source": "png/death16.png",
+      "sha256": "4cbda1f54f7f998cd6fdadadc7e870d266c026ebb91011060ba3cfced4e5d00d"
+    },
+    "waypoint_home": {
+      "source": "png/home16.png",
+      "sha256": "f8a4ecd5113a235cba0f6fa029cee775df40d2acd4f79d20c4f381a3b9c4f57a"
+    },
+    "waypoint_offscreen": {
+      "source": "png/dir-right16.png",
+      "sha256": "b41326de00100546bb4d0433078e79a9c6f75dbc82f257c28c3050b60e00fcc1"
+    },
+    "marker_north": {
+      "source": "png/dir-up16.png",
+      "sha256": "1c4499ff1dcb57d2c2216a80422b97fdbb9553abfe457b56bcde981513d1399d"
+    },
+    "marker_center": {
+      "source": "png/circle16.png",
+      "sha256": "1738276b6e670faadec8b8ceac687d55825edf757bdfd5ceb13cac24c58dda08"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-/** Generates the editable minimap art set (frames, block tiles, cave tiles, entity icons, waypoint icons).
+/** Generates the editable minimap frames. The icon set is vendored CC0 art (see vendor-minimap-icons.mjs).
  *  Existing files are never overwritten, so hand-drawn replacements survive every rebuild. */
 import { deflateSync } from "node:zlib";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -78,70 +78,15 @@ function panelShader(fill, border, corner, round) {
   };
 }
 
-/** Centered icon shape on a transparent background. */
-function iconShader(shape, body, outline) {
-  return (x, y, width, height) => {
-    const cx = (width - 1) / 2;
-    const cy = (height - 1) / 2;
-    const nx = (x - cx) / (width / 2);
-    const ny = (y - cy) / (height / 2);
-
-    let inside = false;
-    let rim = false;
-    if (shape === "circle") {
-      const d = Math.hypot(nx, ny);
-      inside = d <= 0.82;
-      rim = d > 0.6 && d <= 0.82;
-    } else if (shape === "diamond") {
-      const d = Math.abs(nx) + Math.abs(ny);
-      inside = d <= 0.9;
-      rim = d > 0.66 && d <= 0.9;
-    } else if (shape === "arrow") {
-      inside = ny >= -0.85 && ny <= 0.85 && Math.abs(nx) <= (0.85 - ny) * 0.55;
-      rim = inside && (Math.abs(nx) > (0.85 - ny) * 0.36 || ny > 0.6);
-    } else if (shape === "pin") {
-      const headDistance = Math.hypot(nx, ny + 0.28);
-      inside = headDistance <= 0.62 || (Math.abs(nx) <= 0.14 && ny >= 0.1 && ny <= 0.92);
-      rim = headDistance > 0.42 && headDistance <= 0.62;
-    } else {
-      inside = Math.abs(nx) <= 0.82 && Math.abs(ny) <= 0.82;
-      rim = inside && (Math.abs(nx) > 0.62 || Math.abs(ny) > 0.62);
-    }
-
-    if (!inside) return [0, 0, 0, 0];
-    return [...(rim ? outline : body), 255];
-  };
-}
-
 const frames = {
   frame_square: [64, 64, panelShader([16, 20, 28, 190], [96, 214, 230], [236, 250, 255], false)],
   frame_circle: [64, 64, panelShader([16, 20, 28, 190], [96, 214, 230], [236, 250, 255], true)],
   frame_cave: [64, 64, panelShader([26, 18, 14, 205], [206, 138, 62], [250, 214, 148], false)],
 };
 
-const icons = {
-  entity_player: ["arrow", [96, 220, 240], [236, 252, 255]],
-  entity_companion: ["circle", [118, 220, 150], [232, 255, 238]],
-  entity_passive: ["circle", [214, 198, 120], [250, 242, 206]],
-  entity_hostile: ["diamond", [214, 84, 84], [252, 206, 206]],
-  entity_boss: ["diamond", [176, 74, 200], [244, 208, 252]],
-  entity_villager: ["circle", [160, 132, 96], [238, 220, 190]],
-  entity_item: ["square", [216, 176, 84], [250, 232, 186]],
-  waypoint_default: ["pin", [240, 200, 84], [255, 244, 200]],
-  waypoint_active: ["pin", [118, 232, 128], [226, 255, 230]],
-  waypoint_death: ["pin", [226, 96, 96], [255, 214, 214]],
-  waypoint_home: ["pin", [128, 176, 244], [222, 236, 255]],
-  waypoint_offscreen: ["arrow", [240, 216, 120], [255, 248, 214]],
-  marker_north: ["diamond", [236, 240, 248], [150, 160, 180]],
-  marker_center: ["circle", [255, 255, 255], [120, 200, 230]],
-};
-
 const textures = new Map();
 for (const [name, [width, height, shader]] of Object.entries(frames)) {
   textures.set(name, encodePng(width, height, shader));
-}
-for (const [name, [shape, body, outline]] of Object.entries(icons)) {
-  textures.set(name, encodePng(32, 32, iconShader(shape, body, outline)));
 }
 
 let written = 0;
@@ -157,5 +102,5 @@ for (const packName of packNames) {
 }
 
 console.log(
-  `Minimap art set: ${textures.size} textures per pack across ${packNames.length} resource packs (${written} newly written, existing files preserved).`
+  `Minimap frames: ${textures.size} textures per pack across ${packNames.length} resource packs (${written} newly written, existing files preserved).`
 );
