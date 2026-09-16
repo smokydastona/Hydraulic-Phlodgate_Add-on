@@ -100,18 +100,38 @@ function validateHudDefinition(filePath) {
   ]) {
     if (!serialized.includes(marker)) throw new Error(`${filePath}: missing minimap routing marker ${marker}`);
   }
-  if (hud["hud_title_text/subtitle_frame/subtitle_background"]?.ignored !== true) {
-    throw new Error(`${filePath}: compass subtitle background must be ignored`);
+  if (hud["hud_title_text/subtitle_frame/subtitle_background"]) {
+    // Nested-path overrides several levels into a vanilla tree are unreliable; the compass black box
+    // survived one because of this. hud_title_text is replaced outright instead.
+    throw new Error(`${filePath}: do not use nested-path overrides into hud_title_text; replace the control outright`);
   }
-  const actionbarOverride = hud["hud_actionbar_text"];
-  if (actionbarOverride && "type" in actionbarOverride) {
-    // Bedrock JSON UI silently rejects a resource-pack override that changes a vanilla
-    // control's "type" and falls back to full vanilla rendering for that control - this
-    // previously caused the minimap markers to render unprocessed over the vanilla actionbar.
-    throw new Error(`${filePath}: hud_actionbar_text must not redefine "type" (causes Bedrock to silently discard the override)`);
+
+  // A resource-pack override replaces the vanilla control wholesale rather than merging, so every override
+  // has to be a complete, valid control. A partial one is silently discarded and vanilla renders instead,
+  // which is what leaked the raw [PGL:*] routing markers onto the actionbar.
+  for (const controlName of ["hud_actionbar_text", "hud_title_text"]) {
+    const control = hud[controlName];
+    if (!control) throw new Error(`${filePath}: missing ${controlName} definition`);
+    if (typeof control.type !== "string") {
+      throw new Error(`${filePath}: ${controlName} must declare a "type" - a partial override is discarded by Bedrock`);
+    }
+    if (!Array.isArray(control.controls) || control.controls.length === 0) {
+      throw new Error(`${filePath}: ${controlName} must define its full "controls" list`);
+    }
   }
-  if (!Array.isArray(actionbarOverride?.modifications)) {
-    throw new Error(`${filePath}: hud_actionbar_text must add minimap corner controls via a "modifications" array, not by replacing "controls"`);
+
+  const actionbar = hud["hud_actionbar_text"];
+  if (!Array.isArray(actionbar.size) || actionbar.size[0] !== "100%" || actionbar.size[1] !== "100%") {
+    // The corner boxes anchor to this control, so it has to span the screen. Vanilla sizes it to its
+    // content, which would pin every "corner" to the little actionbar box instead.
+    throw new Error(`${filePath}: hud_actionbar_text must be full-screen for corner anchoring`);
+  }
+  if (!serialized.includes("actionbar_message")) {
+    throw new Error(`${filePath}: an actionbar_message label must remain for non-Phlodgate messages`);
+  }
+  const actionbarChildNames = actionbar.controls.flatMap((entry) => Object.keys(entry).map((key) => key.split("@")[0]));
+  if (actionbarChildNames.filter((name) => name.startsWith("phlodgate_top") || name.startsWith("phlodgate_bottom")).length !== 8) {
+    throw new Error(`${filePath}: hud_actionbar_text must contain all 8 minimap corner/size controls`);
   }
 }
 

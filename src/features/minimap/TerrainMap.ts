@@ -66,6 +66,7 @@ const TERRAIN_COLOR_RULES: ReadonlyArray<readonly [readonly string[], string]> =
   [["stone", "deepslate", "andesite", "granite", "cobble", "basalt", "blackstone", "tuff", "bedrock"], "§7"],
   [["netherrack", "nylium", "soul", "crimson", "warped", "shroomlight"], "§4"],
   [["air", "void", "barrier", "structure_void"], "§0"],
+  [["unmapped"], "§8"],
 ];
 
 /** Stable per-block fallback so blocks this build has never seen still get a consistent, distinguishable

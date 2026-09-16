@@ -16,11 +16,33 @@ interface CachedGrid {
 
 const cache = new Map<string, CachedGrid>();
 
+/** Remembers every cell ever sampled so terrain outside the currently loaded chunks still draws.
+ *  Bounded, because a long session would otherwise grow this without limit. */
+const MAX_REMEMBERED_CELLS = 20000;
+const rememberedCells = new Map<string, TerrainCell>();
+
+const UNKNOWN_TYPE_ID = "phlodgate:unmapped";
+
 function sampleCell(dimension: Dimension, x: number, z: number, minY: number): TerrainCell {
-  const block = dimension.getTopmostBlock({ x, z });
-  if (!block) return { glyph: "?", height: minY, typeId: "minecraft:air" };
-  const typeId = block.typeId;
-  return { glyph: terrainGlyphForTypeId(typeId), height: block.location.y, typeId };
+  const memoryKey = `${dimension.id}:${x}:${z}`;
+
+  // At a 128-block radius most cells sit outside the loaded area, and getTopmostBlock throws on an
+  // unloaded chunk. Guard per cell so one unloaded column can't blank the whole map, and fall back to
+  // whatever this cell looked like the last time it was in range.
+  try {
+    const block = dimension.getTopmostBlock({ x, z });
+    if (!block) return { glyph: "?", height: minY, typeId: "minecraft:air" };
+    const cell: TerrainCell = {
+      glyph: terrainGlyphForTypeId(block.typeId),
+      height: block.location.y,
+      typeId: block.typeId,
+    };
+    if (rememberedCells.size >= MAX_REMEMBERED_CELLS) rememberedCells.clear();
+    rememberedCells.set(memoryKey, cell);
+    return cell;
+  } catch {
+    return rememberedCells.get(memoryKey) ?? { glyph: "?", height: minY, typeId: UNKNOWN_TYPE_ID };
+  }
 }
 
 export function sampleTerrainGrid(
@@ -58,4 +80,5 @@ export function sampleTerrainGrid(
 
 export function invalidateTerrainCache(): void {
   cache.clear();
+  rememberedCells.clear();
 }
