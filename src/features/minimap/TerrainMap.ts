@@ -88,14 +88,18 @@ export function pixelTerrainGlyphForTypeId(typeId: string): string {
   return `${terrainColorForTypeId(typeId)}█`;
 }
 
-/** Companion-published targets whose kind marks them as machinery are never drawn on the map. */
-export function isMachineTarget(kind?: string): boolean {
+/** Companion-published targets whose kind marks them as machinery or loose items are never drawn on the map. */
+export function isHiddenMapTarget(kind?: string): boolean {
   const normalized = (kind ?? "").toLowerCase();
   return (
     normalized.includes("machine") ||
     normalized.includes("factory") ||
     normalized.includes("device") ||
-    normalized.includes("workstation")
+    normalized.includes("workstation") ||
+    normalized.includes("item") ||
+    normalized.includes("drop") ||
+    normalized.includes("loot") ||
+    normalized.includes("pickup")
   );
 }
 

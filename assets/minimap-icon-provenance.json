@@ -28,10 +28,6 @@
       "source": "png/coin16.png",
       "sha256": "65f8a206941d701929510b6a8969d7ea3212230c2cbf3f2f09617451c616f7d7"
     },
-    "entity_item": {
-      "source": "png/gem16.png",
-      "sha256": "70d5e2fc92b83f2c8e02f5004c22a9e962acec2b1ad879a2c8a24bc4ef6bbdee"
-    },
     "waypoint_default": {
       "source": "png/flag-blue16.png",
       "sha256": "4099e486dca2af660e0893e026699f40d797ea8713530a8ff7ce67cc49e2f622"

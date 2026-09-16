@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatTerrainGrid, formatTerrainGridPixels, terrainCacheKey, terrainGlyphForTypeId, pixelTerrainGlyphForTypeId, parseCompanionVectorPayload, isMachineTarget } from "./TerrainMap";
+import { formatTerrainGrid, formatTerrainGridPixels, terrainCacheKey, terrainGlyphForTypeId, pixelTerrainGlyphForTypeId, parseCompanionVectorPayload, isHiddenMapTarget } from "./TerrainMap";
 
 describe("Atlas-inspired terrain map helpers", () => {
   it("classifies common surface blocks into stable glyphs", () => {
@@ -44,13 +44,17 @@ describe("Atlas-inspired terrain map helpers", () => {
     expect(distinct.size).toBeGreaterThan(1);
   });
 
-  it("treats machine-like target kinds as hidden from the map", () => {
-    expect(isMachineTarget("machine")).toBe(true);
-    expect(isMachineTarget("Hydraulic Factory")).toBe(true);
-    expect(isMachineTarget("device")).toBe(true);
-    expect(isMachineTarget("workstation")).toBe(true);
-    expect(isMachineTarget("waypoint")).toBe(false);
-    expect(isMachineTarget(undefined)).toBe(false);
+  it("hides machine-like and item-like target kinds from the map", () => {
+    expect(isHiddenMapTarget("machine")).toBe(true);
+    expect(isHiddenMapTarget("Hydraulic Factory")).toBe(true);
+    expect(isHiddenMapTarget("device")).toBe(true);
+    expect(isHiddenMapTarget("workstation")).toBe(true);
+    expect(isHiddenMapTarget("item")).toBe(true);
+    expect(isHiddenMapTarget("dropped_item")).toBe(true);
+    expect(isHiddenMapTarget("loot")).toBe(true);
+    expect(isHiddenMapTarget("pickup")).toBe(true);
+    expect(isHiddenMapTarget("waypoint")).toBe(false);
+    expect(isHiddenMapTarget(undefined)).toBe(false);
   });
 
   it("formats colorful pseudo-pixel terrain grids with a centered player marker", () => {

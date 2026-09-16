@@ -191,7 +191,6 @@ function validateMinimapArtSet(packRoot) {
     "entity_hostile",
     "entity_boss",
     "entity_villager",
-    "entity_item",
     "waypoint_default",
     "waypoint_active",
     "waypoint_death",

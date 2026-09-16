@@ -25,7 +25,6 @@ export const ICON_SOURCES = {
   entity_hostile: "ghost16.png",
   entity_boss: "star-red32.png",
   entity_villager: "coin16.png",
-  entity_item: "gem16.png",
   waypoint_default: "flag-blue16.png",
   waypoint_active: "flag-red16.png",
   waypoint_death: "death16.png",
