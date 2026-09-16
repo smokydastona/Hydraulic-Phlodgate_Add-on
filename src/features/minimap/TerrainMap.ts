@@ -84,6 +84,7 @@ export function formatTerrainGrid(grid: TerrainGrid): string[] {
 export function formatTerrainGridPixels(grid: TerrainGrid, shape: "square" | "circle" = "square"): string[] {
   const lines: string[] = [];
   const half = Math.floor(grid.width / 2);
+  const centerHeight = grid.cells[half * grid.width + half]?.height ?? 0;
   for (let row = 0; row < grid.width; row++) {
     let line = "";
     for (let column = 0; column < grid.width; column++) {
@@ -96,7 +97,10 @@ export function formatTerrainGridPixels(grid: TerrainGrid, shape: "square" | "ci
         }
       }
       const cell = grid.cells[row * grid.width + column];
-      const key = row === half && column === half ? "§fX" : pixelTerrainGlyphForTypeId(cell?.typeId ?? "minecraft:air");
+      const terrainPixel = pixelTerrainGlyphForTypeId(cell?.typeId ?? "minecraft:air");
+      const heightDelta = (cell?.height ?? centerHeight) - centerHeight;
+      const reliefGlyph = heightDelta >= 4 ? "▓" : heightDelta <= -4 ? "▒" : "█";
+      const key = row === half && column === half ? "§fX" : `${terrainPixel.slice(0, 2)}${reliefGlyph}`;
       line += key;
     }
     lines.push(line);

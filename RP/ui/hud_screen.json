@@ -33,7 +33,8 @@
     "$phlodgate_offset": [0, -68],
     "$phlodgate_text_offset": [0, 0],
     "$phlodgate_alignment": "center",
-    "visible": "((($actionbar_text - '§0§0§r') = $actionbar_text) and (($actionbar_text - '§0§1§r') = $actionbar_text) and (($actionbar_text - '§0§2§r') = $actionbar_text) and (($actionbar_text - '§0§3§r') = $actionbar_text) and (not ($actionbar_text = '')))",
+    "alpha": 0,
+    "visible": "((($actionbar_text - '[PGL:TL]') = $actionbar_text) and (($actionbar_text - '[PGL:TR]') = $actionbar_text) and (($actionbar_text - '[PGL:BL]') = $actionbar_text) and (($actionbar_text - '[PGL:BR]') = $actionbar_text) and (not ($actionbar_text = '')))",
     "controls": [
       {
         "map_text": {
@@ -53,10 +54,10 @@
     "size": ["100%", "100%"],
     "alpha": 1,
     "controls": [
-      { "top_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§0§r", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_text_offset": [6, 4], "$phlodgate_alignment": "left" } },
-      { "top_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§1§r", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_text_offset": [-6, 4], "$phlodgate_alignment": "right" } },
-      { "bottom_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§2§r", "$phlodgate_anchor": "bottom_left", "$phlodgate_offset": [10, -76], "$phlodgate_text_offset": [6, -4], "$phlodgate_alignment": "left" } },
-      { "bottom_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "§0§3§r", "$phlodgate_anchor": "bottom_right", "$phlodgate_offset": [-10, -76], "$phlodgate_text_offset": [-6, -4], "$phlodgate_alignment": "right" } },
+      { "top_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:TL]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_text_offset": [6, 4], "$phlodgate_alignment": "left" } },
+      { "top_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:TR]", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_text_offset": [-6, 4], "$phlodgate_alignment": "right" } },
+      { "bottom_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:BL]", "$phlodgate_anchor": "bottom_left", "$phlodgate_offset": [10, -76], "$phlodgate_text_offset": [6, -4], "$phlodgate_alignment": "left" } },
+      { "bottom_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:BR]", "$phlodgate_anchor": "bottom_right", "$phlodgate_offset": [-10, -76], "$phlodgate_text_offset": [-6, -4], "$phlodgate_alignment": "right" } },
       { "fallback@hud.phlodgate_actionbar_fallback": {} }
     ]
   },
@@ -68,6 +69,6 @@
   },
 
   "hud_title_text/title_frame": { "ignored": true },
-  "hud_title_text/subtitle_frame/subtitle_background": { "alpha": 0.55 },
+  "hud_title_text/subtitle_frame/subtitle_background": { "ignored": true },
   "hud_title_text/subtitle_frame/subtitle": { "font_size": "normal", "offset": [0, 18], "alpha": 1 }
 }

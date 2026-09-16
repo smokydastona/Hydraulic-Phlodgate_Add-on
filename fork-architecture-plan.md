@@ -85,10 +85,12 @@ implementation.
 1. `MinimapMath.ts` owns deterministic radar bearings, cardinal rotation, nearest-marker ordering, and radius filtering.
 2. `TerrainMap.ts` owns type-id classification, colored text glyphs, safe companion-vector parsing, and pure grid formatting.
 3. `TerrainSampler.ts` owns bounded `Dimension.getBlock` sampling and a dimension/position/scale/width cache.
-4. `MinimapHud.ts` composes a real color-coded 5x5 terrain map and nearest destinations in square or circular form.
+4. `MinimapHud.ts` composes a color-coded 9x9 terrain map with two-block resolution, elevation relief, and
+  nearest destinations in square or circular form.
 5. `MinimapForms.ts` provides the on-demand 9x9 Field Map and waypoint actions.
-6. `HudManager.ts` owns two independent channels: marker-routed actionbar content for the four-position minimap
-  and title/subtitle content for the centered compass above vanilla status bars. Custom food telemetry is not rendered.
+6. `HudManager.ts` owns two independent channels: plain-token-routed actionbar content for the four-position
+  minimap and background-free title/subtitle content for the centered compass above vanilla status bars.
+  Custom food telemetry is not rendered.
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
 9. `MenuCatalog.ts` owns Control Room route metadata, operator visibility, validation, and action-form bounds.

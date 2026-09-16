@@ -102,14 +102,14 @@ Instead, this add-on ships a **Script API Minimap HUD**:
 - A rotating text radar strip (`features/minimap/MinimapHud.ts`) showing the four cardinal directions and
   nearby waypoints as glyphs, positioned by bearing relative to your current facing, plus a distance-sorted
   list of the nearest waypoints.
-- A live sampled 5x5 terrain grid in the persistent HUD, using colored glyphs for surface block classes and a
-  centered player marker.
+- A live sampled 9x9 terrain grid in the persistent HUD, using two-block cells, colored surface classes,
+  elevation shading, and a centered player marker.
 - A **Phlodgate Field Map** item (given on spawn) that opens a full-screen form with the same radar, the
   10 nearest waypoints with bearing arrows and distances, an Atlas-inspired sampled terrain grid, a
   one-tap "add waypoint here", a minimap HUD on/off toggle, and a shortcut into the full Waypoint Manager.
 - Configurable via Player Settings: minimap HUD on/off and radar radius (32–256 blocks).
 
-The terrain grids are bounded Script API implementations: the HUD samples a 5x5 grid and the Field Map
+The terrain grids are bounded Script API implementations: the HUD samples a detailed 9x9 grid and the Field Map
 samples a 9x9 grid, each finding the highest non-air block, classifying common surfaces into stable colors,
 caching regions briefly, and invalidating them after block edits. They do not reproduce Atlas's native C++
 pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard zoom hooks; see
@@ -190,14 +190,14 @@ instead, both of which are genuine server-initiated `ActionFormData`/`ModalFormD
 
 The HUD now uses two independent public display channels instead of mixing every feature into one box:
 
-- The **compass** uses the title/subtitle channel and is centered in a translucent box directly above the
+- The **compass** uses the title/subtitle channel and is centered without a background directly above the
   vanilla health/armor/hunger row. It always shows rotating cardinal directions and adds active-waypoint
   direction/distance when one is selected.
 - The **minimap** alone uses the actionbar channel. It renders a color-coded sampled terrain grid plus nearby
   destination labels in its own translucent box. Player Settings exposes Square/Circle shape and Top left,
-  Top right, Bottom left, or Bottom right position presets. Invisible formatting markers select one of four
-  JSON UI anchors and are stripped before display; unmarked vanilla/third-party actionbar messages retain a
-  bottom-center fallback.
+  Top right, Bottom left, or Bottom right position presets. Plain routing tokens survive Bedrock's actionbar
+  processing, select one of four JSON UI anchors, and are stripped before display; unmarked vanilla/third-party
+  actionbar messages retain a transparent bottom-center fallback.
 - Custom hunger/saturation/exhaustion text is no longer rendered. Vanilla health, armor, and hunger remain
   untouched. Existing settings are migrated with coordinates and durability overlays disabled by default.
 

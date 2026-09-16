@@ -78,6 +78,19 @@ describe("Atlas-inspired terrain map helpers", () => {
     ]);
   });
 
+  it("uses relief shading for terrain substantially above or below the player cell", () => {
+    const heights = [70, 64, 58, 64, 64, 64, 64, 64, 64];
+    const grid = {
+      centerX: 0,
+      centerZ: 0,
+      cellSize: 2,
+      width: 3,
+      cells: heights.map((height) => ({ glyph: "#" as const, height, typeId: "minecraft:stone" })),
+    };
+
+    expect(formatTerrainGridPixels(grid)[0]).toBe("§7▓§7█§7▒");
+  });
+
   it("parses companion-vector payloads from the server bridge", () => {
     const parsed = parseCompanionVectorPayload(
       JSON.stringify({

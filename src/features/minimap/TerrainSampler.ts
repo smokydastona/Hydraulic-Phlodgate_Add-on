@@ -2,8 +2,6 @@ import { Dimension } from "@minecraft/server";
 import { TerrainCell, TerrainGrid, terrainCacheKey, terrainGlyphForTypeId } from "./TerrainMap";
 
 const DEFAULT_CELL_SIZE = 4;
-const MIN_Y = -64;
-const MAX_Y = 320;
 const CACHE_TTL_TICKS = 100;
 const DEFAULT_GRID_WIDTH = 9;
 const MIN_GRID_WIDTH = 3;
@@ -18,16 +16,11 @@ interface CachedGrid {
 
 const cache = new Map<string, CachedGrid>();
 
-function sampleCell(dimension: Dimension, x: number, z: number): TerrainCell {
-  for (let y = MAX_Y; y >= MIN_Y; y--) {
-    const block = dimension.getBlock({ x, y, z });
-    if (!block) continue;
-    const typeId = block.typeId;
-    const glyph = terrainGlyphForTypeId(typeId);
-    if (glyph === "?") continue;
-    return { glyph, height: y, typeId };
-  }
-  return { glyph: "?", height: MIN_Y, typeId: "minecraft:air" };
+function sampleCell(dimension: Dimension, x: number, z: number, minY: number): TerrainCell {
+  const block = dimension.getTopmostBlock({ x, z });
+  if (!block) return { glyph: "?", height: minY, typeId: "minecraft:air" };
+  const typeId = block.typeId;
+  return { glyph: terrainGlyphForTypeId(typeId), height: block.location.y, typeId };
 }
 
 export function sampleTerrainGrid(
@@ -49,10 +42,12 @@ export function sampleTerrainGrid(
   const centerGridZ = Math.floor(centerZ / safeCellSize) * safeCellSize;
   const half = Math.floor(width / 2);
   const cells: TerrainCell[] = [];
+  const heightRange = dimension.heightRange;
+  const minY = Math.floor(heightRange.min);
 
   for (let row = -half; row <= half; row++) {
     for (let column = -half; column <= half; column++) {
-      cells.push(sampleCell(dimension, centerGridX + column * safeCellSize, centerGridZ + row * safeCellSize));
+      cells.push(sampleCell(dimension, centerGridX + column * safeCellSize, centerGridZ + row * safeCellSize, minY));
     }
   }
 

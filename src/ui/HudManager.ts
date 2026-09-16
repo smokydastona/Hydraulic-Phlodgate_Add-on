@@ -19,10 +19,10 @@ const SUBTITLE_STAY_DURATION_TICKS = 72000000; // ~500 hours; refreshed content 
  *  (so we only call the (cheap, non-flashing) updateSubtitle when the compass text actually changes). */
 const subtitleInitialized = new Map<string, string>();
 const MINIMAP_POSITION_MARKERS = {
-  top_left: "§0§0§r",
-  top_right: "§0§1§r",
-  bottom_left: "§0§2§r",
-  bottom_right: "§0§3§r",
+  top_left: "[PGL:TL]",
+  top_right: "[PGL:TR]",
+  bottom_left: "[PGL:BL]",
+  bottom_right: "[PGL:BR]",
 } as const;
 
 function composeMinimapBox(player: Player): string | undefined {

@@ -85,6 +85,17 @@ function validateUiDefinitions(filePath, packRoot) {
   }
 }
 
+function validateHudDefinition(filePath) {
+  const hud = readJson(filePath);
+  const serialized = JSON.stringify(hud);
+  for (const marker of ["[PGL:TL]", "[PGL:TR]", "[PGL:BL]", "[PGL:BR]"]) {
+    if (!serialized.includes(marker)) throw new Error(`${filePath}: missing minimap routing marker ${marker}`);
+  }
+  if (hud["hud_title_text/subtitle_frame/subtitle_background"]?.ignored !== true) {
+    throw new Error(`${filePath}: compass subtitle background must be ignored`);
+  }
+}
+
 function validateCompanionAssets(root) {
   const catalogPath = path.join(root, "src", "features", "companion", "CompanionPetPlan.ts");
   const catalog = readFileSync(catalogPath, "utf8");
@@ -165,6 +176,7 @@ export function validateRelease(root) {
       if (path.basename(jsonFile) === "manifest.json") continue;
       readJson(jsonFile);
       if (path.basename(jsonFile) === "_ui_defs.json") validateUiDefinitions(jsonFile, packRoot);
+      if (path.basename(jsonFile) === "hud_screen.json") validateHudDefinition(jsonFile);
     }
   }
 

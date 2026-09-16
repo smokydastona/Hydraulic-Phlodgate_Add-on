@@ -11,11 +11,20 @@ import { system } from "@minecraft/server";
 const RADAR_MAX_LISTED = 3;
 const COMPANION_VECTOR_PROPERTY = "phlodgate:companion_vectors";
 const MAX_COMPANION_TARGETS = 8;
+const HUD_GRID_WIDTH = 9;
+const HUD_CELL_SIZE = 2;
 
 function buildTerrainLines(player: Player, shape: "square" | "circle"): string[] {
   try {
     const location = player.location;
-    const grid = sampleTerrainGrid(player.dimension, Math.floor(location.x), Math.floor(location.z), system.currentTick, 4, 5);
+    const grid = sampleTerrainGrid(
+      player.dimension,
+      Math.floor(location.x),
+      Math.floor(location.z),
+      system.currentTick,
+      HUD_CELL_SIZE,
+      HUD_GRID_WIDTH
+    );
     return formatTerrainGridPixels(grid, shape);
   } catch {
     return ["\u00a78Terrain map unavailable"];
