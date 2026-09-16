@@ -20,6 +20,7 @@ const ACCESSORY_ITEMS = new Map([
   ["vitality_bracelet", "phlodgate:vitality_bracelet"],
   ["haste_gloves", "phlodgate:haste_gloves"],
 ]);
+const REQUIRED_PACK_ICON = "pack_icon.png";
 
 function readJson(filePath) {
   try {
@@ -305,6 +306,9 @@ export function validateRelease(root) {
   for (const packName of packNames) {
     const packRoot = path.join(root, packName);
     if (!existsSync(packRoot)) throw new Error(`Missing pack directory: ${packName}`);
+    if (!existsSync(path.join(packRoot, REQUIRED_PACK_ICON))) {
+      throw new Error(`${packName}: missing ${REQUIRED_PACK_ICON}`);
+    }
     const manifestPath = path.join(packRoot, "manifest.json");
     if (!existsSync(manifestPath)) throw new Error(`${packName}: missing manifest.json`);
     manifests.set(packName, validateManifest(manifestPath, seenIds));

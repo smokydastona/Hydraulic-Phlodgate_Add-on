@@ -1,3 +1,5 @@
+![Phlodgate Add-On](.github/Phlodgate_Add-On_LOGO.png)
+
 # Phlodgate Add-On
 
 Dual-mode Bedrock client-enhancement add-on and official companion pack for **[Hydraulic-Phlodgate](https://github.com/smokydastona/Hydraulic-Phlodgate)**:
