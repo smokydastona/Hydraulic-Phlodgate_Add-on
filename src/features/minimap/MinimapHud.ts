@@ -3,8 +3,10 @@ import { getPlayerSettings } from "../../settings/SettingsStore";
 import { angularDelta, bearingDegrees, distanceXZ } from "../../util/Vector";
 import { listWaypoints } from "../waypoints/WaypointManager";
 import { arrowForDelta, formatDistance, isSameDimension } from "../waypoints/WaypointMath";
-import { buildTerrainPreviewPattern, parseCompanionVectorPayload } from "./TerrainMap";
+import { formatTerrainGridPixels, getCompanionTargetColor, parseCompanionVectorPayload } from "./TerrainMap";
 import { buildRadarStrip, cardinalEntriesForYaw, nearestEntries, withinRadius } from "./MinimapMath";
+import { sampleTerrainGrid } from "./TerrainSampler";
+import { system } from "@minecraft/server";
 
 const RADAR_MAX_LISTED = 3;
 const COMPANION_VECTOR_PROPERTY = "phlodgate:companion_vectors";
@@ -21,8 +23,14 @@ function colorizeStrip(strip: string): string {
   return out + "\u00a7r";
 }
 
-function buildMapPreviewLine(): string {
-  return buildTerrainPreviewPattern(0, 5).join(" ");
+function buildTerrainLines(player: Player): string[] {
+  try {
+    const location = player.location;
+    const grid = sampleTerrainGrid(player.dimension, Math.floor(location.x), Math.floor(location.z), system.currentTick, 4, 5);
+    return formatTerrainGridPixels(grid).map((line) => `\u00a78${line}`);
+  } catch {
+    return ["\u00a78Terrain map unavailable"];
+  }
 }
 
 /** Returns minimap HUD lines (radar strip + nearest waypoints), or undefined if disabled. */
@@ -80,13 +88,13 @@ export function buildMinimapLines(player: Player): string[] | undefined {
     )
   );
 
-  const lines = [`\u00a77[${strip}\u00a77]`, `\u00a78${buildMapPreviewLine()}`];
+  const lines = [`\u00a77[${strip}\u00a77]`, ...buildTerrainLines(player)];
 
   if (entries.length === 0) {
     lines.push(`\u00a78No waypoints within ${settings.minimapRadius} blocks`);
   } else {
     for (const e of nearestEntries(entries, RADAR_MAX_LISTED)) {
-      const kindPrefix = e.kind === "boss" ? "\u00a7c" : e.kind === "friend" ? "\u00a7a" : e.kind === "machine" ? "\u00a7b" : "\u00a7f";
+      const kindPrefix = getCompanionTargetColor(e.kind);
       lines.push(`\u00a76${arrowForDelta(e.delta)} ${kindPrefix}${e.name} \u00a77${formatDistance(e.distance)}`);
     }
   }

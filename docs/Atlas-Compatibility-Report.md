@@ -4,6 +4,18 @@
 
 This report compares `AmethystAPI/Atlas` at the supplied archive/repository state with this Bedrock Behavior Pack + Resource Pack project. Atlas targets Minecraft Bedrock `1.21.0.3` through the native AmethystAPI C++ modding platform. This project targets the public `@minecraft/server` Script API and JSON UI.
 
+The implementation was also compared with these Bedrock minimap projects:
+
+- `renzonox-ux/XaeroLiteMinimap.mcpack`: a small function/waypoint pack whose repository contains
+	command-oriented assets rather than a reusable renderer.
+- `Silvaxxxuuuu/minecraft-bedrock-minimap`: a TypeScript starter-style project that generates static
+	textures and glyph sheets and deploys through Microsoft starter tooling.
+- `Halo333X/Simple-Minimap-MCBE`: a native client HUD module that loads PNG textures, writes local files,
+	and draws through client graphics APIs.
+
+These repositories were used for behavior and compatibility research only. No source code, textures, glyph
+sheets, or generated assets were copied into this project.
+
 ## Atlas source disposition
 
 | Atlas surface | Purpose | Add-on disposition |
@@ -23,7 +35,8 @@ This report compares `AmethystAPI/Atlas` at the supplied archive/repository stat
 ## Implemented behavior
 
 - `TerrainMap.ts` provides pure terrain glyph classification, fixed-grid formatting, center-marker rendering, and cache-key normalization.
-- `TerrainSampler.ts` samples the highest non-air block through `Dimension.getBlock`, catches unloaded/unsupported access at the caller boundary, and caches snapped terrain regions for 100 ticks.
+- `TerrainSampler.ts` samples the highest non-air block through `Dimension.getBlock`, enforces bounded odd grid sizes and cell sizes, catches unloaded/unsupported access at the caller boundary, and caches snapped terrain regions for 100 ticks.
+- `MinimapHud.ts` renders a real 5x5 sampled terrain grid in the persistent HUD instead of a deterministic preview pattern; the Field Map retains the larger 9x9 grid.
 - `MinimapForms.ts` adds the terrain grid to the existing Field Map while retaining waypoint bearings and actions.
 - `main.ts` invalidates cached terrain after player block-break and block-place events.
 - `TerrainMap.test.ts` covers water/lava/vegetation/solid/air classification, centered rendering, and cache-key snapping.
@@ -32,10 +45,31 @@ This report compares `AmethystAPI/Atlas` at the supplied archive/repository stat
 
 The implementation is complete for the public Script API surface: it adds the strongest truthful Atlas-derived terrain feature available in this project without native hooks, copied code, or unsupported claims. It is not a native pixel minimap and cannot reproduce Atlas's map colors, greedy mesh renderer, arbitrary zoom keys, camera clipping, or chunk listener fidelity from a behavior pack alone.
 
+## Upstream Feature Matrix
+
+| Upstream capability | Public Script API equivalent | Result |
+|---|---|---|
+| Waypoint creation and named markers | Dynamic properties, forms, radar bearings | Implemented locally with dimension-aware waypoints and companion markers |
+| Static minimap texture/glyph sheet | Resource-pack JSON UI only; no live texture-pixel API | Not imported; live terrain uses colored text glyphs |
+| Native client HUD drawing | `setActionBar` plus JSON UI re-anchoring | Implemented as the supported persistent corner HUD |
+| Local file position exchange | No pack file-system API | Rejected as unsupported for a distributable add-on |
+| World terrain sampling | `Dimension.getBlock` | Implemented with bounded 5x5 HUD and 9x9 Field Map grids |
+| Arbitrary keyboard zoom and drag positioning | No custom input hook | Replaced by radius settings and fixed JSON UI placement |
+
+## Security and Performance Review
+
+- Terrain sampling accepts no paths, commands, network data, or user-controlled dimensions. Grid width and cell
+	size are clamped before any world reads.
+- Companion marker JSON is parsed defensively; invalid, disabled, non-finite, and out-of-range entries are
+	discarded before HUD rendering.
+- Sampling remains bounded and cached for 100 ticks. Block break/place events clear the cache to avoid stale
+	maps. The HUD uses a 5x5 grid to keep recurring actionbar work below the Field Map's on-demand 9x9 grid.
+- No native code, secrets, external executable, copied third-party asset, or new runtime dependency was introduced.
+
 ## Verification
 
 - `npm run typecheck`: passed.
-- `npm test`: passed, 14 files and 107 tests.
+- `npm test`: passed for the complete test suite.
 - `npm run build`: passed.
 - `npm run package`: passed.
 - Physical Minecraft client rendering and device-matrix verification require a Bedrock runtime and are not executable in this workspace.
@@ -72,6 +106,6 @@ require shipping and version-locking an additional render pack. No bedrock-core 
 
 ### Additional verification
 
-- `npm test`: 15 files, 109 tests passed.
+- `npm test`: complete suite passed.
 - `npm run typecheck`: passed.
 - All pack and manifest JSON files parsed successfully.

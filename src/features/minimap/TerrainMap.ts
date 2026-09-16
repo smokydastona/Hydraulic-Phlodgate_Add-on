@@ -41,23 +41,6 @@ export function getCompanionTargetColor(kind?: string, fallback = "§f"): string
   return fallback;
 }
 
-export function buildTerrainPreviewPattern(seed = 0, width = 5): string[] {
-  const palette = ["§8█", "§7█", "§a█", "§9█", "§6█", "§b█"];
-  const lines: string[] = [];
-
-  for (let row = 0; row < width; row++) {
-    let line = "";
-    for (let column = 0; column < width; column++) {
-      const baseIndex = ((row * 3 + column + seed) % palette.length);
-      const isCenter = row === Math.floor(width / 2) && column === Math.floor(width / 2);
-      line += isCenter ? "§fX" : palette[baseIndex];
-    }
-    lines.push(line);
-  }
-
-  return lines;
-}
-
 /** Classifies a top block into a compact, readable map glyph. */
 export function terrainGlyphForTypeId(typeId: string): TerrainGlyph {
   const normalized = typeId.toLowerCase();
@@ -78,9 +61,9 @@ export function pixelTerrainGlyphForTypeId(typeId: string): string {
   if (normalized.includes("grass") || normalized.includes("moss") || normalized.includes("leaves")) return "§a█";
   if (normalized.includes("sand") || normalized.includes("gravel")) return "§6█";
   if (normalized.includes("snow") || normalized.includes("ice")) return "§f█";
+  if (normalized.includes("ore") || normalized.includes("coal") || normalized.includes("iron") || normalized.includes("gold") || normalized.includes("copper")) return "§8█";
   if (normalized.includes("stone") || normalized.includes("deepslate") || normalized.includes("andesite") || normalized.includes("diorite") || normalized.includes("granite")) return "§7█";
   if (normalized.includes("log") || normalized.includes("wood") || normalized.includes("planks")) return "§e█";
-  if (normalized.includes("ore") || normalized.includes("coal") || normalized.includes("iron") || normalized.includes("gold") || normalized.includes("copper")) return "§8█";
   return "§8█";
 }
 

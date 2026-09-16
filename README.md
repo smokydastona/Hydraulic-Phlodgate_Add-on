@@ -72,21 +72,23 @@ npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddo
 
 Bedrock's Script API does not expose a world-render or map-texture surface, so a pixel/terrain minimap
 (like the Java-side Xaero's/JourneyMap-style CurseForge add-ons) cannot be built purely with `@minecraft/server`.
-Instead, this add-on ships a **radar-style Minimap HUD**:
+Instead, this add-on ships a **Script API Minimap HUD**:
 
 - A rotating text radar strip (`features/minimap/MinimapHud.ts`) showing the four cardinal directions and
   nearby waypoints as glyphs, positioned by bearing relative to your current facing, plus a distance-sorted
   list of the nearest waypoints.
+- A live sampled 5x5 terrain grid in the persistent HUD, using colored glyphs for surface block classes and a
+  centered player marker.
 - A **Phlodgate Field Map** item (given on spawn) that opens a full-screen form with the same radar, the
   10 nearest waypoints with bearing arrows and distances, an Atlas-inspired sampled terrain grid, a
   one-tap "add waypoint here", a minimap HUD on/off toggle, and a shortcut into the full Waypoint Manager.
 - Configurable via Player Settings: minimap HUD on/off and radar radius (32–256 blocks).
 
-The terrain grid is a bounded Script API implementation: it samples the highest non-air block in a 9x9
-grid, classifies common surfaces into readable glyphs, caches regions briefly, and invalidates them after
-block edits. It does not reproduce Atlas's native C++ pixel renderer, map-color lookup, mesh rendering,
-camera clipping, or keyboard zoom hooks; see `docs/Atlas-Compatibility-Report.md` for the complete
-compatibility analysis.
+The terrain grids are bounded Script API implementations: the HUD samples a 5x5 grid and the Field Map
+samples a 9x9 grid, each finding the highest non-air block, classifying common surfaces into stable colors,
+caching regions briefly, and invalidating them after block edits. They do not reproduce Atlas's native C++
+pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard zoom hooks; see
+`docs/Atlas-Compatibility-Report.md` and `fork-architecture-plan.md` for the complete compatibility analysis.
 
 ## HUD corner overlay (JSON UI)
 

@@ -25,6 +25,7 @@ describe("Atlas-inspired terrain map helpers", () => {
     expect(pixelTerrainGlyphForTypeId("minecraft:water")).toBe("§9█");
     expect(pixelTerrainGlyphForTypeId("minecraft:grass_block")).toBe("§a█");
     expect(pixelTerrainGlyphForTypeId("minecraft:stone")).toBe("§7█");
+    expect(pixelTerrainGlyphForTypeId("minecraft:iron_ore")).toBe("§8█");
   });
 
   it("formats colorful pseudo-pixel terrain grids with a centered player marker", () => {
@@ -42,6 +43,24 @@ describe("Atlas-inspired terrain map helpers", () => {
   it("snaps equivalent positions to one cache key", () => {
     expect(terrainCacheKey("minecraft:overworld", 9, 11, 4)).toBe("minecraft:overworld:8:8:4");
     expect(terrainCacheKey("minecraft:overworld", 10, 13, 4)).toBe("minecraft:overworld:8:12:4");
+  });
+
+  it("renders every sampled terrain cell and keeps the player marker centered", () => {
+    const grid = {
+      centerX: 0,
+      centerZ: 0,
+      cellSize: 4,
+      width: 5,
+      cells: Array.from({ length: 25 }, () => ({ glyph: "~" as const, height: 62, typeId: "minecraft:water" })),
+    };
+
+    expect(formatTerrainGridPixels(grid)).toEqual([
+      "§9█§9█§9█§9█§9█",
+      "§9█§9█§9█§9█§9█",
+      "§9█§9█§fX§9█§9█",
+      "§9█§9█§9█§9█§9█",
+      "§9█§9█§9█§9█§9█",
+    ]);
   });
 
   it("parses companion-vector payloads from the server bridge", () => {
