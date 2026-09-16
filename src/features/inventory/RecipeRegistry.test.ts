@@ -11,6 +11,7 @@ import {
   recipesByCategory,
   registerModdedRecipes,
   registerRecipe,
+  RECIPES,
   resetRecipesToDefault,
   searchRecipes,
 } from "./RecipeRegistry";
@@ -58,6 +59,7 @@ describe("searchRecipes and dynamic registration", () => {
     expect(getAllRecipes().length).toBeGreaterThan(15);
     resetRecipesToDefault();
     expect(getRecipe("hydraulic_golden_barrel")).toBeUndefined();
+    expect(RECIPES).toBe(getAllRecipes());
   });
 
   it("lists all available categories", () => {

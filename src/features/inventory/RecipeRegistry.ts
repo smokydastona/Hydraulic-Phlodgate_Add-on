@@ -57,7 +57,8 @@ export function registerModdedRecipes(recipes: readonly Recipe[]): void {
 }
 
 export function resetRecipesToDefault(): void {
-  activeRecipes = [...BASE_RECIPES];
+  activeRecipes.length = 0;
+  activeRecipes.push(...BASE_RECIPES);
 }
 
 export function getRecipesByNamespace(namespace: string): Recipe[] {

@@ -16,6 +16,39 @@ The implementation was also compared with these Bedrock minimap projects:
 These repositories were used for behavior and compatibility research only. No source code, textures, glyph
 sheets, or generated assets were copied into this project.
 
+## Additional linked-project review
+
+| Project | Useful finding | Compatibility decision |
+|---|---|---|
+| `mods-pemc/Mods-pemc` | Local browser IndexedDB import, manifest metadata extraction, pack-icon discovery, and explicit no-backend publication boundary | Not imported. This add-on has no filesystem, browser storage, upload, download, or public content-hosting boundary |
+| `YusufOruu/OruuCreations` | Content catalog concept for Bedrock skins, maps, packs, and add-ons | Documentation reference only; no marketplace assets or remote catalog were added |
+| `RacherMaykii/Block-Workbench` | Safe-save workflow, snapshots, bounded caches, structured operation logs, and explicit backup requirements | Applied to report/release policy. LevelDB, NBT, save editing, and desktop filesystem operations are outside a behavior pack |
+| `Flammbu/MCVault` | Cross-edition content discovery hub | Not imported; no network catalog or external content trust model is present in this pack |
+| `Jom-er/Bedrock-Nexus` | Static resource hub and download-oriented organization | Not imported; distribution remains the existing local `.mcpack`/`.mcaddon` packaging workflow |
+| `8Crafter-Studios/Ore-UI-Types` | Large native Ore UI command/facet surface and version-sensitive typed references | Rejected for runtime use. Ore UI internals, native commands, and undocumented facets are not public Script API contracts |
+| `TheNINJALLO/endstone-remote-workstations` | Capability catalogs, protected inventory menus, real source containers, permissions, and release scope matrices | Implemented only where public API permits: existing machine inspection, container quick transfer, operator gates, and recipe workbench; native Endstone screens are not portable |
+| `xRookieFight/jsonforge` | Typed element schemas, hierarchy, property validation, undo/redo, and export boundaries | Applied as architecture guidance to typed form validation and bounded pagination; no editor or Electron runtime was added |
+| `smell-of-curry/mcbe-ts-ui` | TypeScript JSON UI builders, namespaced controls, bindings, generated UI definitions, and safe organization | Existing JSON UI remains hand-authored and intentionally minimal; the shared HUD/actionbar contract does not require a new generator dependency |
+| `subwaystudio-s/Server-Properties-Editor-For-Calagopus` | GUI editing of server properties with restart-required changes | Not portable: this pack cannot access host files or server properties. Operator world settings remain dynamic-property based |
+| `XxVoidicxX/mcbe-ui-codex` | Verified texture/API references and warnings against invented or deprecated UI calls | Applied as a research constraint; only declared `@minecraft/server`, `@minecraft/server-ui`, and existing JSON UI surfaces are used |
+| `wisp-ts/forms-plus` | Validation, builders, bounded `UserBusy` retry, structured cancellation, and predictable form lifecycle | Implemented locally in `src/ui/FormRuntime.ts` and `src/ui/FormValidation.ts`, integrated with Control Room and Inventory/Recipes |
+
+## Newly implemented UI/workbench behavior
+
+- `FormRuntime.ts` retries transient busy forms at most three times with bounded tick delays and logs terminal failures.
+- `FormValidation.ts` rejects canceled, short, negative, and non-integer responses before workflow actions run.
+- Control Room and Inventory/Recipes use the shared form runtime instead of direct unguarded display calls.
+- Recipe browsing now supports categories and twelve-item pages, preventing oversized modded registries from overflowing action forms.
+- `RecipeRegistry.resetRecipesToDefault()` preserves the exported `RECIPES` alias identity, preventing stale menus after companion recipe resets.
+- Recipe search input is trimmed and bounded before querying the registry; craft quantities are clamped to the supported slider range.
+
+## Explicit non-claims
+
+This add-on does not provide native workstation packet screens, Ender Chest remoting, LevelDB/NBT world editing,
+browser content uploads, marketplace synchronization, Ore UI command invocation, host `server.properties` editing,
+or a remote content download service. Those capabilities require a native client/server plugin, desktop host
+application, or network backend with separate permissions, version qualification, and licensing.
+
 ## Atlas source disposition
 
 | Atlas surface | Purpose | Add-on disposition |

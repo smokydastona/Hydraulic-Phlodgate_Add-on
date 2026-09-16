@@ -68,6 +68,15 @@ npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddo
 - `RP_Aggressive/`, `RP_Extreme/` — optional static visual presets (manually selectable, not live-toggle)
 - `scripts/` — Node build/package/clean scripts
 
+### UI and workbench reliability
+
+The high-traffic Control Room and Inventory/Recipes workflows use a local validated form runtime. It handles
+transient Bedrock `UserBusy` display failures with bounded retries, normalizes cancellation, rejects malformed
+selections/modal values, trims search input, and keeps recipe catalogs usable through category navigation and
+12-item pagination. The recipe registry preserves its exported catalog alias when companion recipes are reset.
+The remaining specialized forms retain their existing local error boundaries and are documented in the
+compatibility report.
+
 ## Minimap / Field Map
 
 Bedrock's Script API does not expose a world-render or map-texture surface, so a pixel/terrain minimap
