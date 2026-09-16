@@ -4,6 +4,7 @@ import archiver from "archiver";
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { validateRelease } from "./release-validation.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -26,6 +27,7 @@ function zipDir(srcDir, outFile) {
 
 async function main() {
   const version = process.env.npm_package_version ?? "0.1.0";
+  validateRelease(root);
 
   const targets = [
     { dir: path.join(root, "BP"), out: path.join(outDir, `Phlodgate_BP_v${version}.mcpack`) },

@@ -52,12 +52,19 @@ a validation path. Extracted or mixed-license art is not accepted into the shipp
 - `npm test` passes all pure logic tests.
 - `npm run typecheck` passes against the declared Minecraft API versions.
 - `npm run build` produces `BP/scripts/main.js` without bundling runtime modules.
+- `npm run validate:release` parses every pack JSON file, verifies manifest/module UUID uniqueness and
+  versions, checks the balanced resource-pack dependency, validates UI definition references, and requires
+  the compiled script entry point.
 - `npm run package` produces the Behavior Pack, Resource Pack, and add-on archives.
 - Every JSON pack file parses successfully and manifests retain unique UUIDs.
 - Forms reject malformed responses and retry transient busy states within bounded limits.
 - Recipe catalogs remain usable with companion registrations through category navigation and pagination.
 - A physical Bedrock client test confirms HUD placement, terrain refresh after block edits, waypoint markers,
   Field Map opening, and all three resource-pack variants.
+
+The automated release gates are implemented by `scripts/release-validation.mjs` and run both directly and
+before packaging. Physical client/device validation remains a separate release activity because this workspace
+does not contain a Bedrock client or BDS runtime.
 
 ## Known runtime boundary
 

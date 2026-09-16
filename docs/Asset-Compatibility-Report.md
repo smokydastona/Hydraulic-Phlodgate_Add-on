@@ -5,6 +5,10 @@
 This report evaluates the linked menu, asset-library, pixel-generation, and game-project repositories against
 the Phlodgate Bedrock Behavior Pack + Resource Pack runtime.
 
+Research snapshot: 2026-09-15. Repository READMEs, top-level licenses, and current project boundaries were
+reviewed for all linked sources. The findings below separate reusable engineering patterns from code/assets
+that cannot be redistributed or executed inside a public Bedrock behavior/resource pack.
+
 ## Source findings
 
 | Source | Portable pattern | Release decision |
@@ -49,3 +53,11 @@ Automated tests can verify catalog structure, routing metadata, and permission f
 is still required to qualify touch/controller selection, localized text layout, and visual appearance on target
 client versions. The repository does not claim compatibility with Java/Paper plugin APIs, Ore UI internals,
 Godot runtime APIs, or external pixel-asset generation tools.
+
+## Release verification
+
+The portable provenance and boundary decisions are backed by `npm run validate:release`, which parses every
+pack JSON file, verifies manifest/module UUID uniqueness and version tuples, checks the Behavior Pack's balanced
+Resource Pack dependency, validates every `_ui_defs.json` file reference, and requires the compiled script entry
+point. `npm run package` invokes this gate before writing any archive. No linked repository is installed as a
+runtime dependency and no extracted, mixed-license, or externally hosted art is shipped.

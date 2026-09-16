@@ -40,6 +40,7 @@ npm install
 npm run build      # compiles src/ -> BP/scripts/main.js
 npm run typecheck   # tsc --noEmit against the real @minecraft/server types
 npm test            # unit tests for all pure/testable logic
+npm run validate:release # validates pack JSON, UUIDs, UI references, and build output
 npm run package      # build + zip BP/RP/presets into dist/*.mcpack and *.mcaddon
 ```
 
@@ -85,6 +86,11 @@ selections/modal values, trims search input, and keeps recipe catalogs usable th
 12-item pagination. The recipe registry preserves its exported catalog alias when companion recipes are reset.
 The remaining specialized forms retain their existing local error boundaries and are documented in the
 compatibility report.
+
+Release packaging runs the same structural validation before creating archives. It parses every pack JSON
+file, checks manifest and module UUID uniqueness, verifies three-part versions, confirms the Behavior Pack
+depends on the balanced Resource Pack, validates `_ui_defs.json` references, and requires the compiled script
+entry point. This catches malformed or incomplete distributions before they reach a device.
 
 ## Minimap / Field Map
 
