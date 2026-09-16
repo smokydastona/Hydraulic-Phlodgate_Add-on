@@ -10,12 +10,14 @@
     "offset": "$phlodgate_offset",
     "alpha": 0.86,
     "layer": 32,
-    "visible": "(not (($actionbar_text - $phlodgate_marker) = $actionbar_text))",
+    "$atext": "$actionbar_text",
+    "visible": "(not (($atext - $phlodgate_marker) = $atext))",
     "controls": [
       {
         "map_text": {
           "type": "label",
-          "text": "($actionbar_text - $phlodgate_marker)",
+          "$atext": "$actionbar_text",
+          "text": "($atext - $phlodgate_marker)",
           "anchor_from": "center",
           "anchor_to": "center",
           "text_alignment": "$phlodgate_alignment",
@@ -32,36 +34,10 @@
   "phlodgate_minimap_small@hud.phlodgate_minimap_box": { "$phlodgate_font_scale": 1.0 },
   "phlodgate_minimap_large@hud.phlodgate_minimap_box": { "$phlodgate_font_scale": 1.41 },
 
-  "phlodgate_plain_actionbar": {
-    "type": "image",
-    "texture": "textures/ui/hud_tip_text_background",
-    "size": ["100%c + 12px", "100%c + 5px"],
-    "offset": [0, "50%-68px"],
-    "alpha": 0.6,
-    "layer": 30,
-    "visible": "((((($actionbar_text - '[PGL:TL1]') = $actionbar_text) and (($actionbar_text - '[PGL:TL2]') = $actionbar_text)) and ((($actionbar_text - '[PGL:TR1]') = $actionbar_text) and (($actionbar_text - '[PGL:TR2]') = $actionbar_text))) and (((($actionbar_text - '[PGL:BL1]') = $actionbar_text) and (($actionbar_text - '[PGL:BL2]') = $actionbar_text)) and ((($actionbar_text - '[PGL:BR1]') = $actionbar_text) and (($actionbar_text - '[PGL:BR2]') = $actionbar_text))))",
-    "controls": [
-      {
-        "actionbar_message": {
-          "type": "label",
-          "anchor_from": "center",
-          "anchor_to": "center",
-          "color": "$tool_tip_text",
-          "enable_profanity_filter": true,
-          "layer": 31,
-          "text": "$actionbar_text",
-          "shadow": true,
-          "localize": false
-        }
-      }
-    ]
-  },
-
-  "hud_actionbar_text": {
+  "phlodgate_minimap_root": {
     "type": "panel",
     "size": ["100%", "100%"],
     "controls": [
-      { "phlodgate_plain@hud.phlodgate_plain_actionbar": {} },
       { "phlodgate_top_left_small@hud.phlodgate_minimap_small": { "$phlodgate_marker": "[PGL:TL1]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_alignment": "left" } },
       { "phlodgate_top_left_large@hud.phlodgate_minimap_large": { "$phlodgate_marker": "[PGL:TL2]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_alignment": "left" } },
       { "phlodgate_top_right_small@hud.phlodgate_minimap_small": { "$phlodgate_marker": "[PGL:TR1]", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_alignment": "right" } },
@@ -73,46 +49,39 @@
     ]
   },
 
+  "phlodgate_minimap_factory": {
+    "type": "panel",
+    "factory": {
+      "name": "hud_actionbar_text_factory",
+      "control_ids": {
+        "hud_actionbar_text": "phlodgate_minimap_root@hud.phlodgate_minimap_root"
+      }
+    }
+  },
+
+  "hud_actionbar_text": {
+    "$atext": "$actionbar_text",
+    "visible": "((((($atext - '[PGL:TL1]') = $atext) and (($atext - '[PGL:TL2]') = $atext)) and ((($atext - '[PGL:TR1]') = $atext) and (($atext - '[PGL:TR2]') = $atext))) and (((($atext - '[PGL:BL1]') = $atext) and (($atext - '[PGL:BL2]') = $atext)) and ((($atext - '[PGL:BR1]') = $atext) and (($atext - '[PGL:BR2]') = $atext))))"
+  },
+
   "hud_title_text": {
-    "type": "stack_panel",
-    "orientation": "vertical",
     "anchor_from": "bottom_middle",
     "anchor_to": "bottom_middle",
-    "offset": [0, -62],
-    "size": ["100%", "100%c"],
-    "layer": 1,
-    "alpha": 1,
-    "controls": [
+    "offset": [0, -62]
+  },
+
+  "hud_title_text/title_frame": { "ignored": true },
+  "hud_title_text/subtitle_frame/subtitle_background": { "ignored": true },
+  "hud_title_text/subtitle_frame/subtitle": { "font_size": "normal", "offset": [0, 18], "alpha": 1 },
+
+  "root_panel": {
+    "modifications": [
       {
-        "subtitle_frame": {
-          "type": "panel",
-          "size": ["100%", "100%c"],
-          "controls": [
-            {
-              "subtitle": {
-                "type": "label",
-                "anchor_from": "top_middle",
-                "anchor_to": "top_middle",
-                "color": "$title_command_text_color",
-                "enable_profanity_filter": false,
-                "text": "#text",
-                "layer": 31,
-                "localize": false,
-                "font_size": "normal",
-                "shadow": true,
-                "text_alignment": "center",
-                "alpha": 1,
-                "bindings": [
-                  {
-                    "binding_name": "#hud_subtitle_text_string",
-                    "binding_name_override": "#text",
-                    "binding_type": "global"
-                  }
-                ]
-              }
-            }
-          ]
-        }
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [
+          { "phlodgate_minimap_factory@hud.phlodgate_minimap_factory": {} }
+        ]
       }
     ]
   }

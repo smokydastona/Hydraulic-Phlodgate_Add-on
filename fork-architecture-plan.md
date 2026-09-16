@@ -116,8 +116,23 @@ implementation.
 6. `HudManager.ts` owns two independent channels: plain-token-routed actionbar content for the minimap and
   background-free title/subtitle content for the centered compass above vanilla status bars. The minimap token
   encodes both corner and size (`[PGL:<corner><1|2>]`), so `hud_screen.json` can route the same content into a
-  small box (25%x25% = 1/16 of the screen) or a large one (35.4%x35.4% = 1/8 of the screen) purely by scaling.
-  Custom food telemetry is not rendered.
+  small box or a large one purely by scaling. These are two genuinely separate screen locations: the minimap is
+  drawn by a `hud_actionbar_text_factory`-backed control anchored to a screen corner, while the compass stays on
+  the title/subtitle channel above the hotbar. Custom food telemetry is not rendered.
+
+  Two JSON UI rules govern this and are enforced by `validate:release`, because violating either fails silently
+  in-game while every static check still passes:
+
+  - Operators cannot be applied to the hardcoded `$actionbar_text` variable directly. It must first be copied
+    into a normal variable (`"$atext": "$actionbar_text"`) on the same control, and all comparisons must use the
+    copy. Comparing the hardcoded variable directly never matches, which is what kept the minimap invisible.
+  - `_ui_defs.json` registers only *new* UI files. Vanilla screen overrides such as `hud_screen.json` are merged
+    by path automatically; listing one there makes the engine treat it as a separate screen instead of an
+    override.
+
+  A control that needs `$actionbar_text` must be produced by a `hud_actionbar_text_factory` and inserted into
+  `root_panel` through a `modifications` array - that is the only documented way to receive the variable in a
+  control this pack owns.
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
 9. `MenuCatalog.ts` owns Control Room route metadata, operator visibility, validation, and action-form bounds.
@@ -184,8 +199,12 @@ deliberately excluded from the map.
   `@minecraft/server` 2.10.0 and `@minecraft/server-ui` 2.2.0, with a 26.51 minimum engine.
 - A physical Bedrock client test confirms HUD placement, terrain refresh after block edits, waypoint markers,
   square/circle, four-corner and small/large minimap settings, centered compass placement, forced pet
-  selection/spawn/naming, sit/mount/shift-click behavior, custom pet textures, and all three resource-pack
-  variants.
+  selection/spawn/naming, sit/mount/shift-click behavior, rideable jump and sneak-to-dismount, custom pet
+  textures, and all three resource-pack variants.
+
+JSON UI correctness in particular cannot be proven by the automated gates: they verify structure and the two
+rules above, but Bedrock resolves variables and overrides at runtime, so a client check remains mandatory after
+any `hud_screen.json` change.
 
 The automated release gates are implemented by `scripts/release-validation.mjs` and run both directly and
 before packaging. Physical client/device validation remains a separate release activity because this workspace

@@ -88,6 +88,13 @@ function validateUiDefinitions(filePath, packRoot) {
   if (!Array.isArray(definitions.ui_defs) || definitions.ui_defs.some((entry) => typeof entry !== "string" || !entry.endsWith(".json"))) {
     throw new Error(`${filePath}: ui_defs must be an array of JSON file paths`);
   }
+  // _ui_defs registers NEW ui files only. Vanilla screen overrides are merged by path automatically, and
+  // listing one here makes the engine load it as a separate screen instead of applying it as an override.
+  for (const vanillaScreen of ["ui/hud_screen.json", "ui/pause_screen.json", "ui/inventory_screen.json"]) {
+    if (definitions.ui_defs.includes(vanillaScreen)) {
+      throw new Error(`${filePath}: must not register vanilla override ${vanillaScreen}`);
+    }
+  }
   for (const definition of definitions.ui_defs) {
     const target = path.resolve(packRoot, definition);
     if (!target.startsWith(`${path.resolve(packRoot)}${path.sep}`) || !existsSync(target)) {
@@ -111,38 +118,50 @@ function validateHudDefinition(filePath) {
   ]) {
     if (!serialized.includes(marker)) throw new Error(`${filePath}: missing minimap routing marker ${marker}`);
   }
-  if (hud["hud_title_text/subtitle_frame/subtitle_background"]) {
-    // Nested-path overrides several levels into a vanilla tree are unreliable; the compass black box
-    // survived one because of this. hud_title_text is replaced outright instead.
-    throw new Error(`${filePath}: do not use nested-path overrides into hud_title_text; replace the control outright`);
+  if (hud["hud_title_text/subtitle_frame/subtitle_background"]?.ignored !== true) {
+    throw new Error(`${filePath}: compass subtitle background must be ignored`);
   }
 
-  // A resource-pack override replaces the vanilla control wholesale rather than merging, so every override
-  // has to be a complete, valid control. A partial one is silently discarded and vanilla renders instead,
-  // which is what leaked the raw [PGL:*] routing markers onto the actionbar.
-  for (const controlName of ["hud_actionbar_text", "hud_title_text"]) {
-    const control = hud[controlName];
-    if (!control) throw new Error(`${filePath}: missing ${controlName} definition`);
-    if (typeof control.type !== "string") {
-      throw new Error(`${filePath}: ${controlName} must declare a "type" - a partial override is discarded by Bedrock`);
+  // Bedrock cannot run operators directly on the hardcoded $actionbar_text variable; it has to be copied into
+  // a normal variable first. Every control that compares actionbar text must therefore declare its own copy,
+  // and no control may reference $actionbar_text inside an expression. Shipping that mistake made the minimap
+  // silently never match its routing marker.
+  const stack = [hud];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (!node || typeof node !== "object") continue;
+    if (Array.isArray(node)) {
+      stack.push(...node);
+      continue;
     }
-    if (!Array.isArray(control.controls) || control.controls.length === 0) {
-      throw new Error(`${filePath}: ${controlName} must define its full "controls" list`);
+    const copiesActionbarText = node.$atext === "$actionbar_text";
+    for (const [key, value] of Object.entries(node)) {
+      if (typeof value === "string" && key !== "$atext" && value.includes("$actionbar_text")) {
+        throw new Error(
+          `${filePath}: "${key}" uses $actionbar_text directly; copy it into $atext first or the comparison never matches`
+        );
+      }
+      if (typeof value === "string" && value.includes("$atext") && key !== "$atext" && !copiesActionbarText) {
+        throw new Error(`${filePath}: "${key}" uses $atext without declaring "$atext": "$actionbar_text" on the same control`);
+      }
+      if (value && typeof value === "object") stack.push(value);
     }
   }
 
-  const actionbar = hud["hud_actionbar_text"];
-  if (!Array.isArray(actionbar.size) || actionbar.size[0] !== "100%" || actionbar.size[1] !== "100%") {
-    // The corner boxes anchor to this control, so it has to span the screen. Vanilla sizes it to its
-    // content, which would pin every "corner" to the little actionbar box instead.
-    throw new Error(`${filePath}: hud_actionbar_text must be full-screen for corner anchoring`);
+  // New actionbar-driven controls must come from a hud_actionbar_text_factory injected into root_panel; that is
+  // the only documented way to receive $actionbar_text in a control we own.
+  const factory = hud["phlodgate_minimap_factory"];
+  if (factory?.factory?.name !== "hud_actionbar_text_factory") {
+    throw new Error(`${filePath}: minimap must be driven by a hud_actionbar_text_factory`);
   }
-  if (!serialized.includes("actionbar_message")) {
-    throw new Error(`${filePath}: an actionbar_message label must remain for non-Phlodgate messages`);
+  if (!Array.isArray(hud["root_panel"]?.modifications)) {
+    throw new Error(`${filePath}: the minimap factory must be inserted into root_panel via modifications`);
   }
-  const actionbarChildNames = actionbar.controls.flatMap((entry) => Object.keys(entry).map((key) => key.split("@")[0]));
-  if (actionbarChildNames.filter((name) => name.startsWith("phlodgate_top") || name.startsWith("phlodgate_bottom")).length !== 8) {
-    throw new Error(`${filePath}: hud_actionbar_text must contain all 8 minimap corner/size controls`);
+
+  const cornerControls = hud["phlodgate_minimap_root"]?.controls ?? [];
+  const cornerNames = cornerControls.flatMap((entry) => Object.keys(entry).map((key) => key.split("@")[0]));
+  if (cornerNames.length !== 8) {
+    throw new Error(`${filePath}: expected all 8 minimap corner/size controls, found ${cornerNames.length}`);
   }
 }
 
@@ -181,6 +200,10 @@ function validateCompanionAssets(root) {
       }
       if (components["minecraft:item_controllable"] || components["minecraft:behavior.controlled_by_player"]) {
         throw new Error(`${behaviorPath}: saddle-free mounts must not require item-based control components`);
+      }
+      // Without a jump strength the rider cannot make the mount jump at all.
+      if (!components["minecraft:horse.jump_strength"]) {
+        throw new Error(`${behaviorPath}: rideable companions must define minecraft:horse.jump_strength so the rider can jump`);
       }
     }
 

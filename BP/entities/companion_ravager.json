@@ -95,6 +95,9 @@
             -0.3
           ]
         }
+      },
+      "minecraft:horse.jump_strength": {
+        "value": 1
       }
     },
     "component_groups": {

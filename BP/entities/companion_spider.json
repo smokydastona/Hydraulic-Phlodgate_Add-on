@@ -97,6 +97,9 @@
       },
       "minecraft:variant": {
         "value": 0
+      },
+      "minecraft:horse.jump_strength": {
+        "value": 1
       }
     },
     "component_groups": {

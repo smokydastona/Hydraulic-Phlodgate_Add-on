@@ -167,7 +167,9 @@ reopens it; movement is restored and the choice is persisted only after the sele
   components, so a plain click toggles sit/stand through the same native engine interaction vanilla tamed mobs
   use. The three rideable species (Spider, Sniffer, Ravager) instead carry `minecraft:rideable` +
   `minecraft:behavior.controlled_by_player` with no saddle/item requirement of any kind — exactly like a boat
-  or minecart, a plain click mounts and the owner steers it directly. Nothing here is reimplemented or faked;
+  or minecart, a plain click mounts and the owner steers it directly. They also carry
+  `minecraft:horse.jump_strength`, so the rider can jump while mounted, and sneak/crouch dismounts through the
+  engine's own rideable behavior. Nothing here is reimplemented or faked;
   every interaction is the engine's own native tamed-mob or rideable-mob behavior.
 - **Opens the Hydraulic Control Room on shift+click**: the owner's sneak-click is detected and cancels the
   default interaction (so it doesn't also toggle sit/mount) before calling the same `openHydraulicControlRoom()`
@@ -225,9 +227,12 @@ The HUD now uses two independent public display channels instead of mixing every
 - Custom hunger/saturation/exhaustion text is no longer rendered. Vanilla health, armor, and hunger remain
   untouched. Existing settings are migrated with coordinates and durability overlays disabled by default.
 
-Each resource pack variant ships the same minimal `ui/hud_screen.json` override and registers it through
-`ui/_ui_defs.json`. JSON UI is unversioned, so physical client verification remains required after Minecraft UI
-updates.
+Each resource pack variant ships the same `ui/hud_screen.json` override. Vanilla screen overrides are merged by
+path and are deliberately **not** listed in `ui/_ui_defs.json`, which registers new UI files only. Two JSON UI
+rules are enforced by `validate:release` because breaking either fails silently in-game: operators may never be
+applied to the hardcoded `$actionbar_text` variable directly (it must be copied into `$atext` first), and any
+control needing that variable must come from a `hud_actionbar_text_factory` inserted into `root_panel`. JSON UI
+is unversioned, so physical client verification remains required after Minecraft UI updates.
 
 ## Known platform limitations (by design, not a bug)
 
