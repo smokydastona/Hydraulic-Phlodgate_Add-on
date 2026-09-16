@@ -1,9 +1,12 @@
 export type CompanionModeSetting = "auto" | "enabled" | "disabled";
 export type MinimapShapeSetting = "square" | "circle";
 export type MinimapPositionSetting = "top_left" | "top_right" | "bottom_left" | "bottom_right";
+/** "small" occupies ~1/16 of the screen, "large" ~1/8; both render identical content, only scaled. */
+export type MinimapSizeSetting = "small" | "large";
 
 export const MINIMAP_SHAPES: readonly MinimapShapeSetting[] = ["square", "circle"];
 export const MINIMAP_POSITIONS: readonly MinimapPositionSetting[] = ["top_left", "top_right", "bottom_left", "bottom_right"];
+export const MINIMAP_SIZES: readonly MinimapSizeSetting[] = ["small", "large"];
 
 export interface PlayerSettings {
   jeiInventoryEnabled: boolean;
@@ -16,6 +19,7 @@ export interface PlayerSettings {
   minimapRadius: number;
   minimapShape: MinimapShapeSetting;
   minimapPosition: MinimapPositionSetting;
+  minimapSize: MinimapSizeSetting;
   foodPreviewEnabled: boolean;
   appleskinOverlayEnabled: boolean;
   durabilityHudEnabled: boolean;
@@ -36,6 +40,7 @@ export const DEFAULT_PLAYER_SETTINGS: PlayerSettings = {
   minimapRadius: 128,
   minimapShape: "square",
   minimapPosition: "top_left",
+  minimapSize: "small",
   foodPreviewEnabled: false,
   appleskinOverlayEnabled: false,
   durabilityHudEnabled: false,

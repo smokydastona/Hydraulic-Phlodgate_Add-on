@@ -85,11 +85,13 @@ implementation.
 1. `MinimapMath.ts` owns deterministic radar bearings, cardinal rotation, nearest-marker ordering, and radius filtering.
 2. `TerrainMap.ts` owns type-id classification, colored text glyphs, safe companion-vector parsing, and pure grid formatting.
 3. `TerrainSampler.ts` owns bounded `Dimension.getBlock` sampling and a dimension/position/scale/width cache.
-4. `MinimapHud.ts` composes a color-coded 9x9 terrain map with two-block resolution, elevation relief, and
-  nearest destinations in square or circular form.
-5. `MinimapForms.ts` provides the on-demand 9x9 Field Map and waypoint actions.
-6. `HudManager.ts` owns two independent channels: plain-token-routed actionbar content for the four-position
-  minimap and background-free title/subtitle content for the centered compass above vanilla status bars.
+4. `MinimapHud.ts` composes a color-coded 17x17 terrain map at 16 blocks per cell (a 128-block radius), with
+  elevation relief and nearest destinations in square or circular form.
+5. `MinimapForms.ts` provides the on-demand Field Map and waypoint actions.
+6. `HudManager.ts` owns two independent channels: plain-token-routed actionbar content for the minimap and
+  background-free title/subtitle content for the centered compass above vanilla status bars. The minimap token
+  encodes both corner and size (`[PGL:<corner><1|2>]`), so `hud_screen.json` can route the same content into a
+  small box (25%x25% = 1/16 of the screen) or a large one (35.4%x35.4% = 1/8 of the screen) purely by scaling.
   Custom food telemetry is not rendered.
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
@@ -111,13 +113,22 @@ exception-safe, and covered by unit tests.
 Asset additions must have explicit provenance, a compatible redistribution license, a bounded texture size, and
 a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.
 
+`scripts/generate-minimap-textures.mjs` seeds an originally-authored minimap art set under
+`<pack>/textures/ui/phlodgate/minimap/` (frames, block tiles, cave tiles, entity icons, waypoint icons,
+markers). It never overwrites an existing file, so hand-drawn replacements survive every rebuild, and
+`validate:release` fails if any required art file is missing from any resource-pack variant. The minimap frame
+is wired into `hud_screen.json`; the tile and icon files are a real, shipped, art-ready palette, but the Script
+API exposes no way to blit a per-cell texture into a HUD widget, so cell content itself remains font-glyph
+rendered. Replacing the glyph font sheet is the supported route to restyle cells.
+
 ## Release gates
 
 - `npm test` passes all pure logic tests.
 - `npm run typecheck` passes against the declared Minecraft API versions.
 - `npm run build` produces `BP/scripts/main.js` without bundling runtime modules.
 - `npm run validate:release` parses every pack JSON file, verifies manifest/module UUID uniqueness and
-  engine/API versions, validates UI definition references, requires the compiled script entry point, and
+  engine/API versions, validates UI definition references, requires the compiled script entry point, verifies
+  the minimap art set is present in every resource-pack variant, and
   verifies every catalog pet's behavior, client definition, localization, neutral/invulnerable contract, and
   unique texture in all resource-pack variants.
 - `npm run package` produces the Behavior Pack, Resource Pack, and add-on archives.
@@ -128,8 +139,9 @@ a validation path. Extracted or mixed-license art is not accepted into the shipp
   warnings when Balanced, Aggressive, or Extreme is selected. Script dependencies remain pinned to stable
   `@minecraft/server` 2.10.0 and `@minecraft/server-ui` 2.2.0, with a 26.51 minimum engine.
 - A physical Bedrock client test confirms HUD placement, terrain refresh after block edits, waypoint markers,
-  square/circle and four-corner minimap settings, centered compass placement, forced pet selection/spawn,
-  sit/mount/shift-click behavior, custom pet textures, and all three resource-pack variants.
+  square/circle, four-corner and small/large minimap settings, centered compass placement, forced pet
+  selection/spawn/naming, sit/mount/shift-click behavior, custom pet textures, and all three resource-pack
+  variants.
 
 The automated release gates are implemented by `scripts/release-validation.mjs` and run both directly and
 before packaging. Physical client/device validation remains a separate release activity because this workspace

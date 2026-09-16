@@ -88,7 +88,16 @@ function validateUiDefinitions(filePath, packRoot) {
 function validateHudDefinition(filePath) {
   const hud = readJson(filePath);
   const serialized = JSON.stringify(hud);
-  for (const marker of ["[PGL:TL]", "[PGL:TR]", "[PGL:BL]", "[PGL:BR]"]) {
+  for (const marker of [
+    "[PGL:TL1]",
+    "[PGL:TL2]",
+    "[PGL:TR1]",
+    "[PGL:TR2]",
+    "[PGL:BL1]",
+    "[PGL:BL2]",
+    "[PGL:BR1]",
+    "[PGL:BR2]",
+  ]) {
     if (!serialized.includes(marker)) throw new Error(`${filePath}: missing minimap routing marker ${marker}`);
   }
   if (hud["hud_title_text/subtitle_frame/subtitle_background"]?.ignored !== true) {
@@ -170,6 +179,53 @@ function validateCompanionAssets(root) {
   }
 }
 
+function validateMinimapArtSet(packRoot) {
+  const artDirectory = path.join(packRoot, "textures", "ui", "phlodgate", "minimap");
+  const required = [
+    "frame_square",
+    "frame_circle",
+    "frame_cave",
+    "block_water",
+    "block_lava",
+    "block_grass",
+    "block_sand",
+    "block_snow",
+    "block_ice",
+    "block_stone",
+    "block_ore",
+    "block_wood",
+    "block_leaves",
+    "block_path",
+    "block_unknown",
+    "cave_floor",
+    "cave_wall",
+    "cave_air",
+    "cave_lava",
+    "cave_ore",
+    "entity_player",
+    "entity_companion",
+    "entity_passive",
+    "entity_hostile",
+    "entity_boss",
+    "entity_villager",
+    "entity_item",
+    "entity_machine",
+    "waypoint_default",
+    "waypoint_active",
+    "waypoint_death",
+    "waypoint_home",
+    "waypoint_machine",
+    "waypoint_offscreen",
+    "marker_north",
+    "marker_center",
+  ];
+
+  for (const name of required) {
+    const texturePath = path.join(artDirectory, `${name}.png`);
+    if (!existsSync(texturePath)) throw new Error(`Missing minimap art asset: ${texturePath}`);
+  }
+}
+
 export function validateRelease(root) {
   const packNames = ["BP", "RP", "RP_Aggressive", "RP_Extreme"];
   const manifests = new Map();
@@ -186,6 +242,7 @@ export function validateRelease(root) {
       if (path.basename(jsonFile) === "manifest.json") continue;
       readJson(jsonFile);
       if (path.basename(jsonFile) === "_ui_defs.json") validateUiDefinitions(jsonFile, packRoot);
+      if (path.basename(jsonFile) === "hud_screen.json") validateMinimapArtSet(packRoot);
       if (path.basename(jsonFile) === "hud_screen.json") validateHudDefinition(jsonFile);
     }
   }

@@ -18,11 +18,13 @@ const SUBTITLE_STAY_DURATION_TICKS = 72000000; // ~500 hours; refreshed content 
 /** Players who have had their title/subtitle channel initialized this session, and the last subtitle text sent
  *  (so we only call the (cheap, non-flashing) updateSubtitle when the compass text actually changes). */
 const subtitleInitialized = new Map<string, string>();
-const MINIMAP_POSITION_MARKERS = {
-  top_left: "[PGL:TL]",
-  top_right: "[PGL:TR]",
-  bottom_left: "[PGL:BL]",
-  bottom_right: "[PGL:BR]",
+/** Routing tokens consumed by hud_screen.json. Suffix 1 = small (~1/16 screen), 2 = large (~1/8 screen).
+ *  No token may be a substring of another, or molang string subtraction would match the wrong box. */
+const MINIMAP_ROUTING_MARKERS = {
+  top_left: { small: "[PGL:TL1]", large: "[PGL:TL2]" },
+  top_right: { small: "[PGL:TR1]", large: "[PGL:TR2]" },
+  bottom_left: { small: "[PGL:BL1]", large: "[PGL:BL2]" },
+  bottom_right: { small: "[PGL:BR1]", large: "[PGL:BR2]" },
 } as const;
 
 function composeMinimapBox(player: Player): string | undefined {
@@ -76,7 +78,7 @@ export function startHudManager(getPlayers: () => Player[]): number {
 
         const text = composeMinimapBox(player);
         if (text) {
-          const positionedText = `${MINIMAP_POSITION_MARKERS[settings.minimapPosition]}${text}`;
+          const positionedText = `${MINIMAP_ROUTING_MARKERS[settings.minimapPosition][settings.minimapSize]}${text}`;
           player.setDynamicProperty(HUD_TEXT_PROPERTY, positionedText);
           player.onScreenDisplay.setActionBar(positionedText);
         } else {
