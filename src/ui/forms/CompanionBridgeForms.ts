@@ -9,6 +9,7 @@ import { inspectPlayerTargetBlock } from "../../features/companion/MachineInspec
 import { getPlayerSettings, getWorldSettings, updatePlayerSettings, updateWorldSettings } from "../../settings/SettingsStore";
 import { isOperator } from "../../settings/Permissions";
 import { log } from "../../util/Logger";
+import { showFormWithRetry } from "../FormRuntime";
 
 const COMPANION_MODES = ["auto", "enabled", "disabled"] as const;
 
@@ -39,8 +40,8 @@ export async function openCompanionBridgeMenu(player: Player): Promise<void> {
     .button("Back");
 
   try {
-    const response = await form.show(player);
-    if (response.canceled || response.selection === undefined) return;
+    const response = await showFormWithRetry(player, () => form, { context: "Companion bridge menu" });
+    if (!response || response.canceled || response.selection === undefined) return;
 
     switch (response.selection) {
       case 0:
@@ -64,17 +65,15 @@ export async function openMachineInspectionForm(player: Player, page = 1, filter
   const inspection = inspectPlayerTargetBlock(player, 7);
 
   if (!inspection) {
-    await new MessageFormData()
+    const messageForm = new MessageFormData()
       .title("Machine Inspection")
-      .body("No valid block found in your immediate line of sight (within 7 blocks).\n\n§7Touch / Point directly at a machine block and try again.§r")
+      .body("No valid block found in your immediate line of sight (within 7 blocks).\n\n\u00a77Touch / Point directly at a machine block and try again.\u00a7r")
       .button1("Retry")
-      .button2("Close")
-      .show(player)
-      .then(async (res) => {
-        if (res.selection === 0) {
-          await openMachineInspectionForm(player, 1, filterQuery);
-        }
-      });
+      .button2("Close");
+    const res = await showFormWithRetry(player, () => messageForm, { context: "Machine inspection (no target)" });
+    if (res?.selection === 0) {
+      await openMachineInspectionForm(player, 1, filterQuery);
+    }
     return;
   }
 
@@ -107,8 +106,8 @@ export async function openMachineInspectionForm(player: Player, page = 1, filter
     .button("✕ Close");
 
   try {
-    const res = await form.show(player);
-    if (res.canceled || res.selection === undefined) return;
+    const res = await showFormWithRetry(player, () => form, { context: "Machine inspection menu" });
+    if (!res || res.canceled || res.selection === undefined) return;
 
     let index = 0;
     if (res.selection === index++) {
@@ -161,8 +160,8 @@ async function openSearchFilterModal(player: Player): Promise<void> {
     .textField("Item Name / Namespace Substring", "e.g. iron, gear, ingot", { defaultValue: "" });
 
   try {
-    const res = await modal.show(player);
-    if (res.canceled || !res.formValues) {
+    const res = await showFormWithRetry(player, () => modal, { context: "Search/filter modal" });
+    if (!res || res.canceled || !res.formValues) {
       await openMachineInspectionForm(player, 1, undefined);
       return;
     }
@@ -191,8 +190,8 @@ export async function openCompanionModeConfigForm(player: Player): Promise<void>
   }
 
   try {
-    const response = await form.show(player);
-    if (response.canceled || !response.formValues) return;
+    const response = await showFormWithRetry(player, () => form, { context: "Companion mode config" });
+    if (!response || response.canceled || !response.formValues) return;
 
     const modeIndex = response.formValues[0] as number;
     const selectedMode = COMPANION_MODES[modeIndex] ?? "auto";
@@ -223,10 +222,14 @@ export async function openDiscoveredNamespacesForm(player: Player): Promise<void
           "All items and machine entities matching these namespaces are automatically indexed in the JEI recipe registry and protected from cleanup.",
         ].join("\n");
 
-  await new MessageFormData()
-    .title("Discovered Modded Namespaces")
-    .body(body)
-    .button1("OK")
-    .button2("Back")
-    .show(player);
+  await showFormWithRetry(
+    player,
+    () =>
+      new MessageFormData()
+        .title("Discovered Modded Namespaces")
+        .body(body)
+        .button1("OK")
+        .button2("Back"),
+    { context: "Discovered namespaces" }
+  );
 }

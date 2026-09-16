@@ -4,6 +4,7 @@ import { getWorldSettings, updateWorldSettings } from "../../settings/SettingsSt
 import { requireOperator } from "../../settings/Permissions";
 import { isValidMode } from "../../settings/Profiles";
 import { log } from "../../util/Logger";
+import { showFormWithRetry } from "../FormRuntime";
 
 const MODES = ["balanced", "aggressive", "extreme"] as const;
 
@@ -34,8 +35,8 @@ export async function openWorldSettingsForm(player: Player): Promise<void> {
     .toggle("Extreme FPS mode (minimal fog)", { defaultValue: settings.extremeFpsMode });
 
   try {
-    const response = await form.show(player);
-    if (response.canceled || !response.formValues) return;
+    const response = await showFormWithRetry(player, () => form, { context: "World settings form" });
+    if (!response || response.canceled || !response.formValues) return;
 
     const values = response.formValues as [
       number,

@@ -7,21 +7,24 @@
     "visible": "(not (($actionbar_text - $phlodgate_marker) = $actionbar_text))",
     "controls": [{ "map_text": { "type": "label", "text": "($actionbar_text - $phlodgate_marker)", "anchor_from": "$phlodgate_anchor", "anchor_to": "$phlodgate_anchor", "offset": "$phlodgate_text_offset", "text_alignment": "$phlodgate_alignment", "localize": false, "shadow": true, "layer": 21 } }]
   },
-  "phlodgate_actionbar_fallback@hud.phlodgate_minimap_box": {
-    "$phlodgate_anchor": "bottom_middle", "$phlodgate_offset": [0, -68], "$phlodgate_text_offset": [0, 0], "$phlodgate_alignment": "center",
-    "alpha": 0,
-    "visible": "((($actionbar_text - '[PGL:TL]') = $actionbar_text) and (($actionbar_text - '[PGL:TR]') = $actionbar_text) and (($actionbar_text - '[PGL:BL]') = $actionbar_text) and (($actionbar_text - '[PGL:BR]') = $actionbar_text) and (not ($actionbar_text = '')))",
-    "controls": [{ "map_text": { "type": "label", "text": "$actionbar_text", "text_alignment": "center", "localize": false, "shadow": true, "layer": 21 } }]
-  },
   "hud_actionbar_text": {
-    "type": "panel", "size": ["100%", "100%"], "alpha": 1,
-    "controls": [
-      { "top_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:TL]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_text_offset": [6, 4], "$phlodgate_alignment": "left" } },
-      { "top_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:TR]", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_text_offset": [-6, 4], "$phlodgate_alignment": "right" } },
-      { "bottom_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:BL]", "$phlodgate_anchor": "bottom_left", "$phlodgate_offset": [10, -76], "$phlodgate_text_offset": [6, -4], "$phlodgate_alignment": "left" } },
-      { "bottom_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:BR]", "$phlodgate_anchor": "bottom_right", "$phlodgate_offset": [-10, -76], "$phlodgate_text_offset": [-6, -4], "$phlodgate_alignment": "right" } },
-      { "fallback@hud.phlodgate_actionbar_fallback": {} }
+    "alpha": "((((($actionbar_text - '[PGL:TL]') = $actionbar_text) and (($actionbar_text - '[PGL:TR]') = $actionbar_text)) and ((($actionbar_text - '[PGL:BL]') = $actionbar_text) and (($actionbar_text - '[PGL:BR]') = $actionbar_text))) ? 1 : 0)",
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_back",
+        "value": [
+          { "phlodgate_top_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:TL]", "$phlodgate_anchor": "top_left", "$phlodgate_offset": [10, 12], "$phlodgate_text_offset": [6, 4], "$phlodgate_alignment": "left" } },
+          { "phlodgate_top_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:TR]", "$phlodgate_anchor": "top_right", "$phlodgate_offset": [-10, 12], "$phlodgate_text_offset": [-6, 4], "$phlodgate_alignment": "right" } },
+          { "phlodgate_bottom_left@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:BL]", "$phlodgate_anchor": "bottom_left", "$phlodgate_offset": [10, -92], "$phlodgate_text_offset": [6, -4], "$phlodgate_alignment": "left" } },
+          { "phlodgate_bottom_right@hud.phlodgate_minimap_box": { "$phlodgate_marker": "[PGL:BR]", "$phlodgate_anchor": "bottom_right", "$phlodgate_offset": [-10, -92], "$phlodgate_text_offset": [-6, -4], "$phlodgate_alignment": "right" } }
+        ]
+      }
     ]
+  },
+
+  "hud_actionbar_text/actionbar_message": {
+    "visible": "(((($actionbar_text - '[PGL:TL]') = $actionbar_text) and (($actionbar_text - '[PGL:TR]') = $actionbar_text)) and ((($actionbar_text - '[PGL:BL]') = $actionbar_text) and (($actionbar_text - '[PGL:BR]') = $actionbar_text)))"
   },
   "hud_title_text": { "anchor_from": "bottom_middle", "anchor_to": "bottom_middle", "offset": [0, -66] },
   "hud_title_text/title_frame": { "ignored": true },

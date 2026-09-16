@@ -3,6 +3,7 @@ import { Player } from "@minecraft/server";
 import { getPlayerSettings, updatePlayerSettings } from "../../settings/SettingsStore";
 import { MINIMAP_POSITIONS, MINIMAP_SHAPES } from "../../settings/SettingsSchema";
 import { log } from "../../util/Logger";
+import { showFormWithRetry } from "../FormRuntime";
 
 export async function openPlayerSettingsForm(player: Player): Promise<void> {
   const settings = getPlayerSettings(player);
@@ -27,8 +28,8 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
     .slider("HUD refresh rate (ticks)", 2, 40, { defaultValue: settings.hudRefreshTicks, valueStep: 2 });
 
   try {
-    const response = await form.show(player);
-    if (response.canceled || !response.formValues) return;
+    const response = await showFormWithRetry(player, () => form, { context: "Player settings form" });
+    if (!response || response.canceled || !response.formValues) return;
 
     const [
       jeiInventoryEnabled,

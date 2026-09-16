@@ -11,9 +11,10 @@ import {
   system,
   world,
 } from "@minecraft/server";
-import { ActionFormData } from "@minecraft/server-ui";
+import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 import { openHydraulicControlRoom } from "../../ui/HydraulicControlRoom";
-import { readSelection } from "../../ui/FormValidation";
+import { showFormWithRetry } from "../../ui/FormRuntime";
+import { readModalValues, readSelection } from "../../ui/FormValidation";
 import { log } from "../../util/Logger";
 import {
   COMPANION_SPECIES,
@@ -63,6 +64,23 @@ function spawnCompanion(player: Player, species: CompanionSpeciesDefinition): En
     log(`Failed to spawn companion ${species.entityTypeId} for ${player.name}: ${String(err)}`);
     return undefined;
   }
+}
+
+async function promptCompanionName(player: Player, entity: Entity, species: CompanionSpeciesDefinition): Promise<void> {
+  const form = new ModalFormData()
+    .title("Name Your Companion")
+    .textField("Companion name", species.defaultName, { defaultValue: species.defaultName });
+
+  const response = await showFormWithRetry(player, () => form, { context: "Companion naming" });
+  if (!response) return;
+
+  const values = readModalValues(response, 1);
+  if (!values) return;
+
+  const requestedName = String(values[0] ?? "").trim();
+  if (!requestedName || !entity.isValid) return;
+
+  entity.nameTag = requestedName.slice(0, 32);
 }
 
 function buildCompanionCategoryForm(): ActionFormData {
@@ -138,7 +156,8 @@ function scheduleForcedCompanionChoice(player: Player): void {
       }
 
       const species = speciesOptions[selection] ?? findCompanionSpecies(DEFAULT_COMPANION_SPECIES_ID)!;
-      if (!spawnCompanion(player, species)) {
+      const entity = spawnCompanion(player, species);
+      if (!entity) {
         system.runTimeout(prompt, FORCED_CHOICE_RETRY_TICKS);
         return;
       }
@@ -146,6 +165,12 @@ function scheduleForcedCompanionChoice(player: Player): void {
       player.setDynamicProperty(COMPANION_SPECIES_PLAYER_PROPERTY, species.id);
       onboardingPlayers.delete(player.id);
       setOnboardingMovement(player, true);
+
+      system.run(() => {
+        void promptCompanionName(player, entity, species).catch((err) =>
+          log(`Companion naming prompt failed for ${player.name}: ${String(err)}`)
+        );
+      });
     })();
   };
 

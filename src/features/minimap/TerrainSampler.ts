@@ -5,7 +5,7 @@ const DEFAULT_CELL_SIZE = 4;
 const CACHE_TTL_TICKS = 100;
 const DEFAULT_GRID_WIDTH = 9;
 const MIN_GRID_WIDTH = 3;
-const MAX_GRID_WIDTH = 11;
+const MAX_GRID_WIDTH = 21;
 const MIN_CELL_SIZE = 1;
 const MAX_CELL_SIZE = 32;
 

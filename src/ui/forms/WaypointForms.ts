@@ -9,6 +9,7 @@ import {
   setActiveWaypointId,
 } from "../../features/waypoints/WaypointManager";
 import { log } from "../../util/Logger";
+import { showFormWithRetry } from "../FormRuntime";
 
 export async function openWaypointMenu(player: Player): Promise<void> {
   const waypoints = listWaypoints(player);
@@ -25,8 +26,8 @@ export async function openWaypointMenu(player: Player): Promise<void> {
   }
 
   try {
-    const response = await form.show(player);
-    if (response.canceled || response.selection === undefined) return;
+    const response = await showFormWithRetry(player, () => form, { context: "Waypoint menu" });
+    if (!response || response.canceled || response.selection === undefined) return;
 
     if (response.selection === 0) {
       await openAddWaypointForm(player);
@@ -42,8 +43,8 @@ export async function openWaypointMenu(player: Player): Promise<void> {
 
 export async function openAddWaypointForm(player: Player): Promise<void> {
   const form = new ModalFormData().title("Add Waypoint").textField("Waypoint name", "e.g. Base, Nether Portal");
-  const response = await form.show(player);
-  if (response.canceled || !response.formValues) return;
+  const response = await showFormWithRetry(player, () => form, { context: "Add waypoint form" });
+  if (!response || response.canceled || !response.formValues) return;
 
   const name = String(response.formValues[0] ?? "");
   const result = addWaypoint(player, name);
@@ -69,8 +70,8 @@ async function openWaypointDetailMenu(player: Player, waypointId: string): Promi
     .button("Rename")
     .button("Remove");
 
-  const response = await form.show(player);
-  if (response.canceled || response.selection === undefined) return;
+  const response = await showFormWithRetry(player, () => form, { context: "Waypoint detail menu" });
+  if (!response || response.canceled || response.selection === undefined) return;
 
   switch (response.selection) {
     case 0:
@@ -84,8 +85,8 @@ async function openWaypointDetailMenu(player: Player, waypointId: string): Promi
       const renameForm = new ModalFormData()
         .title("Rename Waypoint")
         .textField("New name", waypoint.name, { defaultValue: waypoint.name });
-      const renameResponse = await renameForm.show(player);
-      if (!renameResponse.canceled && renameResponse.formValues) {
+      const renameResponse = await showFormWithRetry(player, () => renameForm, { context: "Rename waypoint form" });
+      if (renameResponse && !renameResponse.canceled && renameResponse.formValues) {
         renameWaypoint(player, waypoint.id, String(renameResponse.formValues[0] ?? waypoint.name));
         player.sendMessage("§aWaypoint renamed.");
       }
@@ -97,8 +98,8 @@ async function openWaypointDetailMenu(player: Player, waypointId: string): Promi
         .body(`Remove "${waypoint.name}"? This cannot be undone.`)
         .button1("Remove")
         .button2("Cancel");
-      const confirmResponse = await confirm.show(player);
-      if (!confirmResponse.canceled && confirmResponse.selection === 0) {
+      const confirmResponse = await showFormWithRetry(player, () => confirm, { context: "Remove waypoint confirmation" });
+      if (confirmResponse && !confirmResponse.canceled && confirmResponse.selection === 0) {
         removeWaypoint(player, waypoint.id);
         player.sendMessage("§7Waypoint removed.");
       }

@@ -9,6 +9,7 @@ import { formatTerrainGrid } from "../../features/minimap/TerrainMap";
 import { sampleTerrainGrid } from "../../features/minimap/TerrainSampler";
 import { openAddWaypointForm, openWaypointMenu } from "./WaypointForms";
 import { log } from "../../util/Logger";
+import { showFormWithRetry } from "../FormRuntime";
 
 const FIELD_MAP_LISTED = 10;
 
@@ -61,8 +62,8 @@ export async function openFieldMapMenu(player: Player): Promise<void> {
       .button(settings.minimapEnabled ? "Turn off Minimap HUD" : "Turn on Minimap HUD")
       .button("Manage Waypoints");
 
-    const response = await form.show(player);
-    if (response.canceled || response.selection === undefined) return;
+    const response = await showFormWithRetry(player, () => form, { context: "Field Map menu" });
+    if (!response || response.canceled || response.selection === undefined) return;
 
     switch (response.selection) {
       case 0:

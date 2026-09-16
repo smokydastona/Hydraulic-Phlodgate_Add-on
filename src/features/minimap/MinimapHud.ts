@@ -11,8 +11,11 @@ import { system } from "@minecraft/server";
 const RADAR_MAX_LISTED = 3;
 const COMPANION_VECTOR_PROPERTY = "phlodgate:companion_vectors";
 const MAX_COMPANION_TARGETS = 8;
-const HUD_GRID_WIDTH = 9;
-const HUD_CELL_SIZE = 2;
+// 17x17 grid at 16 blocks/cell gives a half-width radius of 128 blocks (8 * 16),
+// satisfying the "see at least 128 blocks around the player" requirement while
+// keeping enough cells for the terrain to look meaningfully detailed.
+const HUD_GRID_WIDTH = 17;
+const HUD_CELL_SIZE = 16;
 
 function buildTerrainLines(player: Player, shape: "square" | "circle"): string[] {
   try {

@@ -94,6 +94,16 @@ function validateHudDefinition(filePath) {
   if (hud["hud_title_text/subtitle_frame/subtitle_background"]?.ignored !== true) {
     throw new Error(`${filePath}: compass subtitle background must be ignored`);
   }
+  const actionbarOverride = hud["hud_actionbar_text"];
+  if (actionbarOverride && "type" in actionbarOverride) {
+    // Bedrock JSON UI silently rejects a resource-pack override that changes a vanilla
+    // control's "type" and falls back to full vanilla rendering for that control - this
+    // previously caused the minimap markers to render unprocessed over the vanilla actionbar.
+    throw new Error(`${filePath}: hud_actionbar_text must not redefine "type" (causes Bedrock to silently discard the override)`);
+  }
+  if (!Array.isArray(actionbarOverride?.modifications)) {
+    throw new Error(`${filePath}: hud_actionbar_text must add minimap corner controls via a "modifications" array, not by replacing "controls"`);
+  }
 }
 
 function validateCompanionAssets(root) {
