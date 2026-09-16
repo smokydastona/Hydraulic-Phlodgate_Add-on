@@ -16,6 +16,12 @@ export interface TerrainGrid {
   cells: TerrainCell[];
 }
 
+export interface TerrainMarker {
+  x: number;
+  z: number;
+  glyph: string;
+}
+
 export interface CompanionVectorTarget {
   id: string;
   name: string;
@@ -118,7 +124,11 @@ export function formatTerrainGrid(grid: TerrainGrid): string[] {
   return lines;
 }
 
-export function formatTerrainGridPixels(grid: TerrainGrid, shape: "square" | "circle" = "square"): string[] {
+export function formatTerrainGridPixels(
+  grid: TerrainGrid,
+  shape: "square" | "circle" = "square",
+  markers: readonly TerrainMarker[] = []
+): string[] {
   const lines: string[] = [];
   const half = Math.floor(grid.width / 2);
   const centerHeight = grid.cells[half * grid.width + half]?.height ?? 0;
@@ -134,10 +144,23 @@ export function formatTerrainGridPixels(grid: TerrainGrid, shape: "square" | "ci
         }
       }
       const cell = grid.cells[row * grid.width + column];
+      if (row === half && column === half) {
+        line += "§fX";
+        continue;
+      }
+      const marker = markers.find(
+        (entry) =>
+          Math.floor((entry.x - grid.centerX) / grid.cellSize) + half === column &&
+          Math.floor((entry.z - grid.centerZ) / grid.cellSize) + half === row
+      );
+      if (marker) {
+        line += `§f${marker.glyph.trim().charAt(0) || "?"}`;
+        continue;
+      }
       const terrainPixel = pixelTerrainGlyphForTypeId(cell?.typeId ?? "minecraft:air");
       const heightDelta = (cell?.height ?? centerHeight) - centerHeight;
       const reliefGlyph = heightDelta >= 4 ? "▓" : heightDelta <= -4 ? "▒" : "█";
-      const key = row === half && column === half ? "§fX" : `${terrainPixel.slice(0, 2)}${reliefGlyph}`;
+      const key = `${terrainPixel.slice(0, 2)}${reliefGlyph}`;
       line += key;
     }
     lines.push(line);

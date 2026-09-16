@@ -3,8 +3,8 @@ import { getPlayerSettings } from "../../settings/SettingsStore";
 import { angularDelta, bearingDegrees, distanceXZ } from "../../util/Vector";
 import { listWaypoints } from "../waypoints/WaypointManager";
 import { arrowForDelta, formatDistance, isSameDimension } from "../waypoints/WaypointMath";
-import { formatTerrainGridPixels, getCompanionTargetColor, isHiddenMapTarget, parseCompanionVectorPayload } from "./TerrainMap";
-import { nearestEntries, withinRadius } from "./MinimapMath";
+import { formatTerrainGridPixels, getCompanionTargetColor, isHiddenMapTarget, parseCompanionVectorPayload, TerrainMarker } from "./TerrainMap";
+import { cellSizeForMinimapScale, nearestEntries, withinRadius } from "./MinimapMath";
 import { sampleTerrainGrid } from "./TerrainSampler";
 import { system } from "@minecraft/server";
 
@@ -15,9 +15,8 @@ const MAX_COMPANION_TARGETS = 8;
 // satisfying the "see at least 128 blocks around the player" requirement while
 // keeping enough cells for the terrain to look meaningfully detailed.
 const HUD_GRID_WIDTH = 17;
-const HUD_CELL_SIZE = 16;
 
-function buildTerrainLines(player: Player, shape: "square" | "circle"): string[] {
+function buildTerrainLines(player: Player, shape: "square" | "circle", cellSize: number, markers: readonly TerrainMarker[]): string[] {
   try {
     const location = player.location;
     const grid = sampleTerrainGrid(
@@ -25,10 +24,10 @@ function buildTerrainLines(player: Player, shape: "square" | "circle"): string[]
       Math.floor(location.x),
       Math.floor(location.z),
       system.currentTick,
-      HUD_CELL_SIZE,
+      cellSize,
       HUD_GRID_WIDTH
     );
-    return formatTerrainGridPixels(grid, shape);
+    return formatTerrainGridPixels(grid, shape, markers);
   } catch {
     return ["\u00a78Terrain map unavailable"];
   }
@@ -40,9 +39,12 @@ export function buildMinimapLines(player: Player): string[] | undefined {
   if (!settings.minimapEnabled) return undefined;
 
   const from = player.location;
+  const zoom = [1, 2, 4, 8].includes(settings.minimapScale) ? settings.minimapScale : 1;
+  const cellSize = cellSizeForMinimapScale(zoom);
   const yaw360 = ((player.getRotation().y % 360) + 360) % 360;
 
-  const companionTargets = parseCompanionVectorPayload(player.getDynamicProperty(COMPANION_VECTOR_PROPERTY) as string | undefined)
+  const parsedCompanionTargets = parseCompanionVectorPayload(player.getDynamicProperty(COMPANION_VECTOR_PROPERTY) as string | undefined);
+  const companionTargets = parsedCompanionTargets
     .filter((target) => {
       if (isHiddenMapTarget(target.kind) || isHiddenMapTarget(target.category)) return false;
       const distance = Math.hypot(target.x, target.z);
@@ -82,7 +84,24 @@ export function buildMinimapLines(player: Player): string[] | undefined {
     ...companionTargets,
   ].filter((e) => withinRadius(e.distance, settings.minimapRadius));
 
-  const lines = [`\u00a7fMAP \u00a77${settings.minimapRadius}m`, ...buildTerrainLines(player, settings.minimapShape)];
+  const terrainMarkers: TerrainMarker[] = listWaypoints(player)
+    .filter((waypoint) => isSameDimension(waypoint, player.dimension.id))
+    .map((waypoint) => ({ x: waypoint.x, z: waypoint.z, glyph: waypoint.name }))
+    .concat(
+      parsedCompanionTargets
+        .filter((target) => {
+          if (isHiddenMapTarget(target.kind) || isHiddenMapTarget(target.category)) return false;
+          return Math.hypot(target.x, target.z) <= settings.minimapRadius;
+        })
+        .slice(0, MAX_COMPANION_TARGETS)
+        .map((target) => ({
+          x: from.x + target.x,
+          z: from.z + target.z,
+          glyph: target.glyph || target.name,
+        }))
+    );
+
+  const lines = [`\u00a7fMAP \u00a77${zoom}x`, ...buildTerrainLines(player, settings.minimapShape, cellSize, terrainMarkers)];
 
   if (entries.length === 0) {
     lines.push(`\u00a78No waypoints within ${settings.minimapRadius} blocks`);

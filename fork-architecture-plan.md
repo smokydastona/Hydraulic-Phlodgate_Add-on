@@ -32,6 +32,18 @@ inputs, not code or asset dependencies:
 - `BetterBedrockMenus`, `Bedrock-Java-ChibiArtAssets`, `assets-plus`, `MiniX`, `pixel-asset-master-skills`,
   `PixelSRPG-Forge`, `ClawLibrary`, and `pixel-asset-gen` establish the menu/catalog, provenance, and
   deterministic-asset boundaries recorded in `docs/Asset-Compatibility-Report.md`.
+- `NezuShin/NMinimap` contributes the portable behavior model for configurable zoom, square/circle presentation,
+  bounded map dimensions, marker categories, and cache-aware rendering. Its Java packet-map entities, shaders,
+  generated font-image resource pack, commands, permissions, and GPL-3.0 implementation are not portable into
+  this public Bedrock Script API pack and were not copied.
+- `dmor-me/AA4-Minimap` contributes the portable Atlas-style concepts of layered terrain sampling, player-centered
+  orientation, and map markers. Its Java Fabric/Forge renderer, Antique Atlas 4 dependency, chunk meshes, and
+  client input hooks are outside this runtime; the local implementation uses typed block sampling, relief, radar,
+  waypoints, and companion vectors instead. The source is MIT licensed, but no source or assets were needed.
+- `jose190901/simple-minimap` is an MIT Forge add-on that disables unrelated Xaero controls rather than rendering
+  a minimap. Its useful boundary is a restrained control surface and explicit smoke-test discipline. It does not
+  provide a Bedrock renderer, and this pack does not claim Xaero compatibility or mutate client key mappings.
+  The full source, asset, security, and release disposition is recorded in `docs/Minimap-Fork-Compatibility-Report.md`.
 
 ## Companion pet research findings
 
@@ -85,8 +97,9 @@ implementation.
 1. `MinimapMath.ts` owns deterministic radar bearings, cardinal rotation, nearest-marker ordering, and radius filtering.
 2. `TerrainMap.ts` owns type-id classification, colored text glyphs, safe companion-vector parsing, and pure grid formatting.
 3. `TerrainSampler.ts` owns bounded `Dimension.getBlock` sampling and a dimension/position/scale/width cache.
-4. `MinimapHud.ts` composes a color-coded 17x17 terrain map at 16 blocks per cell (a 128-block radius), with
-  elevation relief and nearest destinations in square or circular form.
+4. `MinimapHud.ts` composes a color-coded 17x17 terrain map at a bounded 1x/2x/4x/8x zoom (16/8/4/2 blocks
+  per cell, preserving a 128-block default radius), with elevation relief and nearest waypoint/companion markers
+  in square or circular form.
 5. `MinimapForms.ts` provides the on-demand Field Map and waypoint actions.
 6. `HudManager.ts` owns two independent channels: plain-token-routed actionbar content for the minimap and
   background-free title/subtitle content for the centered compass above vanilla status bars. The minimap token
@@ -108,7 +121,8 @@ renderer/assets. Those require separate products with their own distribution, pe
 
 The add-on may extend the current implementation with additional pure block classifications, companion marker
 contracts, or bounded sampling policies. Any new runtime surface must remain dimension-scoped, cache-bounded,
-exception-safe, and covered by unit tests.
+exception-safe, and covered by unit tests. The current minimap marker overlay filters invalid, disabled, hidden,
+out-of-range, and cross-dimension targets before rendering, and the player marker always wins the center cell.
 
 Asset additions must have explicit provenance, a compatible redistribution license, a bounded texture size, and
 a validation path. Extracted or mixed-license art is not accepted into the shipped resource packs.

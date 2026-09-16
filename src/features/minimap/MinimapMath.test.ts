@@ -3,6 +3,7 @@ import {
   buildRadarStrip,
   CARDINAL_BEARINGS,
   cardinalEntriesForYaw,
+  cellSizeForMinimapScale,
   DEFAULT_RADAR_WIDTH,
   nearestEntries,
   radarIndexForDelta,
@@ -23,6 +24,16 @@ describe("radarIndexForDelta", () => {
   it("clamps to track bounds for out-of-range deltas", () => {
     expect(radarIndexForDelta(540, 21)).toBeGreaterThanOrEqual(0);
     expect(radarIndexForDelta(540, 21)).toBeLessThanOrEqual(20);
+  });
+});
+
+describe("cellSizeForMinimapScale", () => {
+  it("maps supported zoom levels to bounded terrain cell sizes", () => {
+    expect([1, 2, 4, 8].map(cellSizeForMinimapScale)).toEqual([16, 8, 4, 2]);
+  });
+
+  it("falls back to the default coverage for invalid values", () => {
+    expect(cellSizeForMinimapScale(3)).toBe(16);
   });
 });
 

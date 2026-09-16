@@ -102,18 +102,22 @@ Instead, this add-on ships a **Script API Minimap HUD**:
 - A rotating text radar strip (`features/minimap/MinimapHud.ts`) showing the four cardinal directions and
   nearby waypoints as glyphs, positioned by bearing relative to your current facing, plus a distance-sorted
   list of the nearest waypoints.
-- A live sampled 9x9 terrain grid in the persistent HUD, using two-block cells, colored surface classes,
-  elevation shading, and a centered player marker.
+- A live sampled 17x17 terrain grid in the persistent HUD, using a bounded 1x/2x/4x/8x zoom control over
+  16/8/4/2 blocks per cell, colored surface classes, elevation shading, and a centered player marker.
+- Waypoint and valid companion-vector markers overlaid at their real sampled X/Z cells, with hidden machine/item
+  categories, disabled targets, out-of-range targets, and cross-dimension waypoints excluded.
 - A **Phlodgate Field Map** item (given on spawn) that opens a full-screen form with the same radar, the
   10 nearest waypoints with bearing arrows and distances, an Atlas-inspired sampled terrain grid, a
   one-tap "add waypoint here", a minimap HUD on/off toggle, and a shortcut into the full Waypoint Manager.
-- Configurable via Player Settings: minimap HUD on/off and radar radius (32–256 blocks).
+- Configurable via Player Settings: minimap HUD on/off, radar radius (32–256 blocks), zoom, shape, corner, and size.
 
-The terrain grids are bounded Script API implementations: the HUD samples a detailed 9x9 grid and the Field Map
-samples a 9x9 grid, each finding the highest non-air block, classifying common surfaces into stable colors,
-caching regions briefly, and invalidating them after block edits. They do not reproduce Atlas's native C++
-pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard zoom hooks; see
-`docs/Atlas-Compatibility-Report.md` and `fork-architecture-plan.md` for the complete compatibility analysis.
+The terrain grids are bounded Script API implementations: the HUD samples a fixed 17x17 grid and the Field Map
+samples its on-demand grid, each finding the highest non-air block, classifying common surfaces into stable colors,
+caching regions briefly, and invalidating them after block edits. Zoom changes the world area represented by the
+fixed grid rather than increasing recurring work. They do not reproduce Atlas's native C++ pixel renderer,
+map-color lookup, mesh rendering, camera clipping, packet map entities, shader metadata, or keyboard hooks; see
+`docs/Atlas-Compatibility-Report.md`, `docs/Minimap-Fork-Compatibility-Report.md`, and `fork-architecture-plan.md`
+for the complete compatibility analysis.
 
 ## Bound companion pet (Control Room access point)
 

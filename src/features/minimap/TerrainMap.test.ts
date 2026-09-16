@@ -69,6 +69,17 @@ describe("Atlas-inspired terrain map helpers", () => {
     expect(formatTerrainGridPixels(grid)).toEqual(["§7█§7█§7█", "§7█§fX§7█", "§7█§7█§7█"]);
   });
 
+  it("overlays a marker in its sampled cell", () => {
+    const grid = {
+      centerX: 0,
+      centerZ: 0,
+      cellSize: 4,
+      width: 3,
+      cells: Array.from({ length: 9 }, () => ({ glyph: "#" as const, height: 0, typeId: "minecraft:stone" })),
+    };
+    expect(formatTerrainGridPixels(grid, "square", [{ x: 4, z: 0, glyph: "home" }])[1]).toContain("§fh");
+  });
+
   it("masks grid corners for the circular minimap shape", () => {
     const grid = {
       centerX: 0,

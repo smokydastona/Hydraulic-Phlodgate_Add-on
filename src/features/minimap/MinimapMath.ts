@@ -17,6 +17,11 @@ export const DEFAULT_RADAR_WIDTH = 21;
 export const RADAR_TRACK_CHAR = "\u00b7"; // ·
 export const RADAR_CENTER_CHAR = "\u25b2"; // ▲
 
+export function cellSizeForMinimapScale(scale: number): number {
+  const safeScale = [1, 2, 4, 8].includes(scale) ? scale : 1;
+  return 16 / safeScale;
+}
+
 /** Maps a signed delta (-180..180) to a track index in [0, width - 1], where the middle index is directly ahead. */
 export function radarIndexForDelta(delta: number, width: number): number {
   const clamped = Math.min(180, Math.max(-180, delta));

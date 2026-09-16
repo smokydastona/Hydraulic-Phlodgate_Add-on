@@ -1,7 +1,7 @@
 import { ModalFormData } from "@minecraft/server-ui";
 import { Player } from "@minecraft/server";
 import { getPlayerSettings, updatePlayerSettings } from "../../settings/SettingsStore";
-import { MINIMAP_POSITIONS, MINIMAP_SHAPES, MINIMAP_SIZES } from "../../settings/SettingsSchema";
+import { MINIMAP_POSITIONS, MINIMAP_SCALES, MINIMAP_SHAPES, MINIMAP_SIZES } from "../../settings/SettingsSchema";
 import { log } from "../../util/Logger";
 import { showFormWithRetry } from "../FormRuntime";
 
@@ -25,6 +25,9 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
     .dropdown("Minimap size", ["Small (1/16 screen)", "Large (1/8 screen)"], {
       defaultValueIndex: Math.max(0, MINIMAP_SIZES.indexOf(settings.minimapSize)),
     })
+    .dropdown("Minimap zoom", ["1x (16 blocks/cell)", "2x (8 blocks/cell)", "4x (4 blocks/cell)", "8x (2 blocks/cell)"], {
+      defaultValueIndex: Math.max(0, MINIMAP_SCALES.indexOf(settings.minimapScale)),
+    })
     .toggle("Durability HUD", { defaultValue: settings.durabilityHudEnabled })
     .toggle("Durability low alerts", { defaultValue: settings.durabilityAlertsEnabled })
     .slider("Durability alert threshold (%)", 1, 50, { defaultValue: settings.durabilityAlertThresholdPercent, valueStep: 1 })
@@ -46,6 +49,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       minimapShapeIndex,
       minimapPositionIndex,
       minimapSizeIndex,
+      minimapScaleIndex,
       durabilityHudEnabled,
       durabilityAlertsEnabled,
       durabilityAlertThresholdPercent,
@@ -58,6 +62,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       boolean,
       boolean,
       boolean,
+      number,
       number,
       number,
       number,
@@ -80,6 +85,7 @@ export async function openPlayerSettingsForm(player: Player): Promise<void> {
       minimapShape: MINIMAP_SHAPES[minimapShapeIndex] ?? "square",
       minimapPosition: MINIMAP_POSITIONS[minimapPositionIndex] ?? "top_left",
       minimapSize: MINIMAP_SIZES[minimapSizeIndex] ?? "small",
+      minimapScale: MINIMAP_SCALES[minimapScaleIndex] ?? 1,
       appleskinOverlayEnabled: false,
       foodPreviewEnabled: false,
       durabilityHudEnabled,

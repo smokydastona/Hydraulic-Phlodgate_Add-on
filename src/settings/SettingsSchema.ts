@@ -1,12 +1,14 @@
 export type CompanionModeSetting = "auto" | "enabled" | "disabled";
 export type MinimapShapeSetting = "square" | "circle";
 export type MinimapPositionSetting = "top_left" | "top_right" | "bottom_left" | "bottom_right";
+export type MinimapScaleSetting = 1 | 2 | 4 | 8;
 /** "small" occupies ~1/16 of the screen, "large" ~1/8; both render identical content, only scaled. */
 export type MinimapSizeSetting = "small" | "large";
 
 export const MINIMAP_SHAPES: readonly MinimapShapeSetting[] = ["square", "circle"];
 export const MINIMAP_POSITIONS: readonly MinimapPositionSetting[] = ["top_left", "top_right", "bottom_left", "bottom_right"];
 export const MINIMAP_SIZES: readonly MinimapSizeSetting[] = ["small", "large"];
+export const MINIMAP_SCALES: readonly MinimapScaleSetting[] = [1, 2, 4, 8];
 
 export interface PlayerSettings {
   jeiInventoryEnabled: boolean;
@@ -20,6 +22,7 @@ export interface PlayerSettings {
   minimapShape: MinimapShapeSetting;
   minimapPosition: MinimapPositionSetting;
   minimapSize: MinimapSizeSetting;
+  minimapScale: MinimapScaleSetting;
   foodPreviewEnabled: boolean;
   appleskinOverlayEnabled: boolean;
   durabilityHudEnabled: boolean;
@@ -41,6 +44,7 @@ export const DEFAULT_PLAYER_SETTINGS: PlayerSettings = {
   minimapShape: "square",
   minimapPosition: "top_left",
   minimapSize: "small",
+  minimapScale: 1,
   foodPreviewEnabled: false,
   appleskinOverlayEnabled: false,
   durabilityHudEnabled: false,
@@ -97,7 +101,7 @@ export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
 };
 
 /** Bump this whenever the shape of PlayerSettings/WorldSettings changes, and add a migration in migratePlayerSettings/migrateWorldSettings. */
-export const SETTINGS_SCHEMA_VERSION = 5;
+export const SETTINGS_SCHEMA_VERSION = 6;
 
 export interface VersionedPayload<T> {
   schemaVersion: number;
@@ -112,6 +116,7 @@ export function migratePlayerSettings(payload: VersionedPayload<Partial<PlayerSe
     migrated.coordinatesHudEnabled = false;
     migrated.durabilityHudEnabled = false;
   }
+  if (!MINIMAP_SCALES.includes(migrated.minimapScale)) migrated.minimapScale = 1;
   return migrated;
 }
 
