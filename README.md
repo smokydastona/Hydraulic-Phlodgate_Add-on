@@ -114,6 +114,26 @@ caching regions briefly, and invalidating them after block edits. They do not re
 pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard zoom hooks; see
 `docs/Atlas-Compatibility-Report.md` and `fork-architecture-plan.md` for the complete compatibility analysis.
 
+## Pause menu quick-settings shortcut (JSON UI)
+
+Each resource pack variant also ships a `ui/pause_screen.json` override that appends one small, self-contained
+top-right shortcut button to the vanilla pause menu, using the documented JSON UI `"modifications"` array
+(`array_name: "controls"`, `operation: "insert_back"`) to append rather than replace vanilla content. The
+button reuses the real vanilla `button.menu_settings` action ID and the real vanilla `menu.settings` localized
+label, so it opens the actual Settings screen — it does not invent new behavior. Registered via `ui/_ui_defs.json`
+(`"ui_defs": ["ui/hud_screen.json", "ui/pause_screen.json"]`) in each pack.
+
+**Why not more (custom action buttons in the Inventory/Pause screens)**: JSON UI's `"modifications"`
+mechanism can insert, move, or delete vanilla UI controls, and community tools such as `jsonforge`,
+`EasyUIBuilder`, and `json-ui-examples` help author that markup. None of them expose a way for a JSON UI
+button press to invoke `@minecraft/server` script code — the Script API has no event for an arbitrary custom
+UI button click. A button wired into `inventory_screen.json`/`pause_screen.json` can therefore only trigger an
+**existing** vanilla action (as `bedrock-ui-tweaks` demonstrates by relocating/deleting vanilla buttons), never
+our mass-craft, quick-transfer, or optimization logic. Shipping a button labeled for one of those features that
+silently does nothing (or silently does something else) would violate this project's no-fake-behavior policy,
+so the add-on continues to expose those features through the Hydraulic Control Room item and the Field Map item
+instead, both of which are genuine server-initiated `ActionFormData`/`ModalFormData` forms.
+
 ## HUD corner overlay (JSON UI)
 
 All HUD text (minimap radar, compass, food, durability) is written through `player.onScreenDisplay.setActionBar(...)`

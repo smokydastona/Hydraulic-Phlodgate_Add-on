@@ -16,6 +16,17 @@ inputs, not code or asset dependencies:
   existing operator gates, machine inspector, quick transfer, and recipe workbench.
 - `jsonforge`, `mcbe-ts-ui`, `mcbe-ui-codex`, and `Ore-UI-Types` inform UI schema and version discipline without
   introducing undocumented Ore UI commands or a second UI runtime.
+- `LeGend077/json-ui-examples`, `GoldRush-developpement/EasyUIBuilder`, and `depressed-pho/bedrock-ui-tweaks`
+  confirm the documented `"modifications"` array (`array_name`/`operation`/`value`) is real and safe for
+  appending or relocating vanilla `pause_screen.json`/`inventory_screen.json` controls. None of them, nor
+  `mojang/bedrock-samples`, expose a way for a JSON UI button press to invoke `@minecraft/server` script code:
+  the Script API has no event for an arbitrary custom UI button click. A button injected into those vanilla
+  screens can therefore only be wired to an **existing** vanilla button ID (e.g. `button.menu_settings`), never
+  to this add-on's mass-craft, quick-transfer, inspector, or optimization logic. The add-on ships one small,
+  genuinely functional shortcut button of that kind (a `pause_screen.json` top-right button that reuses the
+  real `button.menu_settings` action and the real `menu.settings` label) and otherwise keeps its actual feature
+  surface behind the Hydraulic Control Room and Field Map items, which are real server-initiated
+  `ActionFormData`/`ModalFormData` forms rather than vanilla-screen button hacks.
 - `Block-Workbench`, `Mods-pemc`, `MCVault`, `Bedrock-Nexus`, `OruuCreations`, and the Calagopus editor establish
   desktop/network/file-system product boundaries that are explicitly excluded from this behavior-pack runtime.
 - `BetterBedrockMenus`, `Bedrock-Java-ChibiArtAssets`, `assets-plus`, `MiniX`, `pixel-asset-master-skills`,
