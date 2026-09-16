@@ -8,6 +8,7 @@ import { registerOptimizationEventTracking, startOptimizationEngine } from "./fe
 import { startItemMerging } from "./features/optimization/ItemMerge";
 import { startFogController, clearFogTrackingForPlayer } from "./features/fog/FogController";
 import { startCompanionDetector } from "./features/companion/CompanionRuntime";
+import { registerCompanionPetSystem } from "./features/companion/CompanionPetRuntime";
 import { invalidateTerrainCache } from "./features/minimap/TerrainSampler";
 import { log } from "./util/Logger";
 
@@ -74,5 +75,6 @@ startOptimizationEngine();
 startItemMerging();
 startFogController();
 startCompanionDetector();
+registerCompanionPetSystem();
 
 log("Phlodgate Add-On initialized.");

@@ -1,0 +1,34 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_wolf",
+      "materials": { "default": "wolf" },
+      "textures": {
+        "default": "textures/entity/wolf/wolf_tame"
+      },
+      "geometry": { "default": "geometry.wolf" },
+      "animations": {
+        "wolf_setup": "animation.wolf.setup",
+        "wolf_look_at": "animation.common.look_at_target",
+        "wolf_head_rot_z": "animation.wolf.head_rot_z",
+        "wolf_tail_default": "animation.wolf.tail_default",
+        "wolf_angry": "animation.wolf.angry",
+        "wolf_sitting": "animation.wolf.sitting",
+        "wolf_shaking": "animation.wolf.shaking",
+        "wolf_leg_default": "animation.wolf.leg_default"
+      },
+      "animation_controllers": [
+        { "wolf_setup": "controller.animation.wolf.setup" },
+        { "wolf_look_at": "controller.animation.wolf.look_at" },
+        { "wolf_head_rot_z": "controller.animation.wolf.head_rot_z" },
+        { "wolf_tail_default": "controller.animation.wolf.tail_default" },
+        { "wolf_angry": "controller.animation.wolf.angry" },
+        { "wolf_sitting": "controller.animation.wolf.sitting" },
+        { "wolf_shaking": "controller.animation.wolf.shaking" }
+      ],
+      "render_controllers": ["controller.render.wolf.v2"],
+      "enable_attachables": true
+    }
+  }
+}

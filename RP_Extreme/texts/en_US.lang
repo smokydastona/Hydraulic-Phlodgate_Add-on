@@ -1,2 +1,7 @@
 pack.name=Phlodgate Add-On - Extreme Visuals
 pack.description=Optional maximum-performance visual preset for low-end devices. Enable instead of the default resource pack.
+
+entity.phlodgate:companion_wolf.name=Companion Wolf
+entity.phlodgate:companion_cat.name=Companion Cat
+entity.phlodgate:companion_fox.name=Companion Fox
+

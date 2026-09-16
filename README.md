@@ -114,6 +114,39 @@ caching regions briefly, and invalidating them after block edits. They do not re
 pixel renderer, map-color lookup, mesh rendering, camera clipping, or keyboard zoom hooks; see
 `docs/Atlas-Compatibility-Report.md` and `fork-architecture-plan.md` for the complete compatibility analysis.
 
+## Bound companion pet (Control Room access point)
+
+On a player's first spawn in the world, a form lets them choose a bound companion — **Wolf**, **Cat**, or
+**Fox** (`src/features/companion/CompanionPetPlan.ts`, `CompanionPetRuntime.ts`). The companion is:
+
+- **Invulnerable**: a custom entity `minecraft:damage_sensor` rule (`cause: "all"`, `deals_damage: "no"`) plus
+  `minecraft:fire_immune` block essentially all damage at the entity-definition level, and
+  `world.beforeEvents.entityHurt` additionally cancels any hurt event targeting it as a script-side backstop.
+- **Completely neutral**: it has no attack, target-acquisition, or owner-defense behaviors of any kind — only
+  following, sitting, and looking at the player, so it can never become hostile.
+- **Bound to the player**: tamed to its owner via the real `minecraft:tameable` component's `tame()` API at
+  spawn, tagged and dynamic-property-linked to the owner's player id, and only that owner can interact with it
+  (`world.beforeEvents.playerInteractWithEntity` cancels the interaction for anyone else).
+- **Sits/stays exactly like a vanilla dog/cat**: it keeps the real `minecraft:tameable` + `minecraft:sittable` +
+  `minecraft:behavior.stay_while_sitting` components, so a plain click toggles sit/stand through the same
+  native engine interaction vanilla tamed mobs use — nothing is reimplemented or faked.
+- **Opens the Hydraulic Control Room on shift+click**: the owner's sneak-click is detected and cancels the
+  default interaction (so it doesn't also toggle sit) before calling the same `openHydraulicControlRoom()` used
+  by the Control Room Remote item.
+- **Immortal in practice**: even if something removes it outside of normal damage (e.g. an operator command),
+  `world.afterEvents.entityDie` respawns an identical companion near its owner a couple seconds later.
+
+Each species (`BP/entities/companion_wolf.json`, `companion_cat.json`, `companion_fox.json`) is a **custom**
+Phlodgate entity, not a reskinned/overridden vanilla wolf/cat/fox — overriding `minecraft:wolf` directly would
+also change every wild wolf in the world. Its client-side look and animations
+(`RP*/entity/companion_*.json`) reuse the corresponding vanilla mob's real geometry/texture/animation/render
+controller **identifiers** (e.g. `geometry.wolf`, `controller.render.wolf.v2`, `textures/entity/wolf/wolf_tame`)
+exactly like `mojang/bedrock-samples`' own entity files do — this references the game's built-in vanilla assets
+at runtime and does not copy or redistribute any texture/model/animation file.
+
+See the "Companion pet research findings" section of `fork-architecture-plan.md` for the full compatibility
+report against the eight external repositories reviewed for this feature.
+
 ## Pause menu quick-settings shortcut (JSON UI)
 
 Each resource pack variant also ships a `ui/pause_screen.json` override that appends one small, self-contained

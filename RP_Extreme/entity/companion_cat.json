@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "phlodgate:companion_cat",
+      "materials": { "default": "cat" },
+      "textures": {
+        "default": "textures/entity/cat/tabby_tame"
+      },
+      "geometry": { "default": "geometry.cat" },
+      "animations": {
+        "sneak": "animation.cat.sneak",
+        "walk": "animation.cat.walk",
+        "sprint": "animation.cat.sprint",
+        "sit": "animation.cat.sit",
+        "look_at_target": "animation.common.look_at_target",
+        "lie_down": "animation.cat.lie_down"
+      },
+      "animation_controllers": [
+        { "look_at_target": "controller.animation.cat.look_at_target" },
+        { "move": "controller.animation.cat.move" }
+      ],
+      "render_controllers": ["controller.render.cat.v2"]
+    }
+  }
+}

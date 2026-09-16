@@ -33,6 +33,44 @@ inputs, not code or asset dependencies:
   `PixelSRPG-Forge`, `ClawLibrary`, and `pixel-asset-gen` establish the menu/catalog, provenance, and
   deterministic-asset boundaries recorded in `docs/Asset-Compatibility-Report.md`.
 
+## Companion pet research findings
+
+Eight repositories were reviewed as reference input for the bound companion pet feature (a per-player pet that
+sits/stays like a vanilla tamed mob and shift-click opens the Hydraulic Control Room):
+
+| Repository | Platform | Applicability |
+|---|---|---|
+| `Shynixn/PetBlocks` | Bukkit/Paper Java plugin | Not portable: entirely different server platform/API (Bukkit `Entity`/`NBT`/packet layer), no Bedrock Script API equivalent. Reviewed only for the general "per-player bound pet + GUI" concept, which this feature reimplements natively. |
+| `TaqdeesHigh/Pets` | Bukkit/Paper Java plugin | Same as above — Java server plugin, not applicable to a Bedrock Behavior Pack. |
+| `fish2lab/tlm-codex-pet` | Bukkit/Paper Java plugin | Same as above. |
+| `billeyzambie/PracticalPets` | Bukkit/Paper Java plugin | Same as above. |
+| `Nocsy-Workshop/mcpets` | Bukkit/Paper Java plugin | Same as above. |
+| `CuteMobModels-Team/CuteMobModels-BE` | Bedrock resource pack (fan mob models) | Right platform, but its models/textures are original third-party art assets with their own license terms; not vendored. Confirms custom Bedrock entities are the correct mechanism, which this feature already uses. |
+| `kirbycope/Minecraft-Earth-Mobs-Bedrock` | Bedrock resource pack (fan recreation) | Recreates character designs from Mojang's Minecraft Earth; provenance/license of the derived designs is not clear enough to vendor. Not used. |
+| `kirbycope/Minecraft-Legends-Mobs-Bedrock` | Bedrock resource pack (fan recreation) | Recreates character designs from Mojang's Minecraft Legends; same provenance concern as above. Not used. |
+
+**None of the five Java plugins are portable in any form**: Bukkit/Paper's `org.bukkit.entity.Entity`,
+NBT access, and packet APIs have no counterpart in `@minecraft/server`, and the runtime (a Java server JVM
+process) is a different product entirely from a Bedrock Behavior Pack. Their *concepts* (bind a tamed mob to a
+player, invulnerable, right-click opens a menu) are exactly what this feature implements, just built from
+scratch against the real Bedrock APIs verified in `node_modules/@minecraft/server/index.d.ts` for this project's
+pinned `@minecraft/server@2.9.0`.
+
+**The three Bedrock-specific repositories** confirmed custom entity definitions are the right mechanism, but
+their actual model/texture assets were not used: fan-made recreations of Mojang's Minecraft Earth/Legends
+character designs carry unclear redistribution rights for those specific derived designs, and this project's
+asset policy (`docs/Asset-Compatibility-Report.md`) already excludes extracted/mixed-license art. Instead, the
+shipped companion entities (`phlodgate:companion_wolf/cat/fox`) reference the **existing vanilla**
+wolf/cat/fox geometry, textures, and animation/render controllers by identifier only — the same technique
+`mojang/bedrock-samples` itself uses — which needs no new art assets and carries no licensing ambiguity.
+
+**Implementation delivered**: custom, fully neutral, invulnerable, owner-bound companion entities for Wolf,
+Cat, and Fox; a first-spawn species-choice form; native vanilla-identical sit/stand toggling via
+`minecraft:tameable`/`minecraft:sittable`; shift-click routing to `openHydraulicControlRoom()`; layered
+invulnerability (`minecraft:damage_sensor` + `minecraft:fire_immune` + a script-side `entityHurt` cancellation);
+and an `entityDie` respawn safety net. See the README's "Bound companion pet" section for the full behavior
+breakdown and `src/features/companion/CompanionPetPlan.ts`/`CompanionPetRuntime.ts` for the implementation.
+
 ## Current architecture
 
 1. `MinimapMath.ts` owns deterministic radar bearings, cardinal rotation, nearest-marker ordering, and radius filtering.
@@ -44,6 +82,9 @@ inputs, not code or asset dependencies:
 7. `FormRuntime.ts` owns bounded busy-form retry and terminal error logging; `FormValidation.ts` owns pure response validation.
 8. `RecipeRegistry.ts` owns the stable recipe catalog; `RecipeForms.ts` provides category navigation, bounded pages, search, and mass-craft entry points.
 9. `MenuCatalog.ts` owns Control Room route metadata, operator visibility, validation, and action-form bounds.
+10. `CompanionPetPlan.ts` owns the companion species catalog, interaction-decision logic, and spawn-placement
+    math (pure/unit-tested); `CompanionPetRuntime.ts` wires it to spawning, taming, interaction routing,
+    damage cancellation, and the death-safety-net respawn.
 
 ## Fork boundaries
 

@@ -1,2 +1,6 @@
 pack.name=Phlodgate Add-On
 pack.description=JEI-style inventory, waypoints, food/durability HUDs, optimization and fog controls.
+
+entity.phlodgate:companion_wolf.name=Companion Wolf
+entity.phlodgate:companion_cat.name=Companion Cat
+entity.phlodgate:companion_fox.name=Companion Fox
